@@ -1,0 +1,853 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KALOS · CALISTHENICS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Cinzel:wght@700;900&display=swap');
+:root{
+  --bg:#020308;--panel:rgba(6,12,28,.9);--border:#143a72;--blue:#00a8ff;--blue2:#0066ff;
+  --violet:#8b3dff;--violet2:#b66dff;--cyan:#00ffd5;--text:#cfe6ff;--muted:#46688f;
+  --gold:#ffc14d;--success:#00ffaa;--danger:#ff3355;
+  --pull:#00a8ff;--push:#ff7a2e;--balance:#b66dff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:radial-gradient(ellipse at 50% -10%,#0a1030,var(--bg) 60%);color:var(--text);
+  font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(60,80,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(60,80,255,.03) 1px,transparent 1px);
+  background-size:46px 46px;animation:gridP 9s ease-in-out infinite}
+@keyframes gridP{0%,100%{opacity:.5}50%{opacity:1}}
+#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+.scanline{position:fixed;left:0;right:0;top:-3px;height:3px;z-index:60;opacity:.3;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--violet),var(--blue),transparent);animation:scan 7s linear infinite}
+@keyframes scan{0%{top:-3px;opacity:0}6%{opacity:.3}94%{opacity:.3}100%{top:100vh;opacity:0}}
+
+/* blue flames at bottom (homage to original) */
+.flames{position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:1;pointer-events:none;opacity:.55}
+.flame{position:absolute;bottom:0;width:60px;height:120px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  background:radial-gradient(ellipse at 50% 100%,rgba(0,200,255,.6),rgba(0,90,255,.25) 50%,transparent 75%);
+  filter:blur(6px);animation:flick 3s ease-in-out infinite}
+@keyframes flick{0%,100%{transform:scaleY(1) translateY(0);opacity:.6}50%{transform:scaleY(1.18) translateY(-10px);opacity:.95}}
+
+/* ============ INTRO (onboarding) ============ */
+#intro{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px 60px;
+  background:radial-gradient(ellipse at 50% 0%,#0a1030,#010206 70%);overflow-y:auto}
+#intro.hide{display:none}
+.step{width:min(560px,95vw);display:none;animation:stepIn .5s cubic-bezier(.2,1.2,.4,1)}
+.step.active{display:block}
+@keyframes stepIn{from{opacity:0;transform:translateY(18px) scale(.97);filter:blur(4px)}to{opacity:1;transform:none;filter:blur(0)}}
+
+.sys-card{position:relative;background:linear-gradient(160deg,rgba(4,12,34,.97),rgba(8,6,30,.97));
+  border:1px solid rgba(0,168,255,.8);box-shadow:0 0 28px rgba(0,140,255,.4),0 0 80px rgba(90,40,255,.25),inset 0 0 50px rgba(0,80,255,.05);
+  padding:28px 30px;
+  clip-path:polygon(18px 0,calc(100% - 18px) 0,100% 18px,100% calc(100% - 18px),calc(100% - 18px) 100%,18px 100%,0 calc(100% - 18px),0 18px)}
+.sys-corner{position:absolute;width:16px;height:16px}
+.sys-corner.tl{top:6px;right:6px;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan)}
+.sys-corner.tr{top:6px;left:6px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}
+.sys-corner.bl{bottom:6px;right:6px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan)}
+.sys-corner.br{bottom:6px;left:6px;border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan)}
+.sys-title{font-family:'Cinzel',serif;font-weight:900;font-size:24px;letter-spacing:.22em;color:#eaf6ff;text-align:center;
+  text-shadow:0 0 18px var(--blue),0 0 40px var(--violet);margin-bottom:4px;text-transform:uppercase}
+.sys-diamonds{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px}
+.diamond{width:9px;height:9px;background:var(--blue);transform:rotate(45deg);box-shadow:0 0 12px var(--blue);animation:dia 1.6s ease-in-out infinite}
+@keyframes dia{0%,100%{box-shadow:0 0 10px var(--blue)}50%{box-shadow:0 0 22px var(--blue),0 0 40px var(--violet)}}
+.sys-divider{height:1px;margin:14px 0;background:linear-gradient(90deg,transparent,rgba(0,168,255,.7),var(--violet),rgba(0,168,255,.7),transparent)}
+.sys-line{font-size:15px;line-height:1.9;color:#dcecff;text-align:center}
+.sys-line em{font-style:normal;color:var(--cyan);font-weight:700;text-shadow:0 0 10px rgba(0,255,213,.6)}
+.sys-line .v{color:var(--violet2);font-weight:700}
+.boot{font-family:'Share Tech Mono',monospace;font-size:13px;color:#5f9fdf;line-height:2;min-height:200px;letter-spacing:.05em}
+.boot .ok{color:var(--success)}.boot .vio{color:var(--violet2)}
+.boot-line{opacity:0;animation:bi .12s forwards}@keyframes bi{to{opacity:1}}
+.cursor{display:inline-block;width:8px;height:14px;background:var(--blue);animation:bl .7s steps(1) infinite;vertical-align:middle}
+@keyframes bl{50%{opacity:0}}
+
+.field{margin:16px 0}
+.field label{display:block;font-size:14px;font-weight:700;margin-bottom:7px;color:#dff0ff;letter-spacing:.03em}
+.field input,.field select{width:100%;background:rgba(3,8,22,.92);border:1px solid var(--border);color:var(--text);
+  padding:11px 13px;font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:all .2s;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.field input:focus,.field select:focus{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,255,213,.2)}
+.opt{display:flex;align-items:center;gap:10px;padding:10px 13px;margin:6px 0;cursor:pointer;
+  border:1px solid var(--border);background:rgba(6,12,28,.55);font-size:14px;font-weight:600;transition:all .18s;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.opt:hover{border-color:rgba(0,168,255,.5);background:rgba(0,120,255,.08)}
+.opt.sel{border-color:var(--cyan);background:rgba(0,255,213,.08);color:#fff;box-shadow:0 0 14px rgba(0,255,213,.2)}
+.opt .dot{width:14px;height:14px;border:1px solid var(--cyan);flex-shrink:0;transform:rotate(45deg);transition:all .2s}
+.opt.sel .dot{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.qblock{border:1px solid rgba(0,168,255,.25);background:rgba(2,6,18,.55);padding:14px;margin:12px 0;
+  clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px)}
+.qblock h3{font-family:'Orbitron',monospace;font-size:13px;color:#cfe9ff;margin-bottom:8px;letter-spacing:.05em}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .opt{flex:1;min-width:90px;justify-content:center}
+.hidden{display:none}
+.btn{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:.12em;padding:13px 22px;cursor:pointer;
+  text-transform:uppercase;transition:all .2s;width:100%;margin-top:18px;
+  background:rgba(0,168,255,.12);border:1px solid var(--cyan);color:#eafff9;box-shadow:0 0 16px rgba(0,255,213,.2);
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.btn:hover{background:rgba(0,255,213,.22);box-shadow:0 0 26px rgba(0,255,213,.4);color:#fff}
+.btn.ghost{background:transparent;border-color:var(--border);color:var(--muted);box-shadow:none;width:auto;margin-top:0;padding:10px 20px}
+
+/* level reveal */
+.reveal-num{font-family:'Orbitron',monospace;font-weight:900;font-size:84px;line-height:1;color:#fff;text-align:center;
+  text-shadow:0 0 30px var(--violet),0 0 70px var(--blue);animation:revealPop 1s cubic-bezier(.2,1.5,.3,1)}
+@keyframes revealPop{0%{transform:scale(.3);opacity:0;filter:blur(10px)}60%{filter:blur(0)}100%{transform:scale(1);opacity:1}}
+.reveal-title{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);text-align:center;margin-top:6px;text-shadow:0 0 14px rgba(255,193,77,.5)}
+
+/* ============ APP (tree) ============ */
+#app{display:none}
+#app.show{display:block}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+  gap:14px;padding:14px 22px;background:rgba(2,4,12,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+.title{font-family:'Cinzel',serif;font-weight:900;font-size:22px;letter-spacing:.18em;color:#eaf6ff;text-shadow:0 0 16px var(--blue),0 0 36px var(--violet)}
+.player{display:flex;align-items:center;gap:14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)}
+.lvl-badge{font-family:'Orbitron',monospace;font-weight:900;font-size:15px;color:#fff;text-shadow:0 0 14px var(--violet)}
+.xp-wrap{width:150px}
+.xp-track{height:7px;background:rgba(10,30,70,.6);overflow:hidden;clip-path:polygon(3px 0,100% 0,calc(100% - 3px) 100%,0 100%)}
+.xp-fill{height:100%;background:linear-gradient(90deg,#0066ff,#00a8ff,#8b3dff);box-shadow:0 0 12px rgba(0,140,255,.6);transition:width .6s}
+.admin-btn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);background:transparent;
+  border:1px solid var(--border);padding:6px 10px;cursor:pointer;letter-spacing:.1em;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.admin-btn:hover{color:var(--cyan);border-color:var(--cyan)}
+.admin-btn.on{color:var(--gold);border-color:var(--gold);text-shadow:0 0 8px var(--gold)}
+
+.tabs{display:flex;gap:10px;justify-content:center;padding:16px;flex-wrap:wrap;position:relative;z-index:10}
+.tab{font-family:'Orbitron',monospace;font-weight:700;font-size:13px;letter-spacing:.1em;padding:11px 24px;cursor:pointer;
+  color:var(--muted);background:rgba(6,12,28,.7);border:1px solid var(--border);transition:all .2s;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.tab .cnt{font-family:'Share Tech Mono',monospace;font-size:10px;opacity:.7}
+.tab[data-tree=pull].active{color:#fff;border-color:var(--pull);box-shadow:0 0 20px rgba(0,168,255,.35);background:rgba(0,100,255,.12)}
+.tab[data-tree=push].active{color:#fff;border-color:var(--push);box-shadow:0 0 20px rgba(255,122,46,.35);background:rgba(255,90,20,.12)}
+.tab[data-tree=balance].active{color:#fff;border-color:var(--balance);box-shadow:0 0 20px rgba(150,90,255,.4);background:rgba(120,50,255,.12)}
+
+.tree-head{text-align:center;margin-bottom:6px}
+.tree-name{font-family:'Cinzel',serif;font-weight:900;font-size:26px;letter-spacing:.1em}
+.tree-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.18em;margin-top:4px}
+.tree-locked-banner{margin:14px auto;max-width:420px;border:1px solid rgba(255,51,85,.4);background:rgba(255,51,85,.06);
+  padding:12px 16px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff8099;line-height:1.7}
+.path{position:relative;z-index:10;max-width:520px;margin:10px auto 150px;padding:20px 0 60px;display:flex;flex-direction:column;align-items:center;gap:34px}
+
+.node{position:relative;width:104px;height:104px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;transition:transform .2s}
+.node:hover{transform:scale(1.06)}
+.node .disc{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;position:relative;border:3px solid;transition:all .3s}
+.node .label{font-size:12px;font-weight:600;text-align:center;line-height:1.15;max-width:130px;color:var(--text)}
+.node.locked .disc{background:rgba(20,28,44,.6);border-color:#26405f;color:#3a5474}
+.node.locked .label{color:var(--muted)}
+.node.avail .disc{border-color:var(--cyan);color:#eafff9;background:radial-gradient(circle at 40% 35%,rgba(0,255,213,.3),rgba(0,80,120,.3));
+  box-shadow:0 0 22px rgba(0,255,213,.55),0 0 50px rgba(0,200,170,.25);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 18px rgba(0,255,213,.5)}50%{box-shadow:0 0 34px rgba(0,255,213,.85),0 0 60px rgba(0,200,170,.4)}}
+.node.done .disc{border-color:var(--success);color:#001a10;background:radial-gradient(circle at 40% 35%,#7dffce,#00cc88);box-shadow:0 0 22px rgba(0,255,170,.6)}
+.node.done .label{color:var(--success)}
+.connector{width:4px;height:34px;margin-top:-34px;border-radius:2px;background:repeating-linear-gradient(180deg,var(--border) 0 6px,transparent 6px 12px)}
+.connector.done{background:linear-gradient(180deg,var(--success),var(--cyan));box-shadow:0 0 10px var(--success)}
+.path[data-tree=pull] .node.avail .disc{border-color:var(--pull);box-shadow:0 0 22px rgba(0,168,255,.55)}
+.path[data-tree=push] .node.avail .disc{border-color:var(--push);box-shadow:0 0 22px rgba(255,122,46,.55)}
+.path[data-tree=balance] .node.avail .disc{border-color:var(--balance);box-shadow:0 0 22px rgba(150,90,255,.55)}
+
+/* modal */
+.backdrop{position:fixed;inset:0;z-index:100;background:rgba(0,0,8,.8);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
+.backdrop.show{display:flex}
+.modal{width:min(440px,94vw);background:linear-gradient(160deg,rgba(6,14,36,.98),rgba(10,8,32,.98));
+  border:1px solid rgba(0,168,255,.7);box-shadow:0 0 30px rgba(0,140,255,.4),0 0 80px rgba(90,40,255,.25);padding:24px;position:relative;
+  animation:pop .35s cubic-bezier(.2,1.4,.4,1);
+  clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 16px,100% calc(100% - 16px),calc(100% - 16px) 100%,16px 100%,0 calc(100% - 16px),0 16px)}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h2{font-family:'Orbitron',monospace;font-size:18px;color:#eaf6ff;text-shadow:0 0 14px var(--blue);margin-bottom:4px;text-align:center}
+.modal .m-icon{font-size:40px;text-align:center;margin-bottom:8px}
+.modal .m-desc{font-size:14px;line-height:1.6;color:var(--text);margin:10px 0;text-align:center}
+.modal .m-cond{border:1px solid rgba(0,168,255,.3);background:rgba(0,100,255,.06);padding:11px 14px;margin:12px 0;font-size:13px;line-height:1.6;text-align:center}
+.modal .m-cond b{color:var(--cyan)}
+.m-req{font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff8099;text-align:center;line-height:1.8;margin:10px 0}
+.m-btns{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.mbtn{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:.1em;padding:11px 20px;cursor:pointer;text-transform:uppercase;transition:all .2s;border:1px solid var(--border);background:transparent;color:var(--muted);
+  clip-path:polygon(9px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px)}
+.mbtn:hover{color:var(--text);border-color:var(--muted)}
+.mbtn-go{background:rgba(0,255,170,.12);border-color:var(--success);color:var(--success)}
+.mbtn-go:hover{background:rgba(0,255,170,.22);color:#fff}
+.mbtn-photo{background:rgba(0,168,255,.1);border-color:var(--blue);color:#bfe6ff}
+.photo-prev{max-width:100%;max-height:160px;margin:10px auto 0;display:block;border:1px solid var(--border)}
+
+#flash{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;pointer-events:none;background:radial-gradient(circle,rgba(110,40,255,.2),transparent 65%)}
+#flash.show{display:flex}
+#flash .t{font-family:'Cinzel',serif;font-size:clamp(36px,8vw,84px);font-weight:900;letter-spacing:.16em;color:#fff;text-shadow:0 0 30px var(--violet),0 0 80px var(--blue);animation:lvl 1.6s cubic-bezier(.2,1.5,.3,1) forwards}
+@keyframes lvl{0%{transform:scale(.4);opacity:0}25%{transform:scale(1.08);opacity:1}80%{transform:scale(1);opacity:1}100%{transform:scale(1.15);opacity:0}}
+.back-link{position:fixed;bottom:16px;right:16px;z-index:30;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:8px 12px;background:rgba(6,12,28,.8);display:none}
+.back-link:hover{color:var(--cyan);border-color:var(--cyan)}
+.back-link.visible{display:block}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:linear-gradient(var(--border),rgba(110,50,255,.5))}
+/* daily workout */
+#workout{max-width:560px;margin:6px auto 150px;padding:0 14px}
+.wk-block{border:1px solid var(--border);background:rgba(6,12,28,.6);margin:14px 0;padding:14px 16px;
+  clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px)}
+.wk-h{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:.08em;color:#dff0ff;
+  margin-bottom:12px;text-shadow:0 0 10px rgba(0,168,255,.4);border-bottom:1px solid rgba(0,168,255,.2);padding-bottom:8px}
+.wk-ex{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 12px;margin:7px 0;
+  background:rgba(2,6,18,.6);border:1px solid rgba(0,168,255,.15);font-size:14px;font-weight:600;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.wk-ex.skill{cursor:pointer;border-color:rgba(0,255,213,.35);background:linear-gradient(90deg,rgba(0,255,213,.06),rgba(0,80,120,.04))}
+.wk-ex.skill:hover{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,255,213,.2)}
+.wk-ex.done{opacity:.6;color:var(--success)}
+.wk-ex-name{font-size:14px;color:#eafff9}
+.wk-ex-sub{font-size:11px;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-top:2px}
+.wk-sets{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);white-space:nowrap;text-align:left}
+.wk-rest{text-align:center;padding:30px 20px;font-size:16px;line-height:1.8;color:var(--text);
+  border:1px solid rgba(150,90,255,.3);background:rgba(120,50,255,.06);margin:20px 0;
+  clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px)}
+.wk-empty{font-size:13px;color:var(--muted);line-height:1.7;text-align:center;padding:8px}
+.tab[data-tree=workout].active{color:#fff;border-color:var(--gold);box-shadow:0 0 20px rgba(255,193,77,.35);background:rgba(255,193,77,.1)}
+.goal-star{position:absolute;top:6px;left:6px;font-size:16px;filter:drop-shadow(0 0 6px var(--gold))}
+.mbtn-goal{background:rgba(255,193,77,.12);border-color:var(--gold);color:var(--gold)}
+.vid-box{margin:10px 0;text-align:center}
+.vid-box a{color:var(--cyan);font-size:13px;text-decoration:none;border-bottom:1px dotted var(--cyan)}
+.note-box{margin:8px 0;text-align:center}
+.note-text{font-size:13px;color:var(--text);background:rgba(255,193,77,.06);border:1px solid rgba(255,193,77,.22);border-radius:4px;padding:9px 11px;line-height:1.55;text-align:right;margin-bottom:6px}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="scanline"></div>
+<div class="flames" id="flames"></div>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div id="authScreen" style="position:fixed;inset:0;z-index:300;background:radial-gradient(ellipse at 50% -10%,#0a1030,#010206 70%);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto">
+  <div style="width:min(420px,96vw)">
+    <!-- logo -->
+    <div style="text-align:center;margin-bottom:24px">
+      <svg width="38" height="43" viewBox="0 0 64 72" style="filter:drop-shadow(0 0 10px var(--cyan))"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>
+      <div style="font-family:'Cinzel',serif;font-weight:900;font-size:32px;letter-spacing:.2em;background:linear-gradient(90deg,var(--cyan),var(--blue),var(--violet2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-top:6px">KALOS</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.35em;color:var(--muted);margin-top:4px">CALISTHENICS SYSTEM</div>
+    </div>
+    <!-- card -->
+    <div class="sys-card" style="padding:26px 28px">
+      <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
+      <!-- tabs -->
+      <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)">
+        <div id="tabLogin" onclick="authTab('login')" style="flex:1;text-align:center;padding:10px;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-left:2px solid var(--cyan)">כניסה</div>
+        <div id="tabReg" onclick="authTab('register')" style="flex:1;text-align:center;padding:10px;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)">הרשמה</div>
+      </div>
+      <!-- name (register only) -->
+      <div id="authNameWrap" class="field hidden"><label>שם פרטי</label><input id="authName" type="text" placeholder="אלעד"></div>
+      <!-- email + password -->
+      <div class="field"><label>אימייל</label><input id="authEmail" type="email" placeholder="you@email.com" dir="ltr"></div>
+      <div class="field"><label>סיסמא</label><input id="authPass" type="password" placeholder="לפחות 6 תווים" dir="ltr" onkeydown="if(event.key==='Enter')submitAuth()"></div>
+      <div id="authErr" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger);text-align:center;min-height:18px;margin:4px 0 10px"></div>
+      <button class="btn" onclick="submitAuth()" id="authSubmitBtn" style="margin-top:4px">כניסה ›</button>
+    </div>
+    <div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:14px;letter-spacing:.1em">המידע נשמר באופן מקומי · KALOS © ELAD GOLDSHTEIN</div>
+  </div>
+</div>
+
+<!-- ============ INTRO ============ -->
+<div id="intro">
+  <!-- step 0: boot -->
+  <div class="step active" id="step0">
+    <div class="sys-card">
+      <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
+      <div class="boot" id="boot"></div>
+    </div>
+  </div>
+
+  <!-- step 1: registration -->
+  <div class="step" id="step1">
+    <div class="sys-card">
+      <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
+      <div class="sys-diamonds"><span class="diamond"></span><span class="sys-title">PLAYER REGISTRATION</span><span class="diamond"></span></div>
+      <div class="sys-divider"></div>
+      <div class="field"><label>שם פרטי</label><input id="r_first" type="text" placeholder="אלעד"></div>
+      <div class="field"><label>שם משפחה</label><input id="r_last" type="text" placeholder="גולדשטיין"></div>
+      <div class="field"><label>גיל</label><input id="r_age" type="number" min="1" placeholder="16"></div>
+      <div class="field"><label>מין</label>
+        <select id="r_gender"><option value="">בחר…</option><option>זכר</option><option>נקבה</option></select></div>
+      <button class="btn" onclick="goStep(2)">המשך למבחן הרמה ›</button>
+    </div>
+  </div>
+
+  <!-- step 2: level selection only -->
+  <div class="step" id="step2">
+    <div class="sys-card">
+      <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
+      <div class="sys-diamonds"><span class="diamond"></span><span class="sys-title">ABILITY SCAN</span><span class="diamond"></span></div>
+      <div class="sys-divider"></div>
+      <div style="font-size:15px;color:#dcecff;text-align:center;margin-bottom:18px;line-height:1.7">המערכת תסרוק את היכולות שלך.<br><span style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted)">בחר/י את הרמה הכי קרובה אליך:</span></div>
+      <div id="q_level"></div>
+    </div>
+  </div>
+
+  <!-- step 2b: questions for chosen level -->
+  <div class="step" id="step2b">
+    <div class="sys-card">
+      <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
+      <div class="sys-diamonds"><span class="diamond"></span><span class="sys-title" id="scanTitle">ABILITY SCAN</span><span class="diamond"></span></div>
+      <div class="sys-divider"></div>
+      <div id="basicQ"></div>
+      <div id="advQ"></div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+        <button class="btn ghost" onclick="goStep(2)" style="flex-shrink:0">‹ שנה רמה</button>
+        <button class="btn" id="quizSubmit" onclick="finishQuiz()">סיים את הסריקה ›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- step 3: level reveal -->
+  <div class="step" id="step3">
+    <div class="sys-card" style="text-align:center">
+      <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
+      <div class="sys-diamonds"><span class="diamond"></span><span class="sys-title">SYSTEM</span><span class="diamond"></span></div>
+      <div class="sys-divider"></div>
+      <div class="sys-line">המערכת ניתחה את היכולות שלך, <span class="v" id="rv_name">שחקן</span>.</div>
+      <div class="sys-line">דרגת הכניסה שלך נקבעה:</div>
+      <div class="reveal-num" id="rv_level">1</div>
+      <div class="reveal-title" id="rv_title">Beginner</div>
+      <div class="sys-line" style="font-size:13px;color:var(--muted);margin-top:10px">פתחנו לך אוטומטית את התרגילים שכבר כבשת. עכשיו — תעלה.</div>
+      <div class="sys-divider"></div>
+      <button class="btn" onclick="enterApp()">⚔ היכנס למסע ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <header>
+    <div class="title"><svg width="26" height="29" viewBox="0 0 64 72" style="vertical-align:-5px;margin-left:8px"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>KALOS</div>
+    <div class="player">
+      <span id="pName">PLAYER</span>
+      <span class="lvl-badge">LV.<span id="lvl">1</span></span>
+      <div class="xp-wrap"><div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div></div>
+      <button class="admin-btn" id="adminBtn" onclick="openAdmin()">🔒 קוד</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tree="workout" onclick="switchTree('workout')">🔥 אימון היום</div>
+    <div class="tab" data-tree="pull" onclick="switchTree('pull')">PULL · מתח <span class="cnt" id="cnt-pull"></span></div>
+    <div class="tab" data-tree="push" onclick="switchTree('push')">PUSH · דחיפה <span class="cnt" id="cnt-push"></span></div>
+    <div class="tab" data-tree="balance" onclick="switchTree('balance')">BALANCE · שיווי <span class="cnt" id="cnt-balance"></span></div>
+  </div>
+  <div class="tree-head" id="treeHead"><div class="tree-name" id="treeName">PULL</div><div class="tree-sub" id="treeSub"></div></div>
+  <div id="treeBanner"></div>
+  <div class="path" id="path" data-tree="pull"></div>
+  <div id="workout" class="hidden"></div>
+</div>
+
+<div class="backdrop" id="nodeBackdrop" onclick="if(event.target===this)closeModal()"><div class="modal" id="nodeModal"></div></div>
+<div class="backdrop" id="adminBackdrop" onclick="if(event.target===this)closeAdmin()">
+  <div class="modal"><div class="m-icon">🗝️</div><h2>קוד גישה</h2>
+    <div class="m-desc">הזן קוד מנהל כדי לפתוח את כל התרגילים.</div>
+    <div class="field"><input id="adminCode" type="text" inputmode="numeric" placeholder="• • • • • • • • •" onkeydown="if(event.key==='Enter')submitAdmin()"></div>
+    <div class="m-btns"><button class="mbtn" onclick="closeAdmin()">ביטול</button><button class="mbtn mbtn-go" onclick="submitAdmin()">אישור ›</button></div>
+  </div>
+</div>
+<div id="flash"><div class="t" id="flashText">LEVEL UP</div></div>
+<a class="back-link" href="javascript:goDashboard()">‹ חזרה ל-JARVIS</a>
+
+<script>
+/* ============================================================
+   AUTH SYSTEM
+   ============================================================ */
+const fromJarvis=new URLSearchParams(location.search).get('from')==='jarvis';
+
+function hashPass(p){let h=0;for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0;}return h.toString(36);}
+function userKey(email){return'kalos_tr_'+btoa(email).replace(/=/g,'');}
+function contentKey(email){return'kalos_cnt_'+btoa(email).replace(/=/g,'');}
+
+function getUsers(){return JSON.parse(localStorage.getItem('kalos_users')||'[]');}
+function saveUsers(u){localStorage.setItem('kalos_users',JSON.stringify(u));}
+
+let currentUser=null; // {email,name}
+
+function initAuth(){
+  if(fromJarvis){currentUser={email:'eladgo55@gmail.com',name:'אלעד'};sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));startApp('eladgo55@gmail.com');return;}
+  const sess=JSON.parse(sessionStorage.getItem('kalos_session')||'null');
+  if(sess){currentUser=sess;startApp(sess.email);return;}
+  document.getElementById('authScreen').style.display='flex';
+}
+
+let authMode='login';
+function authTab(mode){
+  authMode=mode;
+  const isReg=(mode==='register');
+  document.getElementById('tabLogin').style.cssText=!isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-left:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
+  document.getElementById('tabReg').style.cssText=isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-right:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
+  document.getElementById('authNameWrap').classList.toggle('hidden',!isReg);
+  document.getElementById('authSubmitBtn').textContent=isReg?'הרשמה ›':'כניסה ›';
+  document.getElementById('authErr').textContent='';
+}
+
+function submitAuth(){
+  const email=document.getElementById('authEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('authPass').value;
+  const name=document.getElementById('authName').value.trim();
+  const err=t=>{document.getElementById('authErr').textContent=t;};
+  if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
+  if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
+  const users=getUsers();
+  const hash=hashPass(pass);
+  if(authMode==='register'){
+    if(!name){err('הכנס שם פרטי');return;}
+    if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
+    const newUser={email,name,hash,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
+    users.push(newUser);saveUsers(users);
+    currentUser={email,name};
+    sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
+    document.getElementById('authScreen').style.display='none';
+    startApp(email);
+  }else{
+    const u=users.find(u=>u.email===email);
+    if(!u){err('אימייל לא נמצא — הרשם קודם');return;}
+    if(u.hash!==hash){err('סיסמא שגויה');return;}
+    u.lastActive=new Date().toISOString();saveUsers(users);
+    currentUser={email,name:u.name};
+    sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
+    document.getElementById('authScreen').style.display='none';
+    startApp(email);
+  }
+}
+
+function startApp(email){
+  document.getElementById('authScreen').style.display='none';
+  // load the right data keys for this user (or global if jarvis/no-email)
+  const tk=email?userKey(email):'jarvis_training';
+  const ck=email?contentKey(email):'jarvis_training_content';
+  window._TK=tk;window._CK=ck;
+  // re-init state + content with the right keys
+  state=JSON.parse(localStorage.getItem(tk)||'null')||{done:[],xp:0,level:1,admin:false,onboarded:false,profile:{}};
+  state.goals=state.goals||[];state.profile=state.profile||{};
+  state.admin=fromJarvis;
+  content=JSON.parse(localStorage.getItem(ck)||'null')||{videos:{},notes:{}};
+  content.videos=content.videos||{};content.notes=content.notes||{};
+  // boot
+  if(state.onboarded){
+    document.getElementById('intro').classList.add('hide');
+    document.getElementById('app').classList.add('show');
+    document.getElementById('pName').textContent='PLAYER · '+(state.profile.first||currentUser?.name||'שחקן');
+    switchTree('workout');
+  }else{runBoot();}
+}
+
+/* ============================================================
+   LEVEL UP — Calisthenics. Single-file onboarding + skill trees.
+   Consolidated from Elad's multi-page version (bugs fixed):
+   - no broken cross-file navigation (all in one file)
+   - single, real level/XP calculation (no level:1 TODO override)
+   - fixed inverted "competing" toggles, removed dead links
+   ============================================================ */
+
+const TREES={
+  pull:{name:'PULL · מתח',color:'var(--pull)',sub:'גב · ביצפס · פרונט לבר · יד אחת',nodes:[
+    {id:'p_hang',name:'תליה על המתח 30 שניות',icon:'🪢',desc:'בסיס האחיזה והכתף.',cond:'להחזיק תלייה 30 שניות.',req:[],xp:20,pre:'4×החזקת תלייה מקסימלית · מנוחה 60ש׳'},
+    {id:'p_scap',name:'משיכות סקפולה',icon:'🔧',desc:'הפעלת שכמות — היסוד לכל משיכה.',cond:'10 משיכות סקפולה.',req:['p_hang'],xp:20,pre:'4×8 משיכות סקפולה איטיות'},
+    {id:'p_rows',name:'מתח אוסטרלי (Row)',icon:'↔️',desc:'משיכה אופקית — בונה בסיס למתח.',cond:'15 מתח אוסטרלי נקיים.',req:['p_scap'],xp:25,pre:'4×10-12 · ככל שהגוף אופקי יותר — קשה יותר'},
+    {id:'p_neg',name:'מתח שלילי',icon:'⬇️',desc:'ירידה איטית ומבוקרת.',cond:'5 ירידות (3+ שניות).',req:['p_rows'],xp:25,pre:'5×3 ירידות איטיות (5 שניות כל אחת)'},
+    {id:'p_pull1',name:'המתח הראשון',icon:'🥇',desc:'אבן הדרך הראשונה.',cond:'מתח מלא אחד, סנטר מעל המוט.',req:['p_neg'],xp:35,pre:'מקס סטים × 1-3 מתחים · מנוחה מלאה'},
+    {id:'p_pull5',name:'5 מתח',icon:'💪',desc:'מתח מלא, שליטה.',cond:'5 מתחים מלאים ברצף.',req:['p_pull1'],xp:40,pre:'4×מקס (שאף ל-5) · מנוחה 2 דק׳'},
+    {id:'p_pull10',name:'10 מתח',icon:'🔥',desc:'נפח וכוח.',cond:'10 מתחים מלאים ברצף.',req:['p_pull5'],xp:50,pre:'4×6-10 · אם קל — הוסף עצירה למעלה'},
+    {id:'p_mu',name:'מאסל-אפ (Muscle-Up)',icon:'🚀',goal:true,desc:'משיכה נפיצה + דחיפה מעל המוט — תרגיל חוצה-עצים.',cond:'מאסל-אפ נקי (דורש כוח משיכה + כוח דחיפה).',req:['p_pull10','h_dia'],xp:90,pre:'5×ניסיונות נפיצים · משיכה גבוהה + מעבר מהיר'},
+    {id:'p_archer',name:"מתח ארצ'ר",icon:'🏹',desc:'מעבר משקל לצד — שלב ליד אחת.',cond:"3 מתח ארצ'ר לכל צד.",req:['p_pull10'],xp:60,pre:'4×3 לכל צד'},
+    {id:'p_weight',name:'מתח עם משקל',icon:'🏋️',desc:'עומס מתקדם.',cond:'5 מתחים עם +10 ק"ג.',req:['p_pull10'],xp:60,pre:'5×3-5 עם משקל · עלה בהדרגה'},
+    {id:'p_typewriter',name:'מתח מכונת כתיבה',icon:'⌨️',desc:'מעבר אופקי בין הידיים למעלה.',cond:'3 חזרות לכל צד.',req:['p_archer'],xp:80,pre:'4×2-3 לכל צד'},
+    {id:'p_oa_neg',name:'מתח יד אחת — שלילי',icon:'🖐️',desc:'ירידה על יד אחת.',cond:'3 ירידות על יד אחת לכל צד.',req:['p_typewriter','p_weight'],xp:90,pre:'5×ירידה איטית אחת לכל צד'},
+    {id:'p_oa_assist',name:'מתח יד אחת בעזרה',icon:'🤝',desc:'יד אחת עם עזרת אצבעות מהיד השנייה.',cond:'3 חזרות בעזרה מינימלית לכל צד.',req:['p_oa_neg'],xp:120,pre:'5×1-3 לכל צד · הפחת עזרה בהדרגה'},
+    {id:'p_oa',name:'מתח יד אחת מלא',icon:'☝️',goal:true,desc:'הגביע הקדוש של המשיכה.',cond:'מתח יד אחת מלא לכל צד.',req:['p_oa_assist'],xp:180,pre:'מקס סטים × 1 לכל צד · מנוחה מלאה'},
+    {id:'p_tuckfl',name:'טאק פרונט לבר',icon:'➖',desc:'אופקי בברכיים אסופות.',cond:'להחזיק 10 שניות.',req:['p_pull10'],xp:50,pre:'5×החזקת מקס · שמור גב עגול-שטוח'},
+    {id:'p_advfl',name:'אדוונס טאק פרונט לבר',icon:'➗',desc:'ברכיים פתוחות חלקית.',cond:'להחזיק 8 שניות.',req:['p_tuckfl'],xp:70,pre:'5×החזקת מקס'},
+    {id:'p_strfl',name:'סטראדל פרונט לבר',icon:'✖️',desc:'רגליים פתוחות.',cond:'להחזיק 5 שניות.',req:['p_advfl'],xp:90,pre:'6×החזקת 3-5ש׳'},
+    {id:'p_fl',name:'פרונט לבר מלא',icon:'🛬',goal:true,desc:'הגוף מקביל לרצפה, ישר לגמרי.',cond:'להחזיק 5 שניות.',req:['p_strfl'],xp:160,pre:'6×החזקת מקס · גוף ישר ומתוח'},
+    {id:'p_flpull',name:'משיכות בפרונט לבר',icon:'🔃',desc:'דינמי מתוך פרונט לבר.',cond:'5 משיכות פרונט לבר.',req:['p_fl'],xp:200,pre:'4×3-5 משיכות'},
+    {id:'p_oafl',name:'פרונט לבר על יד אחת',icon:'🌠',goal:true,desc:'הפסגה של המשיכה הסטטית.',cond:'להחזיק טאק פרונט לבר על יד אחת.',req:['p_flpull','p_oa'],xp:300,pre:'6×ניסיונות החזקה לכל צד'},
+  ]},
+  push:{name:'PUSH · דחיפה',color:'var(--push)',sub:'חזה · כתף · פלאנץ · מלטיז',nodes:[
+    {id:'h_knee',name:'שכיבות על הברכיים',icon:'🧎',desc:'נקודת התחלה לכל אחד.',cond:'15 שכיבות על הברכיים.',req:[],xp:15,pre:'4×12-15'},
+    {id:'h_pushup',name:'שכיבות סמיכה',icon:'🟧',desc:'בסיס הדחיפה.',cond:'10 שכיבות סמיכה מלאות.',req:['h_knee'],xp:20,pre:'4×מקס (שאף ל-10+)'},
+    {id:'h_dia',name:'שכיבות דיימונד/רחב',icon:'💠',desc:'וריאציות צרות ורחבות.',cond:'10 דיימונד + 10 רחב.',req:['h_pushup'],xp:25,pre:'3×10 דיימונד + 3×10 רחב'},
+    {id:'h_pike',name:'שכיבות פייק',icon:'⛰️',desc:'דחיפת כתף — מעבר לעמידת ידיים.',cond:'10 שכיבות פייק.',req:['h_dia'],xp:35,pre:'4×8-10 · רגליים גבוה יותר = קשה יותר'},
+    {id:'h_pseudo',name:'Pseudo Planche Pushups',icon:'🅿️',desc:'שכיבות עם משקל קדימה — בסיס לפלאנץ.',cond:'8 PPPU עם הטיה קדימה.',req:['h_pike'],xp:45,pre:'4×6-8 · ידיים מסובבות החוצה'},
+    {id:'h_whspu',name:'HSPU על הקיר',icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים.',cond:'10 HSPU על הקיר.',req:['h_pike','b_wall'],xp:70,pre:'4×מקס · טווח מלא'},
+    {id:'h_hspu',name:'HSPU חופשי',icon:'🆓',goal:true,desc:'HSPU בלי קיר.',cond:'3 HSPU חופשיים.',req:['h_whspu','b_free30'],xp:130,pre:'5×1-3'},
+    {id:'h_lean',name:'הישענות לפלאנץ 10 שניות',icon:'↗️',desc:'משקל קדימה על הכתפיים.',cond:'להחזיק 10 שניות.',req:['h_pseudo'],xp:40,pre:'5×החזקת מקס · ידיים מסובבות'},
+    {id:'h_leanpush',name:'שכיבות בהישענות לפלאנץ',icon:'🔼',desc:'דחיפה מתוך הישענות קדמית.',cond:'8 חזרות.',req:['h_lean'],xp:55,pre:'4×6-8'},
+    {id:'h_tuck',name:'טאק פלאנץ',icon:'🟠',desc:'פלאנץ בברכיים אסופות.',cond:'להחזיק 10 שניות.',req:['h_leanpush'],xp:70,pre:'6×החזקת מקס'},
+    {id:'h_adv',name:'אדוונס טאק פלאנץ',icon:'🟡',desc:'גב ישר, ברכיים אסופות.',cond:'להחזיק 8 שניות.',req:['h_tuck'],xp:90,pre:'6×החזקת מקס'},
+    {id:'h_str',name:'סטראדל פלאנץ',icon:'⭐',desc:'רגליים פתוחות.',cond:'להחזיק 5 שניות.',req:['h_adv'],xp:120,pre:'6×החזקת 3-5ש׳'},
+    {id:'h_planche',name:'פלאנץ מלא',icon:'🌟',goal:true,desc:'הגוף מרחף אופקית, רגליים צמודות.',cond:'להחזיק 5 שניות.',req:['h_str'],xp:200,pre:'6×החזקת מקס · גוף ישר'},
+    {id:'h_planchepush',name:'שכיבות בפלאנץ',icon:'💥',desc:'דחיפה דינמית מתוך פלאנץ.',cond:'3 שכיבות פלאנץ.',req:['h_planche'],xp:260,pre:'5×1-3'},
+    {id:'h_90',name:'90° Hold / Press',icon:'📐',desc:'מעבר כוח בין פלאנץ לעמידת ידיים — דורש גם שליטה בעמידת ידיים.',cond:'להחזיק 90 מעלות 5 שניות (דורש פלאנץ + עמידת ידיים).',req:['h_planche','b_full'],xp:240,pre:'6×החזקת מקס'},
+    {id:'h_maltese',name:'מלטיז (Maltese)',icon:'✝️',goal:true,desc:'הפסגה — גוף אופקי גבוה, ידיים בצדדים.',cond:'להחזיק מלטיז.',req:['h_planchepush','h_90'],xp:350,pre:'6×ניסיונות החזקה'},
+  ]},
+  balance:{name:'BALANCE · שיווי משקל',color:'var(--balance)',sub:'עמידת ידיים · פראס · יד אחת',gate:'b_wall',
+    gateMsg:'עץ ה-BALANCE נעול. כדי לפתוח אותו עליך קודם להחזיק עמידת ידיים על הקיר 30 שניות.',nodes:[
+    {id:'b_wall',name:'עמידת ידיים על הקיר 30 שניות',icon:'🧱',desc:'שער הכניסה — בניית כוח כתף ויציבה.',cond:'להחזיק 30 שניות על הקיר (בטן לקיר).',req:[],xp:30,pre:'5×30-45ש׳ אחיזה על הקיר · גוף ישר, ראש ניטרלי'},
+    {id:'b_legoff',name:'ניתוק רגליים מהקיר',icon:'🦵',desc:'מציאת נקודת האיזון — מנתקים רגל-רגל מהקיר.',cond:'10 ניתוקי רגליים בשליטה.',req:['b_wall'],xp:40,pre:'5×10 ניתוקים · החזק את האיזון 1-2ש׳ כל פעם'},
+    {id:'b_free5',name:'עמידת ידיים חופשית 5 שניות',icon:'🤸‍♂️',goal:true,desc:'בלי קיר — תחילת השליטה.',cond:'להחזיק 5 שניות חופשי.',req:['b_legoff'],xp:55,pre:'10-15 ניסיונות בעיטה לאיזון · 5×החזקת מקס'},
+    {id:'b_free30',name:'עמידת ידיים חופשית 30 שניות',icon:'⏳',goal:true,desc:'יציבות מלאה בעמידה חופשית.',cond:'להחזיק 30 שניות חופשי.',req:['b_free5'],xp:90,pre:'6×החזקת מקס · עבוד על תיקוני אצבעות'},
+    {id:'b_taps',name:'נגיעות כתף בעמידת ידיים',icon:'👆',desc:'שליטה דינמית — נוגעים בכתף לסירוגין.',cond:'10 נגיעות כתף חופשי.',req:['b_free30'],xp:110,pre:'5×8-10 נגיעות'},
+    {id:'b_full',name:'עמידת ידיים — שליטה מלאה',icon:'🎯',goal:true,desc:'כניסה, תיקונים ויציאה בשליטה.',cond:'שליטה מלאה + תיקוני איזון.',req:['b_taps'],xp:130,pre:'אימון חופשי 10 דק׳ · כניסות מבעיטה ומפראס'},
+    {id:'b_press',name:'כניסה בכוח (Press to Handstand)',icon:'🛗',goal:true,desc:'עלייה לעמידת ידיים בלי קפיצה — דורש כוח דחיפה ישר-זרוע.',cond:'Press to handstand נקי (דורש עמידת ידיים + כוח דחיפה).',req:['b_full','h_lean'],xp:160,pre:'6×ניסיונות פראס · עבוד על סטראדל/פייק פראס'},
+    {id:'b_oa_assist',name:'עמידת ידיים יד אחת — בעזרת קיר',icon:'🧗',desc:'מעבר משקל ליד אחת ליד הקיר.',cond:'להחזיק 5 שניות עם אצבעות על הקיר.',req:['b_press'],xp:200,pre:'6×החזקת מקס לכל צד'},
+    {id:'b_oa',name:'עמידת ידיים על יד אחת',icon:'🙌',goal:true,desc:'הפסגה של שיווי המשקל — דורש גם כוח דחיפה (HSPU) ליציבות הכתף.',cond:'להחזיק עמידת ידיים על יד אחת (דורש איזון יד-אחת + כוח HSPU).',req:['b_oa_assist','h_whspu'],xp:300,pre:'8×ניסיונות החזקה לכל צד'},
+  ]},
+};
+
+/* ---- weekly split (optimal, designed) — 0=ראשון … 6=שבת ---- */
+const SCHEDULE=[
+  {day:'ראשון',type:'train',focus:'push',label:'מיומנות + דחיפה + ליבה'},
+  {day:'שני',type:'train',focus:'pull',label:'מיומנות + משיכה + ליבה'},
+  {day:'שלישי',type:'rest',label:'מנוחה — ריקוברי'},
+  {day:'רביעי',type:'train',focus:'push',label:'מיומנות + דחיפה + רגליים'},
+  {day:'חמישי',type:'train',focus:'pull',label:'מיומנות + משיכה + ליבה'},
+  {day:'שישי',type:'train',focus:'legs',label:'מיומנות + רגליים + קונדישנינג'},
+  {day:'שבת',type:'rest',label:'מנוחה — ריקוברי'},
+];
+const STRENGTH={
+  push:[['מקבילים (Dips)','3×8-12'],['שכיבות סמיכה — הוריאציה הכי קשה ששולט בה','4×מקס-2'],['שכיבות פייק / HSPU','3×6-10'],['Pseudo Planche Pushups','3×8']],
+  pull:[['מתח — הוריאציה הכי קשה','4×מקס-2'],['מתח אוסטרלי / חתירה','3×10-12'],['מתח עם משקל','4×5'],['קרל ביצפס בטבעות/מתח אחיזה תחתית','3×8-10']],
+  legs:[['סקוואט / פיסטול פרוגרסיה','4×8-12'],['מתפרצים (Lunges)','3×10 לרגל'],['הרמות עקב לשוקיים','3×15-20'],['ספרינטים / ריצה','15-20 דק׳']],
+};
+const CORE=[['פלאנק','3×החזקת מקס'],['L-Sit','4×החזקת מקס'],['הרמות רגליים בתלייה','3×10-12'],['וי-סיט (V-Sit)','3×8']];
+
+const XP_PER_LEVEL=300;
+let state={done:[],xp:0,level:1,admin:false,onboarded:false,profile:{},goals:[]};
+let content={videos:{},notes:{}};
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let activeTree='workout',pendingPhoto=null;
+const quiz={level:null,answers:{}};
+
+function save(){
+  const {admin,...toSave}=state;
+  localStorage.setItem(window._TK||'jarvis_training',JSON.stringify(toSave));
+  // sync level to users list
+  if(currentUser){const us=getUsers();const u=us.find(x=>x.email===currentUser.email);if(u){u.level=state.level;u.lastActive=new Date().toISOString();saveUsers(us);}}
+}
+function saveContent(){localStorage.setItem(window._CK||'jarvis_training_content',JSON.stringify(content));}
+function isDone(id){return state.done.includes(id);}
+function nodeById(id){for(const t in TREES){const n=TREES[t].nodes.find(x=>x.id===id);if(n)return n;}return null;}
+function isUnlocked(node){return state.admin||node.req.every(r=>isDone(r));}
+
+/* ---------------- BOOT animation ---------------- */
+const bootLines=[
+  ['INITIALIZING TRAINING PROTOCOL',700],
+  ['LOADING SKILL TREES [PULL/PUSH/BALANCE] ... <span class="ok">OK</span>',420],
+  ['CALIBRATING ABILITY SCANNER ........... <span class="ok">OK</span>',420],
+  ['SCANNING FOR POTENTIAL ................ <span class="vio">DETECTED</span>',560],
+  ['&nbsp;',250],
+  ['<span class="vio">⟨ THE SYSTEM HAS CHOSEN YOU ⟩</span>',900],
+];
+function runBoot(){
+  const term=document.getElementById('boot');let i=0;
+  (function next(){
+    if(i<bootLines.length){
+      const d=document.createElement('div');d.className='boot-line';
+      d.innerHTML='<span style="color:#2a4a7a">›</span> '+bootLines[i][0];
+      term.appendChild(d);const delay=bootLines[i][1];i++;setTimeout(next,delay);
+    }else{
+      const c=document.createElement('span');c.className='cursor';term.appendChild(c);
+      chime();setTimeout(()=>goStep(state.onboarded?-1:1),900);
+    }
+  })();
+}
+
+/* ---------------- step controller ---------------- */
+function goStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  if(n===-1){enterApp();return;}
+  const el=document.getElementById('step'+n);
+  if(el){el.classList.add('active');}
+  // scroll the fixed intro container back to top
+  document.getElementById('intro').scrollTo({top:0,behavior:'smooth'});
+  if(n===2)buildQuiz();
+}
+
+/* ---------------- QUIZ (ported from Elad's calisthenics.html, fixed) ---------------- */
+const LEVELS=[['beginner','מתחיל'],['intermediate','בינוני'],['advanced','מתקדם'],['crazy','מטורף']];
+const BASIC=[
+  {k:'pullups',t:'מתח',opts:['1–3','4–6','7–10','10+']},
+  {k:'dips',t:'מקבילים',opts:['1–5','6–10','11–15','15+']},
+  {k:'pushups',t:'שכיבות סמיכה',opts:['5–10','11–20','21–30','30+']},
+  {k:'situps',t:'כפיפות בטן',opts:['10–20','21–40','41–60','60+']},
+  {k:'plank',t:'פלאנק',opts:['10–30 ש׳','30–60 ש׳','1–2 דק׳','2+ דק׳']},
+  {k:'lsit',t:'L-Sit',opts:['3–5 ש׳','6–10 ש׳','11–20 ש׳','20+ ש׳']},
+];
+const STAGES=['Tuck','Advanced Tuck','Half Straddle','Full Straddle','Full'];
+const ADV=[
+  {k:'handstand',t:'עמידת ידיים',type:'time',opts:['1–5 ש׳','5–10 ש׳','10–30 ש׳','30+ ש׳']},
+  {k:'front',t:'Front Lever',type:'stage'},
+  {k:'planche',t:'Planche',type:'stage'},
+  {k:'back',t:'Back Lever',type:'stage'},
+  {k:'flag',t:'Human Flag',type:'time',opts:['1–5 ש׳','5–10 ש׳','10–30 ש׳','30+ ש׳']},
+];
+function buildQuiz(){
+  const lv=document.getElementById('q_level');
+  const LEVEL_LABELS={beginner:'מתחיל 🟢',intermediate:'בינוני 🔵',advanced:'מתקדם 🟡',crazy:'מטורף 🔴'};
+  const LEVEL_DESC={beginner:'זה בסדר — כולם מתחילים מאיפשהו.',intermediate:'יש לך בסיס. בואו נבנה עליו.',advanced:'כבר עושה דברים מגניבים. נמקסם.',crazy:'Elite level. הסריקה תמפה אותך.'};
+  lv.innerHTML=LEVELS.map(([v])=>`
+    <div class="opt" data-lv="${v}" onclick="pickLevel('${v}')">
+      <span class="dot"></span>
+      <div>
+        <div style="font-size:15px;font-weight:700">${LEVEL_LABELS[v]}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px">${LEVEL_DESC[v]}</div>
+      </div>
+    </div>`).join('');
+}
+function pickLevel(v){
+  quiz.level=v;quiz.answers={};
+  const adv=(v==='advanced'||v==='crazy');
+  const titles={beginner:'סריקה · מתחיל',intermediate:'סריקה · בינוני',advanced:'סריקה · מתקדם',crazy:'סריקה · מטורף'};
+  document.getElementById('scanTitle').textContent=titles[v]||'ABILITY SCAN';
+  // basic questions always shown; adv questions added for advanced/crazy
+  document.getElementById('basicQ').innerHTML=BASIC.map(ex=>`
+    <div class="qblock"><h3>${ex.t}</h3>
+      <div class="row">${ex.opts.map((o,i)=>`<div class="opt" onclick="setAns('${ex.k}',${i+1},this)"><span class="dot"></span>${o}</div>`).join('')}
+        <div class="opt" onclick="setAns('${ex.k}',0,this)"><span class="dot"></span>לא יודע/ת</div></div>
+    </div>`).join('');
+  document.getElementById('advQ').innerHTML=adv?ADV.map(ex=>{
+    if(ex.type==='time'){
+      return `<div class="qblock"><h3>${ex.t} — כמה זמן?</h3>
+        <div class="row"><div class="opt" onclick="setAns('${ex.k}',0,this)"><span class="dot"></span>לא</div>
+        ${ex.opts.map((o,i)=>`<div class="opt" onclick="setAns('${ex.k}',${i+1},this)"><span class="dot"></span>${o}</div>`).join('')}</div></div>`;
+    }
+    return `<div class="qblock"><h3>${ex.t} — באיזה שלב?</h3>
+      <div class="row"><div class="opt" onclick="setStage('${ex.k}',0,this)"><span class="dot"></span>לא עושה</div>
+      ${STAGES.map((s,i)=>`<div class="opt" onclick="setStage('${ex.k}',${i+1},this)"><span class="dot"></span>${s==='Full'?'Full '+ex.t.split(' ')[0]:s}</div>`).join('')}</div></div>`;
+  }).join(''):'';
+  goStep('2b');
+}
+function setAns(k,v,el){quiz.answers[k]=v;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function setStage(k,v,el){quiz.answers[k]=v;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+
+/* score -> level/xp (Elad's logic, cleaned) + auto-unlock tree nodes */
+function finishQuiz(){
+  if(!quiz.level){alert('בחר/י קודם את הרמה שלך.');return;}
+  let score=0;const a=quiz.answers;
+  const adv=(quiz.level==='advanced'||quiz.level==='crazy');
+  // basic questions scored for everyone
+  for(const ex of BASIC)score+=(a[ex.k]||0);
+  // advanced questions add on top
+  if(adv){
+    score+=(a.handstand||0)*2;
+    score+=(a.flag||0)*3;
+    [a.front,a.planche,a.back].forEach(s=>{score+=[0,5,10,15,20,25][s||0];});
+  }
+  const map=[[5,5],[15,10],[25,15],[40,20],[60,25],[80,30],[110,35],[150,40],[200,45],[250,50]];
+  let level=1;map.forEach(([s,l])=>{if(score>=s)level=l;});
+  state.level=level;state.xp=Math.min(score*5,XP_PER_LEVEL-1);
+
+  // auto-unlock nodes from answers
+  const mark=id=>{if(!isDone(id))state.done.push(id);};
+  if((a.pushups||0)>=1)mark('h_pushup');
+  if((a.pushups||0)>=3)mark('h_dia');
+  if((a.pullups||0)>=1){mark('p_hang');mark('p_scap');mark('p_neg');}
+  if((a.pullups||0)>=2)mark('p_pull5');
+  if((a.pullups||0)>=3){mark('p_pull5');mark('p_pull10');}
+  if(adv){
+    if((a.handstand||0)>=3){mark('b_wall');}            // 10-30s+ on wall
+    if((a.handstand||0)>=4){mark('b_free5');}
+    // front lever stage -> pull tree
+    const fl=['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][a.front||0];if(fl){mark('p_pull10');for(let i=1;i<=(a.front);i++){mark(['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][i]);}}
+    // planche stage -> push tree
+    for(let i=1;i<=(a.planche||0);i++){mark(['','h_tuck','h_adv','h_str','h_str','h_planche'][i]);}
+    if((a.planche||0)>=1){mark('h_pushup');mark('h_dia');mark('h_pike');mark('h_lean');mark('h_leanpush');}
+  }
+  state.onboarded=true;
+  state.profile={first:document.getElementById('r_first').value||'אלעד',last:document.getElementById('r_last').value||'',
+    age:document.getElementById('r_age').value||'',gender:document.getElementById('r_gender').value||'',selfLevel:quiz.level};
+  save();
+  // reveal
+  document.getElementById('rv_name').textContent=state.profile.first;
+  document.getElementById('rv_level').textContent=level;
+  document.getElementById('rv_title').textContent=titleFor(level);
+  goStep(3);chime();
+}
+function titleFor(l){if(l<=10)return'Beginner 🟢';if(l<=20)return'Foundation 🔵';if(l<=30)return'Advanced 🟡';if(l<=40)return'Elite 🟠';return'Legendary 🔴';}
+
+function enterApp(){
+  document.getElementById('intro').classList.add('hide');
+  document.getElementById('app').classList.add('show');
+  document.getElementById('pName').textContent='PLAYER · '+(state.profile.first||'אלעד');
+  switchTree('workout');
+}
+
+/* ---------------- tree render ---------------- */
+function switchTree(t){
+  activeTree=t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tree===t));
+  const isWk=(t==='workout');
+  document.getElementById('treeHead').style.display=isWk?'none':'';
+  document.getElementById('treeBanner').style.display=isWk?'none':'';
+  document.getElementById('path').style.display=isWk?'none':'';
+  document.getElementById('workout').classList.toggle('hidden',!isWk);
+  if(isWk){renderWorkout();renderXP();}else{render();}
+}
+
+/* find the next trainable step toward a goal (deepest not-done prerequisite that's ready) */
+function currentStep(goalId){
+  if(isDone(goalId))return null;
+  function actionable(id){
+    if(isDone(id))return null;
+    const n=nodeById(id);
+    for(const r of n.req){if(!isDone(r)){const d=actionable(r);if(d)return d;}}
+    return n.req.every(r=>isDone(r))?n:null;
+  }
+  return actionable(goalId);
+}
+function renderWorkout(){
+  const wk=document.getElementById('workout');
+  const today=SCHEDULE[new Date().getDay()];
+  let html=`<div class="tree-head"><div class="tree-name" style="color:var(--gold)">אימון היום · ${today.day}</div><div class="tree-sub">${today.label}</div></div>`;
+  if(today.type==='rest'){
+    html+=`<div class="wk-rest">🛌 היום יום מנוחה.<br>התאוששות = צמיחה. שינה טובה, תזונה, ומתיחות קלות.<br>השרירים נבנים במנוחה — נתראה מחר חזק יותר. 💪</div>`;
+    wk.innerHTML=html;return;
+  }
+  html+=`<div class="wk-block"><div class="wk-h">🎯 מיומנות · 40 דקות (המטרות שלך)</div>`;
+  if(!state.goals.length){
+    html+=`<div class="wk-empty">עדיין לא בחרת מטרות.<br>לך לאחד העצים, פתח תרגיל-חלום (כמו עמידת ידיים או פלאנץ), ולחץ <b style="color:var(--gold)">🎯 הגדר כמטרה</b>.<br>אפשר עד 2 מטרות.</div>`;
+  }else{
+    state.goals.forEach(gid=>{
+      const goal=nodeById(gid),step=currentStep(gid);
+      if(!step){html+=`<div class="wk-ex done">✓ ${goal.name} — הושג! בחר מטרה חדשה.</div>`;}
+      else{const vid=state.videos[step.id];
+        html+=`<div class="wk-ex skill" onclick="openNode(nodeById('${step.id}'))">
+          <div><div class="wk-ex-name">${step.icon} ${step.name} ${vid?'🎬':''}</div><div class="wk-ex-sub">לקראת: ${goal.name}</div></div>
+          <span class="wk-sets">${step.pre||step.cond}</span></div>`;}
+    });
+  }
+  html+=`</div>`;
+  const focusName={push:'דחיפה',pull:'משיכה',legs:'רגליים'}[today.focus];
+  html+=`<div class="wk-block"><div class="wk-h">💪 כוח · ${focusName}</div>`;
+  (STRENGTH[today.focus]||STRENGTH.push).slice(0,3).forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+  html+=`</div>`;
+  if(today.focus!=='legs'){
+    html+=`<div class="wk-block"><div class="wk-h">🔥 ליבה</div>`;
+    CORE.slice(0,2).forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+    html+=`</div>`;
+  }
+  html+=`<div class="wk-empty" style="margin-top:14px">חימום 5-10 דק׳ לפני · מתיחות בסוף · לחץ על תרגיל מיומנות כדי לראות הסבר, להוסיף סרטון, או לסמן שכבשת.</div>`;
+  wk.innerHTML=html;
+}
+function toggleGoal(id){
+  const i=state.goals.indexOf(id);
+  if(i>=0){state.goals.splice(i,1);}
+  else{if(state.goals.length>=2){alert('אפשר עד 2 מטרות. הסר אחת קודם.');return;}state.goals.push(id);}
+  save();openNode(nodeById(id));
+}
+function setVideo(id){
+  if(!state.admin)return;
+  const cur=content.videos[id]||'';
+  const url=prompt('הדבק קישור לסרטון (YouTube / קישור ישיר):',cur);
+  if(url===null)return;
+  if(url.trim())content.videos[id]=url.trim();else delete content.videos[id];
+  saveContent();openNode(nodeById(id));
+}
+function setNote(id){
+  if(!state.admin)return;
+  const cur=content.notes[id]||'';
+  const t=prompt('הערות / טיפים לתרגיל (יוצג לכל המתאמנים):',cur);
+  if(t===null)return;
+  if(t.trim())content.notes[id]=t.trim();else delete content.notes[id];
+  saveContent();openNode(nodeById(id));
+}
+function render(){
+  const tree=TREES[activeTree];
+  document.getElementById('treeName').textContent=tree.name;
+  document.getElementById('treeName').style.color=tree.color;
+  document.getElementById('treeSub').textContent=tree.sub;
+  const path=document.getElementById('path');path.dataset.tree=activeTree;path.innerHTML='';
+  const banner=document.getElementById('treeBanner');
+  banner.innerHTML=(tree.gate && !isDone(tree.gate) && !state.admin)?`<div class="tree-locked-banner">🔒 ${tree.gateMsg}</div>`:'';
+  tree.nodes.forEach((node,i)=>{
+    if(i>0){const c=document.createElement('div');c.className='connector'+(isDone(tree.nodes[i-1].id)?' done':'');path.appendChild(c);}
+    const unlocked=isUnlocked(node),done=isDone(node.id);
+    const el=document.createElement('div');el.className='node '+(done?'done':unlocked?'avail':'locked');
+    el.style.transform=`translateX(${Math.sin(i*0.9)*70}px)`;
+    const star=state.goals.includes(node.id)?'<span class="goal-star">★</span>':'';
+    el.innerHTML=`${star}<div class="disc">${done?'✓':unlocked?node.icon:'🔒'}</div><div class="label">${node.name}</div>`;
+    el.onclick=()=>openNode(node);path.appendChild(el);
+  });
+  for(const t in TREES){const tot=TREES[t].nodes.length,d=TREES[t].nodes.filter(n=>isDone(n.id)).length;
+    const c=document.getElementById('cnt-'+t);if(c)c.textContent=`(${d}/${tot})`;}
+  renderXP();
+}
+function renderXP(){document.getElementById('lvl').textContent=state.level;
+  document.getElementById('xpFill').style.width=(state.xp/XP_PER_LEVEL*100)+'%';
+  document.getElementById('adminBtn').classList.toggle('on',state.admin);
+  document.getElementById('adminBtn').textContent=state.admin?'🗝️ מנהל':'🔒 קוד';
+  document.querySelector('.back-link').classList.toggle('visible',!!state.admin);}
+
+function openNode(node){
+  pendingPhoto=null;const m=document.getElementById('nodeModal');
+  const unlocked=isUnlocked(node),done=isDone(node.id);
+  let html=`<div class="m-icon">${node.icon}</div><h2>${node.name}</h2><div class="m-desc">${node.desc}</div>`;
+  html+=`<div class="m-cond">🎯 תנאי לפתיחה:<br><b>${node.cond}</b><br><span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold)">+${node.xp} XP</span></div>`;
+  if(node.pre)html+=`<div class="m-desc" style="font-size:12px;color:var(--cyan)">📋 אימון: ${node.pre}</div>`;
+  // video — everyone can WATCH; only the admin (123456789) can add/replace
+  const vid=content.videos[node.id];
+  if(vid||state.admin){
+    html+=`<div class="vid-box">`;
+    if(vid)html+=`<a href="${esc(vid)}" target="_blank" rel="noopener">▶ צפה בסרטון הסבר</a>`;
+    if(state.admin)html+=`${vid?'<br>':''}<button class="mbtn mbtn-photo" style="margin-top:6px" onclick="setVideo('${node.id}')">🎬 ${vid?'החלף':'הוסף'} סרטון (מנהל)</button>`;
+    html+=`</div>`;
+  }
+  // coach notes — everyone READS; only the admin can write/edit
+  const note=content.notes[node.id];
+  if(note||state.admin){
+    html+=`<div class="note-box">`;
+    if(note)html+=`<div class="note-text">📝 ${esc(note)}</div>`;
+    if(state.admin)html+=`<button class="mbtn mbtn-photo" style="margin-top:6px" onclick="setNote('${node.id}')">📝 ${note?'ערוך':'הוסף'} הערה (מנהל)</button>`;
+    html+=`</div>`;
+  }
+  // goal toggle
+  if(node.goal){const isGoal=state.goals.includes(node.id);
+    html+=`<div style="text-align:center;margin:8px 0"><button class="mbtn mbtn-goal" onclick="toggleGoal('${node.id}')">${isGoal?'★ מטרה פעילה — הסר':'🎯 הגדר כמטרה'}</button></div>`;}
+  if(done){html+=`<div class="m-desc" style="color:var(--success)">✓ הושלם! כל הכבוד.</div><div class="m-btns"><button class="mbtn" onclick="closeModal()">סגור</button>`;
+    if(state.admin)html+=`<button class="mbtn" onclick="undoNode('${node.id}')">בטל (מנהל)</button>`;html+=`</div>`;}
+  else if(unlocked){
+    html+=`<div class="m-desc" style="font-size:12px;color:var(--muted)">צלם/הקלט שעשית את התרגיל כהוכחה (לא חובה), ואז סמן שהשלמת.</div>
+    <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(event)">
+    <div id="photoPrev"></div>
+    <div class="m-btns"><button class="mbtn" onclick="closeModal()">סגור</button>
+      <button class="mbtn mbtn-photo" onclick="document.getElementById('photoInput').click()">📷 צלם הוכחה</button>
+      <button class="mbtn mbtn-go" onclick="completeNode('${node.id}')">✓ הוכחתי / סיימתי</button></div>`;
+  }else{
+    const treeTag=r=>r.startsWith('p_')?'<span style="color:var(--pull)">[Pull]</span>':r.startsWith('h_')?'<span style="color:var(--push)">[Push]</span>':'<span style="color:var(--balance)">[Balance]</span>';
+    const missing=node.req.filter(r=>!isDone(r)).map(r=>`${treeTag(r)} ${nodeById(r)?.name||r}`);
+    html+=`<div class="m-req">🔒 נעול. קודם עליך להשלים (גם מעצים אחרים!):<br>${missing.map(x=>'• '+x).join('<br>')}</div><div class="m-btns"><button class="mbtn" onclick="closeModal()">הבנתי</button></div>`;}
+  m.innerHTML=html;document.getElementById('nodeBackdrop').classList.add('show');
+}
+function onPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{pendingPhoto=r.result;document.getElementById('photoPrev').innerHTML=`<img class="photo-prev" src="${r.result}">`;};r.readAsDataURL(f);}
+function completeNode(id){if(isDone(id))return;state.done.push(id);
+  if(pendingPhoto){state.proof=state.proof||{};state.proof[id]=pendingPhoto;}
+  gainXP(nodeById(id).xp);save();closeModal();render();}
+function undoNode(id){state.done=state.done.filter(x=>x!==id);save();closeModal();render();}
+function closeModal(){document.getElementById('nodeBackdrop').classList.remove('show');}
+function gainXP(n){state.xp+=n;while(state.xp>=XP_PER_LEVEL){state.xp-=XP_PER_LEVEL;state.level++;flash('LEVEL UP');}save();renderXP();}
+function flash(t){document.getElementById('flashText').textContent=t;const f=document.getElementById('flash');f.classList.add('show');chime();setTimeout(()=>f.classList.remove('show'),1600);}
+
+function openAdmin(){document.getElementById('adminBackdrop').classList.add('show');setTimeout(()=>document.getElementById('adminCode').focus(),100);}
+function closeAdmin(){document.getElementById('adminBackdrop').classList.remove('show');}
+function submitAdmin(){const v=document.getElementById('adminCode').value.trim();
+  if(v==='123456789'){state.admin=true;save();closeAdmin();flash('ACCESS GRANTED');switchTree(activeTree);}
+  else if(v==='121212'){
+    if(confirm('לאפס את כל ההתקדמות, הרמה, המטרות והסרטונים — ולהתחיל מחדש כמתחיל מאפס?\n(הפעולה לא הפיכה)')){
+      localStorage.removeItem('jarvis_training');
+      location.reload();
+    }else{closeAdmin();}
+  }
+  else{document.getElementById('adminCode').value='';document.getElementById('adminCode').placeholder='קוד שגוי';}}
+
+function goDashboard(){location.href=(location.protocol==='http:'||location.protocol==='https:')?'/':'JARVIS-SYSTEM.html';}
+
+/* ---------------- ambient fx ---------------- */
+const cv=document.getElementById('fx'),cx=cv.getContext('2d');
+function rz(){cv.width=innerWidth;cv.height=innerHeight;}rz();addEventListener('resize',rz);
+const motes=[];for(let i=0;i<70;i++)motes.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,v:-(Math.random()*.4+.1),r:Math.random()*2+.5,h:Math.random()<.5?210:268,l:Math.random()});
+function draw(){cx.clearRect(0,0,cv.width,cv.height);motes.forEach(p=>{p.y+=p.v;p.l+=.005;if(p.y<-10){p.y=cv.height+10;p.x=Math.random()*cv.width;}
+  const a=Math.sin(p.l*Math.PI)*.6;cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fillStyle=`hsla(${p.h},100%,70%,${a})`;cx.fill();});requestAnimationFrame(draw);}draw();
+// flames
+(function(){const f=document.getElementById('flames');for(let i=0;i<14;i++){const e=document.createElement('div');e.className='flame';e.style.left=(i*7.5)+'%';e.style.animationDelay=(Math.random()*3)+'s';e.style.animationDuration=(2.4+Math.random()*1.6)+'s';f.appendChild(e);}})();
+function chime(){try{const a=new(AudioContext||webkitAudioContext)();[880,1320].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,a.currentTime+i*.1);g.gain.linearRampToValueAtTime(.1,a.currentTime+i*.1+.02);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+i*.1+.8);o.connect(g).connect(a.destination);o.start(a.currentTime+i*.1);o.stop(a.currentTime+i*.1+.9);});}catch(e){}}
+
+/* ---------------- boot ---------------- */
+initAuth();
+</script>
+</body>
+</html>
