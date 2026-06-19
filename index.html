@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KALOS · CALISTHENICS</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const _fbConfig={apiKey:"AIzaSyDVSuWYTq7ZREIA2ldlaXAsJqiByyKQE5w",authDomain:"kalos-db.firebaseapp.com",projectId:"kalos-db",storageBucket:"kalos-db.firebasestorage.app",messagingSenderId:"280774484505",appId:"1:280774484505:web:a693fb4466b6fc75e0c088"};
+firebase.initializeApp(_fbConfig);
+const _db=firebase.firestore();
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Cinzel:wght@700;900&display=swap');
 :root{
@@ -312,6 +319,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
     <div class="title"><svg width="26" height="29" viewBox="0 0 64 72" style="vertical-align:-5px;margin-left:8px"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>KALOS</div>
     <div class="player">
       <span id="pName">PLAYER</span>
+      <span id="roleBadge" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.18em;padding:3px 8px;border:1px solid rgba(90,122,160,.3);color:var(--muted);transition:all .3s">רגיל</span>
       <span class="lvl-badge">LV.<span id="lvl">1</span></span>
       <div class="xp-wrap"><div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div></div>
       <button class="admin-btn" id="adminBtn" onclick="openAdmin()">🔒 קוד</button>
@@ -351,13 +359,18 @@ function hashPass(p){let h=0;for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCode
 function userKey(email){return'kalos_tr_'+btoa(email).replace(/=/g,'');}
 function contentKey(email){return'kalos_cnt_'+btoa(email).replace(/=/g,'');}
 
-function getUsers(){return JSON.parse(localStorage.getItem('kalos_users')||'[]');}
-function saveUsers(u){localStorage.setItem('kalos_users',JSON.stringify(u));}
+async function getUsers(){try{const snap=await _db.collection('users').get();return snap.docs.map(d=>d.data());}catch(e){return JSON.parse(localStorage.getItem('kalos_users')||'[]');}}
+async function saveUser(user){try{await _db.collection('users').doc(btoa(user.email)).set(user);const all=await getUsers();localStorage.setItem('kalos_users',JSON.stringify(all));}catch(e){const u=JSON.parse(localStorage.getItem('kalos_users')||'[]');const i=u.findIndex(x=>x.email===user.email);if(i>=0)u[i]=user;else u.push(user);localStorage.setItem('kalos_users',JSON.stringify(u));}}
 
 let currentUser=null; // {email,name}
 
+const OWNER_EMAIL='eladgo55@gmail.com';
 function initAuth(){
-  if(fromJarvis){currentUser={email:'eladgo55@gmail.com',name:'אלעד'};sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));startApp('eladgo55@gmail.com');return;}
+  if(fromJarvis){
+    currentUser={email:OWNER_EMAIL,name:'אלעד'};
+    sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
+    startApp(OWNER_EMAIL);return;
+  }
   const sess=JSON.parse(sessionStorage.getItem('kalos_session')||'null');
   if(sess){currentUser=sess;startApp(sess.email);return;}
   document.getElementById('authScreen').style.display='flex';
@@ -374,20 +387,20 @@ function authTab(mode){
   document.getElementById('authErr').textContent='';
 }
 
-function submitAuth(){
+async function submitAuth(){
   const email=document.getElementById('authEmail').value.trim().toLowerCase();
   const pass=document.getElementById('authPass').value;
   const name=document.getElementById('authName').value.trim();
   const err=t=>{document.getElementById('authErr').textContent=t;};
   if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
-  const users=getUsers();
+  const users=await getUsers();
   const hash=hashPass(pass);
   if(authMode==='register'){
     if(!name){err('הכנס שם פרטי');return;}
     if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
     const newUser={email,name,hash,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
-    users.push(newUser);saveUsers(users);
+    await saveUser(newUser);
     currentUser={email,name};
     sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
     document.getElementById('authScreen').style.display='none';
@@ -396,7 +409,8 @@ function submitAuth(){
     const u=users.find(u=>u.email===email);
     if(!u){err('אימייל לא נמצא — הרשם קודם');return;}
     if(u.hash!==hash){err('סיסמא שגויה');return;}
-    u.lastActive=new Date().toISOString();saveUsers(users);
+    u.lastActive=new Date().toISOString();
+    await saveUser(u);
     currentUser={email,name:u.name};
     sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
     document.getElementById('authScreen').style.display='none';
@@ -516,7 +530,7 @@ function save(){
   const {admin,...toSave}=state;
   localStorage.setItem(window._TK||'jarvis_training',JSON.stringify(toSave));
   // sync level to users list
-  if(currentUser){const us=getUsers();const u=us.find(x=>x.email===currentUser.email);if(u){u.level=state.level;u.lastActive=new Date().toISOString();saveUsers(us);}}
+  if(currentUser){getUsers().then(us=>{const u=us.find(x=>x.email===currentUser.email);if(u){u.level=state.level;u.lastActive=new Date().toISOString();saveUser(u);}});}
 }
 function saveContent(){localStorage.setItem(window._CK||'jarvis_training_content',JSON.stringify(content));}
 function isDone(id){return state.done.includes(id);}
@@ -766,11 +780,28 @@ function render(){
     const c=document.getElementById('cnt-'+t);if(c)c.textContent=`(${d}/${tot})`;}
   renderXP();
 }
-function renderXP(){document.getElementById('lvl').textContent=state.level;
+function renderXP(){
+  document.getElementById('lvl').textContent=state.level;
   document.getElementById('xpFill').style.width=(state.xp/XP_PER_LEVEL*100)+'%';
   document.getElementById('adminBtn').classList.toggle('on',state.admin);
-  document.getElementById('adminBtn').textContent=state.admin?'🗝️ מנהל':'🔒 קוד';
-  document.querySelector('.back-link').classList.toggle('visible',!!state.admin);}
+  document.getElementById('adminBtn').textContent=state.admin?'🗝️ קוד':'🔒 קוד';
+  document.querySelector('.back-link').classList.toggle('visible',!!state.admin);
+  // role badge
+  const badge=document.getElementById('roleBadge');
+  if(badge){
+    if(state.admin){
+      badge.textContent='מנהל';
+      badge.style.color='var(--gold)';
+      badge.style.borderColor='var(--gold)';
+      badge.style.boxShadow='0 0 10px rgba(255,193,77,.4)';
+    }else{
+      badge.textContent='רגיל';
+      badge.style.color='var(--muted)';
+      badge.style.borderColor='rgba(90,122,160,.3)';
+      badge.style.boxShadow='none';
+    }
+  }
+}
 
 function openNode(node){
   pendingPhoto=null;const m=document.getElementById('nodeModal');
@@ -826,6 +857,9 @@ function openAdmin(){document.getElementById('adminBackdrop').classList.add('sho
 function closeAdmin(){document.getElementById('adminBackdrop').classList.remove('show');}
 function submitAdmin(){const v=document.getElementById('adminCode').value.trim();
   if(v==='123456789'){state.admin=true;save();closeAdmin();flash('ACCESS GRANTED');switchTree(activeTree);}
+  else if(v==='987654321'){
+    state.admin=false;save();closeAdmin();flash('USER MODE');switchTree(activeTree);
+  }
   else if(v==='121212'){
     if(confirm('לאפס את כל ההתקדמות, הרמה, המטרות והסרטונים — ולהתחיל מחדש כמתחיל מאפס?\n(הפעולה לא הפיכה)')){
       localStorage.removeItem('jarvis_training');
