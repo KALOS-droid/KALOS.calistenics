@@ -468,6 +468,7 @@ function startApp(email){
     document.getElementById('app').classList.add('show');
     document.getElementById('pName').textContent='PLAYER · '+(state.profile.first||currentUser?.name||'אלעד');
     switchTree('workout');
+    if(fromJarvis){updateAdminUI();}
   }else{runBoot();}
 }
 
@@ -817,7 +818,7 @@ function renderXP(){
   document.getElementById('xpFill').style.width=(state.xp/XP_PER_LEVEL*100)+'%';
   document.getElementById('adminBtn').classList.toggle('on',state.admin);
   document.getElementById('adminBtn').textContent=state.admin?'🗝️ קוד':'🔒 קוד';
-  document.querySelector('.back-link').classList.toggle('visible',!!state.admin);
+  const bl=document.querySelector('.back-link');if(bl)bl.classList.toggle('visible',!!state.admin);
   // role badge
   const badge=document.getElementById('roleBadge');
   if(badge){
