@@ -469,7 +469,8 @@ function startApp(email){
     document.getElementById('pName').textContent='PLAYER · '+(state.profile.first||currentUser?.name||'אלעד');
     switchTree('workout');
     if(fromJarvis){setTimeout(()=>updateAdminUI(),100);}
-  }else{runBoot();}
+    loadGlobalContent().then(()=>switchTree(currentTree||'workout'));
+  }else{loadGlobalContent();runBoot();}
 }
 
 /* ============================================================
@@ -565,7 +566,21 @@ function save(){
   // sync level to users list
   if(currentUser){getUsers().then(us=>{const u=us.find(x=>x.email===currentUser.email);if(u){u.level=state.level;u.lastActive=new Date().toISOString();saveUser(u);}});}
 }
-function saveContent(){localStorage.setItem(window._CK||'jarvis_training_content',JSON.stringify(content));}
+function saveContent(){
+  localStorage.setItem(window._CK||'jarvis_training_content',JSON.stringify(content));
+  // sync to Firebase so all users see admin notes/videos
+  try{_db.collection('content').doc('global').set(content);}catch(e){}
+}
+async function loadGlobalContent(){
+  try{
+    const doc=await _db.collection('content').doc('global').get();
+    if(doc.exists){
+      const remote=doc.data();
+      content.notes=Object.assign(remote.notes||{},content.notes);
+      content.videos=Object.assign(remote.videos||{},content.videos);
+    }
+  }catch(e){}
+}
 function isDone(id){return state.done.includes(id);}
 function nodeById(id){for(const t in TREES){const n=TREES[t].nodes.find(x=>x.id===id);if(n)return n;}return null;}
 function isUnlocked(node){return state.admin||node.req.every(r=>isDone(r));}
