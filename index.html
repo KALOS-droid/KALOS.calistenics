@@ -1105,12 +1105,14 @@ function countMissedWorkouts(){
   const plan=state.weeklyPlan.days;
   const ws=new Date(state.weeklyPlan.weekStart);
   const ts=todayStr();
+  const joinDate=state.profile.joinDate?state.profile.joinDate.slice(0,10):ts;
   let missed=0;
   plan.forEach((day,idx)=>{
     if(day.type==='rest')return;
     const d=new Date(ws);d.setDate(ws.getDate()+idx);
     const ds=formatDate(d);
-    if(ds>=ts)return;// future/today — skip
+    if(ds>=ts)return;      // עתיד/היום — דלג
+    if(ds<joinDate)return; // לפני ההצטרפות — לא רלוונטי
     const logged=(state.workoutLog||[]).find(l=>l.date===ds);
     if(!logged)missed++;
   });
