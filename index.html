@@ -468,7 +468,7 @@ function startApp(email){
     document.getElementById('app').classList.add('show');
     document.getElementById('pName').textContent='PLAYER · '+(state.profile.first||currentUser?.name||'אלעד');
     switchTree('workout');
-    if(fromJarvis){updateAdminUI();}
+    if(fromJarvis){setTimeout(()=>updateAdminUI(),100);}
   }else{runBoot();}
 }
 
