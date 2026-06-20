@@ -245,6 +245,14 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="field"><label>אימייל</label><input id="authEmail" type="email" placeholder="you@email.com" dir="ltr"></div>
       <div class="field"><label>סיסמא</label><input id="authPass" type="password" placeholder="לפחות 6 תווים" dir="ltr" onkeydown="if(event.key==='Enter')submitAuth()"></div>
       <div id="authErr" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger);text-align:center;min-height:18px;margin:4px 0 10px"></div>
+      <div id="forgotLink" style="text-align:center;margin:-4px 0 10px">
+        <span onclick="showForgotMsg()" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;letter-spacing:.05em;text-decoration:underline">שכחתי סיסמא</span>
+      </div>
+      <div id="forgotMsg" style="display:none;background:rgba(0,168,255,.08);border:1px solid rgba(0,168,255,.2);border-radius:4px;padding:12px;margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);text-align:center;line-height:1.7">
+        לאיפוס סיסמא צור קשר:<br>
+        📧 <span style="color:var(--cyan)">eladgo55@gmail.com</span><br>
+        💬 וואטסאפ: <span style="color:var(--cyan)">נשלח לך קישור איפוס תוך 24 שעות</span>
+      </div>
       <button class="btn" onclick="submitAuth()" id="authSubmitBtn" style="margin-top:4px">כניסה ›</button>
     </div>
     <div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:14px;letter-spacing:.1em">המידע נשמר באופן מקומי · KALOS © ELAD GOLDSHTEIN</div>
@@ -402,6 +410,11 @@ function checkRateLimit(email){
   a.count++;
   if(a.count>5){const wait=Math.ceil((300000-(now-a.first))/1000/60);return`יותר מדי ניסיונות — נסה שוב בעוד ${wait} דקות`;}
   return null;
+}
+
+function showForgotMsg(){
+  document.getElementById("forgotMsg").style.display="block";
+  document.getElementById("forgotLink").style.display="none";
 }
 
 async function submitAuth(){
