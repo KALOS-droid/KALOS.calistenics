@@ -234,7 +234,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         <div id="tabReg" onclick="authTab('register')" style="flex:1;text-align:center;padding:10px;font-family:'Orbitron',monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)">הרשמה</div>
       </div>
       <!-- name (register only) -->
-      <div id="authNameWrap" class="field hidden"><label>שם פרטי</label><input id="authName" type="text" placeholder="אלעד"></div>
+      <div id="authNameWrap" class="field hidden"><label>שם פרטי</label><input id="authName" type="text" placeholder="שם פרטי"></div>
       <!-- email + password -->
       <div class="field"><label>אימייל</label><input id="authEmail" type="email" placeholder="you@email.com" dir="ltr"></div>
       <div class="field"><label>סיסמא</label><input id="authPass" type="password" placeholder="לפחות 6 תווים" dir="ltr" onkeydown="if(event.key==='Enter')submitAuth()"></div>
@@ -261,8 +261,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
       <div class="sys-diamonds"><span class="diamond"></span><span class="sys-title">PLAYER REGISTRATION</span><span class="diamond"></span></div>
       <div class="sys-divider"></div>
-      <div class="field"><label>שם פרטי</label><input id="r_first" type="text" placeholder="אלעד"></div>
-      <div class="field"><label>שם משפחה</label><input id="r_last" type="text" placeholder="גולדשטיין"></div>
+      <div class="field"><label>שם פרטי</label><input id="r_first" type="text" placeholder="שם פרטי"></div>
+      <div class="field"><label>שם משפחה</label><input id="r_last" type="text" placeholder="שם משפחה"></div>
       <div class="field"><label>גיל</label><input id="r_age" type="number" min="1" placeholder="16"></div>
       <div class="field"><label>מין</label>
         <select id="r_gender"><option value="">בחר…</option><option>זכר</option><option>נקבה</option></select></div>
@@ -662,7 +662,7 @@ function finishQuiz(){
     if((a.planche||0)>=1){mark('h_pushup');mark('h_dia');mark('h_pike');mark('h_lean');mark('h_leanpush');}
   }
   state.onboarded=true;
-  state.profile={first:document.getElementById('r_first').value||'אלעד',last:document.getElementById('r_last').value||'',
+  state.profile={first:document.getElementById('r_first').value||'',last:document.getElementById('r_last').value||'',
     age:document.getElementById('r_age').value||'',gender:document.getElementById('r_gender').value||'',selfLevel:quiz.level};
   save();
   // reveal
