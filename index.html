@@ -424,6 +424,7 @@ async function submitAuth(){
   const err=t=>{document.getElementById('authErr').textContent=t;};
   if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
+  if(!/^[A-Za-z0-9!@#\$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+\$/.test(pass)){err('סיסמא יכולה להכיל רק אנגלית, מספרים וסמלים');return;}
   if(authMode==='login'){const rl=checkRateLimit(email);if(rl){err(rl);return;}}
   const users=await getUsers();
   const hash=await hashPass(pass);
