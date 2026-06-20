@@ -874,7 +874,7 @@ function flash(t){document.getElementById('flashText').textContent=t;const f=doc
 function openAdmin(){document.getElementById('adminBackdrop').classList.add('show');setTimeout(()=>document.getElementById('adminCode').focus(),100);}
 function closeAdmin(){document.getElementById('adminBackdrop').classList.remove('show');}
 function submitAdmin(){const v=document.getElementById('adminCode').value.trim();
-  if(v==='123456789'){state.admin=true;save();closeAdmin();flash('ACCESS GRANTED');switchTree(activeTree);}
+  if(v==='AJ@Ffd&@34'){state.admin=true;save();closeAdmin();flash('ACCESS GRANTED');switchTree(activeTree);}
   else if(v==='987654321'){
     state.admin=false;save();closeAdmin();flash('USER MODE');switchTree(activeTree);
   }
