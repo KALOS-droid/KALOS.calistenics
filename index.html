@@ -1,4 +1,10 @@
 ﻿<!DOCTYPE html>
+<!--
+  KALOS · CALISTHENICS SYSTEM
+  © 2026 Elad Goldshtein. All Rights Reserved.
+  Created: June 2026 | eladgo55@gmail.com
+  Unauthorized copying, modification, or distribution is prohibited.
+-->
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -355,7 +361,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
    ============================================================ */
 const fromJarvis=new URLSearchParams(location.search).get('from')==='jarvis';
 
-function hashPass(p){let h=0;for(let i=0;i<p.length;i++){h=((h<<5)-h)+p.charCodeAt(i);h|=0;}return h.toString(36);}
+async function hashPass(p){const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(p));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");}
 function userKey(email){return'kalos_tr_'+btoa(email).replace(/=/g,'');}
 function contentKey(email){return'kalos_cnt_'+btoa(email).replace(/=/g,'');}
 
@@ -387,6 +393,17 @@ function authTab(mode){
   document.getElementById('authErr').textContent='';
 }
 
+const _loginAttempts={};
+function checkRateLimit(email){
+  const now=Date.now();
+  if(!_loginAttempts[email])_loginAttempts[email]={count:0,first:now};
+  const a=_loginAttempts[email];
+  if(now-a.first>300000){a.count=0;a.first=now;}
+  a.count++;
+  if(a.count>5){const wait=Math.ceil((300000-(now-a.first))/1000/60);return`יותר מדי ניסיונות — נסה שוב בעוד ${wait} דקות`;}
+  return null;
+}
+
 async function submitAuth(){
   const email=document.getElementById('authEmail').value.trim().toLowerCase();
   const pass=document.getElementById('authPass').value;
@@ -394,8 +411,9 @@ async function submitAuth(){
   const err=t=>{document.getElementById('authErr').textContent=t;};
   if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
+  if(authMode==='login'){const rl=checkRateLimit(email);if(rl){err(rl);return;}}
   const users=await getUsers();
-  const hash=hashPass(pass);
+  const hash=await hashPass(pass);
   if(authMode==='register'){
     if(!name){err('הכנס שם פרטי');return;}
     if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
