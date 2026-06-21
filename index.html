@@ -43,6 +43,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:radial-gradient(ellipse at 50% 100%,rgba(0,200,255,.6),rgba(0,90,255,.25) 50%,transparent 75%);
   filter:blur(6px);animation:flick 3s ease-in-out infinite}
 @keyframes flick{0%,100%{transform:scaleY(1) translateY(0);opacity:.6}50%{transform:scaleY(1.18) translateY(-10px);opacity:.95}}
+@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
 /* ============ INTRO (onboarding) ============ */
 #intro{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px 60px;
@@ -421,7 +422,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
   <header>
     <div style="display:flex;align-items:center;gap:10px">
       <div class="title"><svg width="26" height="29" viewBox="0 0 64 72" style="vertical-align:-5px;margin-left:8px"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>KALOS</div>
-      <button class="admin-btn" onclick="openStore()" style="border-color:rgba(139,61,255,.5);color:#c8a4ff;font-size:11px;padding:4px 10px;letter-spacing:.08em">🛒 חנות</button>
+      <button onclick="openStore()" style="background:linear-gradient(135deg,rgba(139,61,255,.35),rgba(0,168,255,.2));border:1px solid rgba(139,61,255,.7);color:#ddbfff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:7px 16px;border-radius:5px;cursor:pointer;letter-spacing:.1em;box-shadow:0 0 14px rgba(139,61,255,.35);transition:all .2s" onmouseover="this.style.boxShadow='0 0 24px rgba(139,61,255,.6)'" onmouseout="this.style.boxShadow='0 0 14px rgba(139,61,255,.35)'">🛒 חנות KALOS</button>
     </div>
     <div class="player">
       <button class="admin-btn" onclick="logout()" style="border-color:rgba(255,51,85,.4);color:#ff8099">יציאה ↩</button>
@@ -429,10 +430,26 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <span id="roleBadge" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.18em;padding:3px 8px;border:1px solid rgba(90,122,160,.3);color:var(--muted);transition:all .3s">רגיל</span>
       <span class="lvl-badge">LV.<span id="lvl">1</span></span>
       <div class="xp-wrap"><div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div></div>
-      <button class="admin-btn" onclick="openCheckin()" style="border-color:rgba(0,168,255,.4);color:var(--blue)">📊 דוח</button>
+      <button onclick="openCheckin()" style="background:rgba(0,168,255,.12);border:1px solid rgba(0,168,255,.5);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">📊 דוח שבועי</button>
       <button class="admin-btn" id="adminBtn" onclick="openAdmin()">🔒 קוד</button>
     </div>
   </header>
+
+  <!-- Promo Toast -->
+  <div id="promoToast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:300;width:min(420px,92vw);background:linear-gradient(135deg,rgba(10,6,32,.97),rgba(4,8,26,.97));border:1px solid rgba(139,61,255,.6);border-radius:10px;padding:14px 16px;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 24px rgba(139,61,255,.2);animation:slideUp .35s ease;direction:rtl">
+    <div style="display:flex;align-items:flex-start;gap:12px">
+      <div style="font-size:28px;line-height:1;flex-shrink:0" id="promoIcon">🛒</div>
+      <div style="flex:1">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#c8a4ff;letter-spacing:.08em;margin-bottom:4px" id="promoTitle">חנות KALOS</div>
+        <div style="font-size:12px;color:#eaf6ff;line-height:1.5" id="promoBody">טקסט פרסום</div>
+      </div>
+      <button onclick="closePromo()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0">✕</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button onclick="openStore();closePromo()" style="flex:1;background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px;border-radius:4px;cursor:pointer;letter-spacing:.06em">🛒 לחנות</button>
+      <button onclick="closePromo()" style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 14px;border-radius:4px;cursor:pointer">אחר כך</button>
+    </div>
+  </div>
 
   <div class="tabs">
     <div class="tab active" data-tree="workout" onclick="switchTree('workout')">🔥 אימון היום</div>
@@ -1360,6 +1377,8 @@ function enterApp(){
     checkPunishment();
     if(shouldShowCheckin())openCheckin();
   },400);
+  // Promo — show after 6s so it doesn't clash with other modals
+  setTimeout(maybeShowPromo, 6000);
 }
 
 /* ---------------- tree render ---------------- */
@@ -1987,6 +2006,38 @@ function saveStoreUrl(){
   const url=document.getElementById('storeUrlInput').value.trim();
   localStorage.setItem('kalos_store_url',url);
   flash('קישור נשמר ✓');
+}
+
+/* ---- Promo notifications ---- */
+const PROMOS=[
+  {icon:'🏋️',title:'ציוד KALOS · מבצע השקה',body:'חגורת משקל איכותית לכל המתחים והמקבילים שלך — 10% הנחה לנרשמים הראשונים.'},
+  {icon:'👕',title:'KALOS APPAREL · עכשיו בחנות',body:'הלבשה שנועדה לכושר — חולצות, מכנסי אימון וכובעים בעיצוב KALOS האקסקלוסיבי.'},
+  {icon:'🏆',title:'REWARDS · הרוויח מרצ׳ בחינם',body:'הגעת לעמידת ידיים חופשית? מגיע לך חולצת KALOS אקסקלוסיבית שלא נמכרת בשום מקום אחר.'},
+  {icon:'📦',title:'משלוח חינם מעל ₪200',body:'כל הציוד שאתה צריך להתקדם הבא — מוטות, גומיות, חגורות. משלוח חינם להזמנות מעל ₪200.'},
+  {icon:'🤖',title:'AI COACH · בקרוב',body:'מאמן AI שרואה את הצורה שלך ומתקן בזמן אמת — $9.99/חודש. הרשם עכשיו וקבל חודש ראשון חינם.'},
+];
+const PROMO_INTERVAL_MS=4*60*60*1000; // 4 שעות
+let _promoTimer=null;
+
+function maybeShowPromo(){
+  if(fromJarvis||!state.onboarded)return;
+  const last=parseInt(localStorage.getItem('kalos_last_promo')||'0');
+  if(Date.now()-last<PROMO_INTERVAL_MS)return;
+  // Pick random promo
+  const p=PROMOS[Math.floor(Math.random()*PROMOS.length)];
+  document.getElementById('promoIcon').textContent=p.icon;
+  document.getElementById('promoTitle').textContent=p.title;
+  document.getElementById('promoBody').textContent=p.body;
+  const t=document.getElementById('promoToast');
+  t.style.display='block';
+  localStorage.setItem('kalos_last_promo',Date.now().toString());
+  // Auto-dismiss after 12 seconds
+  clearTimeout(_promoTimer);
+  _promoTimer=setTimeout(closePromo,12000);
+}
+function closePromo(){
+  clearTimeout(_promoTimer);
+  document.getElementById('promoToast').style.display='none';
 }
 
 function logout(){
