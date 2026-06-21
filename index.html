@@ -799,28 +799,48 @@ const TRAIN_DAY_MAP={
   6:[0,1,2,3,4,6],
 };
 
-const STRENGTH_POOL={
-  push:{
-    beginner:[['שכיבות סמיכה','3×8-12'],['שכיבות רחבות','3×8-10'],['מקבילים על הכיסאות','3×8'],['פייק שכיבות','3×6-8']],
-    intermediate:[['מקבילים (Dips)','4×8-12'],['שכיבות דיימונד','4×8-10'],['שכיבות פייק על ספסל','3×8-10'],['Pseudo Planche Pushups','3×8']],
-    advanced:[['מקבילים עם משקל','4×6-8'],['שכיבות HSPU על קיר','4×מקס'],['Pseudo Planche Pushups','4×8'],['Ring Dips','3×8-10']],
-  },
-  pull:{
-    beginner:[['מתח אוסטרלי','3×10-12'],['תליה פעילה','4×30 שניות'],['מתח שלילי','4×3-5'],['קרל ביצפס בגומי','3×12']],
-    intermediate:[['מתח — הוריאציה הנוכחית','4×מקס-2'],['מתח אוסטרלי / חתירה','3×10-12'],['מתח עם עצירה למעלה','3×5'],['L-Hang','3×20 שניות']],
-    advanced:[['מתח — הוריאציה הכי קשה','4×מקס-2'],['מתח ארצ׳ר','4×3 לכל צד'],['מתח עם משקל','4×5'],['מתח שלילי איטי (5 שניות)','4×3']],
-  },
-  legs:{
-    beginner:[['סקוואט','4×15'],['מתפרצים (Lunges)','3×10 לרגל'],['הרמות עקב','3×20'],['גשר ירכיים','3×15']],
-    intermediate:[['סקוואט קפיצה','4×10'],['פיסטול פרוגרסיה','3×5 לרגל'],['Nordic Hamstring Curls','3×5-8'],['ספרינטים קצרים','8×40 מטר']],
-    advanced:[['פיסטול סקוואט','4×5 לרגל'],['סקוואט קפיצה עם עצירה','4×8'],['Nordic Curls','4×6-8'],['ספרינטים / סקייטר קפיצות','10×30 מטר']],
-  },
+// יום → שריר קבוע (0=ראשון … 6=שבת)
+const MUSCLE_SCHEDULE={
+  0:{name:'יד קדמית 💪',emoji:'💪'},
+  1:{name:'חזה 🫁',emoji:'🫁'},
+  2:{name:'בטן 🔥',emoji:'🔥'},
+  3:{name:'רגליים 🦵',emoji:'🦵'},
+  4:{name:'גב 🔗',emoji:'🔗'},
+  5:{name:'מנוחה',emoji:'😴'},
+  6:{name:'יד אחורית 💥',emoji:'💥'},
 };
 
-const CORE_POOL={
-  beginner:[['פלאנק','3×30 שניות'],['כפיפות בטן','3×15'],['הרמות רגליים שכוב','3×10'],['בריג׳ (גשר)','3×30 שניות']],
-  intermediate:[['פלאנק','3×60 שניות'],['L-Sit','4×10 שניות'],['הרמות רגליים בתלייה','3×10-12'],['וי-סיט (V-Sit)','3×8']],
-  advanced:[['L-Sit hold','4×20 שניות'],['Dragon Flag Negatives','3×5'],['הרמות רגליים בתלייה','4×12-15'],['Windshield Wipers','3×8 לכל צד']],
+const MUSCLE_POOL={
+  0:{ // יד קדמית
+    beginner:[['קרל ביצפס עם גומייה','3×12-15'],['מתח אחיזה תחתית (Chin-up) — נגטיב','4×3-5'],['מתח אוסטרלי אחיזה תחתית','3×10-12'],['קרל פטיש (Hammer Curl) עם משקל','3×10']],
+    intermediate:[['Chin-up','4×מקס-2'],['קרל ביצפס בתלייה על מוט','3×10-12'],['מתח אחיזה צרה','4×6-8'],['קרל ריכוז עם משקל','3×10 לכל יד']],
+    advanced:[['Chin-up עם משקל','4×5-6'],['מתח יד אחת — בעזרה','4×3 לכל יד'],['L-Sit Chin-up','3×5-8'],['קרל ביצפס + עצירה 5 שניות למעלה','4×6']],
+  },
+  1:{ // חזה
+    beginner:[['שכיבות סמיכה','4×מקס'],['שכיבות רחבות','3×10-12'],['שכיבות על ידיים מוגבהות (כיסא)','3×10'],['מקבילים על כיסאות','3×8-10']],
+    intermediate:[['שכיבות דיימונד','4×8-12'],['מקבילים (Dips)','4×8-12'],['שכיבות כוח מתפרץ','3×6-8'],['שכיבות רגליים מוגבהות','4×8-10']],
+    advanced:[['מקבילים עם משקל','4×6-8'],['שכיבות ארצ׳ר','4×4-6 לכל צד'],['שכיבות כוח מתפרץ עם מחיאה','4×5-8'],['Pseudo Planche Pushups','4×8']],
+  },
+  2:{ // בטן
+    beginner:[['פלאנק','4×30-45 שניות'],['כפיפות בטן','3×15-20'],['הרמות רגליים שכוב','3×10-12'],['גשר ירכיים (Bridge)','3×15']],
+    intermediate:[['L-Sit','4×8-12 שניות'],['הרמות רגליים בתלייה','4×10-12'],['פלאנק צדדי','3×30 שניות לכל צד'],['Hollow Body Hold','4×20-30 שניות']],
+    advanced:[['L-Sit hold','4×15-20 שניות'],['Dragon Flag Negatives','4×4-6'],['Windshield Wipers','3×8 לכל צד'],['הרמות רגליים בתלייה — איטי','4×10']],
+  },
+  3:{ // רגליים
+    beginner:[['סקוואט','4×15-20'],['מתפרצים (Lunges)','3×10 לרגל'],['הרמות עקב (Calf Raises)','4×20'],['גשר ירכיים','3×15']],
+    intermediate:[['סקוואט קפיצה','4×10-12'],['פיסטול פרוגרסיה','3×5 לרגל'],['Nordic Hamstring Curls','3×5-8'],['Step-ups על כיסא','3×12 לרגל']],
+    advanced:[['פיסטול סקוואט','4×5-6 לרגל'],['סקוואט קפיצה + עצירה','4×8'],['Nordic Curls','4×6-8'],['ספרינטים','8×30 מטר']],
+  },
+  4:{ // גב
+    beginner:[['מתח אוסטרלי (Row)','4×10-12'],['תליה אקטיבית','4×30 שניות'],['מתח שלילי (נגטיב)','4×3-5'],['Super Y — שכוב על בטן','3×12']],
+    intermediate:[['מתח — הוריאציה הנוכחית','4×מקס-2'],['מתח עם עצירה 3 שניות למעלה','3×5'],['חתירה על שולחן','3×10-12'],['Face Pull עם גומייה','3×15']],
+    advanced:[['מתח ארצ׳ר','4×3-4 לכל צד'],['מתח עם משקל','4×4-5'],['מתח שלילי 6 שניות','4×3'],['L-Sit Pull-up','3×5-6']],
+  },
+  6:{ // יד אחורית
+    beginner:[['מקבילים על כיסאות (Dips)','4×8-12'],['שכיבות דיימונד','3×8-12'],['הרחקת טריצפס עם גומייה','3×12-15'],['שכיבות ידיים צמודות לגוף','3×10']],
+    intermediate:[['מקבילים (Dips)','4×8-12'],['שכיבות HSPU על קיר — נגטיב','4×3-5'],['טריצפס אקסטנשן — תלייה','3×10-12'],['שכיבות דיימונד עם עצירה','4×8']],
+    advanced:[['מקבילים עם משקל','4×6-8'],['שכיבות HSPU על קיר','4×מקס'],['Ring Dips','3×8-10'],['Close Grip HSPU Negative','4×3']],
+  },
 };
 
 const CARDIO_OPTIONS={
@@ -871,12 +891,15 @@ function generateWeeklyPlan(){
       };
     }
 
-    const strPool=STRENGTH_POOL[focus]?.[tier]||STRENGTH_POOL.push[tier];
+    const muscle=MUSCLE_SCHEDULE[idx];
+    const musclePool=MUSCLE_POOL[idx]?.[tier]||MUSCLE_POOL[1][tier];
     return{
-      type:'train',day:dayName,focus,
-      label:`מיומנות + ${focus==='push'?'דחיפה':focus==='pull'?'משיכה':'רגליים'} + ${focus!=='legs'?'ליבה':'קונדישנינג'}`,
-      strengthBlock:strPool.slice(0,strengthSets),
-      coreBlock:focus!=='legs'?CORE_POOL[tier].slice(0,coreSets):[],
+      type:'train',day:dayName,focus:idx,
+      label:`מיומנות + ${muscle.name}`,
+      muscleName:muscle.name,
+      muscleEmoji:muscle.emoji,
+      strengthBlock:musclePool.slice(0,strengthSets),
+      coreBlock:[],
       cardioBlock:[],
     };
   });
@@ -1215,18 +1238,11 @@ function renderWorkout(){
     html+=`</div>`;
   }
 
-  // Strength block
+  // Muscle block
   if(today.strengthBlock?.length){
-    const focusName={push:'דחיפה 💪',pull:'משיכה 🔗',legs:'רגליים 🦵',cardio:'כוח תומך'}[today.focus]||'כוח';
-    html+=`<div class="wk-block"><div class="wk-h">⚡ כוח · ${focusName}</div>`;
+    const label=today.muscleName||'כוח';
+    html+=`<div class="wk-block"><div class="wk-h">⚡ אימון שריר · ${label}</div>`;
     today.strengthBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
-    html+=`</div>`;
-  }
-
-  // Core block
-  if(today.coreBlock?.length){
-    html+=`<div class="wk-block"><div class="wk-h">🔥 ליבה</div>`;
-    today.coreBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
     html+=`</div>`;
   }
 
