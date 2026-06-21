@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>KALOS · AI COACH</title>
+<title>KALOS · AI COACH PRO</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -17,33 +17,31 @@ body{display:flex;flex-direction:column}
 
 header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;
   background:rgba(2,4,12,.97);border-bottom:1px solid rgba(139,61,255,.4);z-index:10}
-.logo{font-family:'Cinzel',serif;font-size:18px;font-weight:900;letter-spacing:.18em;
+.logo{font-family:'Cinzel',serif;font-size:16px;font-weight:900;letter-spacing:.18em;
   text-shadow:0 0 16px var(--violet);display:flex;align-items:center;gap:8px}
+.pro-badge{font-size:8px;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;
+  padding:3px 7px;border-radius:3px;letter-spacing:.05em;font-family:'Orbitron',monospace;font-weight:900}
 .back-btn{background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.4);color:#ff8099;
   font-family:'Share Tech Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer}
 
-.main{flex:1;display:grid;grid-template-columns:1fr 300px;overflow:hidden;min-height:0}
+.main{flex:1;display:grid;grid-template-columns:1fr 310px;overflow:hidden;min-height:0}
 
-/* ── VIDEO AREA ── */
+/* VIDEO AREA */
 .cam-wrap{position:relative;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center}
-/* The video and canvas sit inside a sized box that preserves AR */
 #mediaBox{position:relative;max-width:100%;max-height:100%}
 #inputVideo,#videoFile{display:block;max-width:100%;max-height:100%;object-fit:contain}
 #outputCanvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
 
-/* HUD corners */
 .hud-corner{position:absolute;width:28px;height:28px;border-color:var(--cyan);border-style:solid;opacity:.65;z-index:5;pointer-events:none}
 .hud-corner.tl{top:0;left:0;border-width:2px 0 0 2px}
 .hud-corner.tr{top:0;right:0;border-width:2px 2px 0 0}
 .hud-corner.bl{bottom:0;left:0;border-width:0 0 2px 2px}
 .hud-corner.br{bottom:0;right:0;border-width:0 2px 2px 0}
 
-/* Status bar */
 .status-bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);
   background:rgba(0,0,0,.75);border:1px solid rgba(0,255,213,.35);border-radius:20px;
   padding:4px 14px;font-size:11px;color:var(--cyan);letter-spacing:.07em;white-space:nowrap;z-index:5;pointer-events:none}
 
-/* Overlays */
 .rep-overlay{position:absolute;bottom:14px;right:14px;background:rgba(0,0,0,.8);
   border:2px solid var(--cyan);border-radius:10px;padding:10px 16px;text-align:center;z-index:5}
 .rep-num{font-family:'Orbitron',monospace;font-size:46px;font-weight:900;color:var(--cyan);line-height:1}
@@ -53,7 +51,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 .form-score-val{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;color:var(--violet);line-height:1}
 .form-label{font-size:9px;color:var(--muted);letter-spacing:.1em;margin-top:2px}
 
-/* Placeholder */
 .cam-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:12px;background:linear-gradient(160deg,#010206,#0a0620);z-index:3}
 .cam-placeholder p{font-size:12px;color:var(--muted);text-align:center;line-height:2}
@@ -63,20 +60,18 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
   font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;letter-spacing:.07em}
 .placeholder-btn.sec{background:rgba(139,61,255,.1);border-color:rgba(139,61,255,.4);color:#c8a4ff;margin-top:2px}
 
-/* Drag overlay */
 .drag-flash{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;
   align-items:center;justify-content:center;gap:10px;
   background:rgba(0,255,213,.07);border:3px dashed var(--cyan)}
 .drag-flash.on{display:flex}
 .drag-flash-txt{font-family:'Orbitron',monospace;font-size:16px;letter-spacing:.2em;color:var(--cyan)}
 
-/* ── PANEL ── */
+/* PANEL */
 .panel{display:flex;flex-direction:column;background:rgba(4,8,26,.98);
   border-right:1px solid var(--border);overflow-y:auto;scrollbar-width:thin}
-.panel-sec{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
-.panel-title{font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:10px}
+.panel-sec{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
+.panel-title{font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:8px}
 
-/* Category grid */
 .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 .cat-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;
   padding:8px 4px;text-align:center;cursor:pointer;transition:all .15s;font-family:'Share Tech Mono',monospace}
@@ -86,7 +81,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 .cat-btn .cn{font-size:8px;color:var(--muted);line-height:1.3}
 .cat-btn.active .cn{color:var(--cyan)}
 
-/* Variant list */
 #variantList{display:flex;flex-direction:column;gap:5px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
 .var-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);border-radius:6px;
   padding:9px 12px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:11px;
@@ -97,11 +91,19 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 .var-btn .vn{flex:1;line-height:1.4;color:#eaf6ff}
 .var-btn .vd{font-size:9px;color:#8aa0c0;margin-top:2px}
 
-/* Metrics */
-.metric{display:flex;justify-content:space-between;align-items:center;padding:6px 0;
-  border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
-.metric-label{color:var(--muted)}
-.metric-val{font-weight:700;font-family:'Orbitron',monospace;font-size:12px}
+/* Metrics grid — 2 cols */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.metric{display:flex;flex-direction:column;background:rgba(255,255,255,.03);border-radius:5px;padding:5px 8px}
+.metric-label{font-size:9px;color:var(--muted);letter-spacing:.06em}
+.metric-val{font-weight:700;font-family:'Orbitron',monospace;font-size:13px;margin-top:1px}
+
+/* Rep log */
+.rep-log-item{display:flex;justify-content:space-between;align-items:center;
+  padding:4px 8px;border-radius:4px;font-size:10px;margin-bottom:2px;
+  background:rgba(255,255,255,.03);border-right:2px solid var(--muted)}
+.rep-log-item.rep-good{border-color:var(--success)}
+.rep-log-item.rep-warn{border-color:var(--gold)}
+.rep-log-item.rep-bad{border-color:var(--danger)}
 
 /* Feedback */
 .fb-item{padding:7px 10px;border-radius:5px;font-size:11px;line-height:1.5;
@@ -112,8 +114,15 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 .fb-item.info{background:rgba(0,168,255,.07);border-color:var(--blue);color:#7dd3fc}
 @keyframes fbIn{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:translateX(0)}}
 
-/* Controls */
-.ctrl-row{display:flex;gap:7px;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06);margin-top:auto;flex-shrink:0}
+/* Tabs inside panel */
+.tab-row{display:flex;border-bottom:1px solid rgba(255,255,255,.07)}
+.tab-btn{flex:1;padding:7px;font-size:9px;letter-spacing:.1em;cursor:pointer;
+  background:none;border:none;color:var(--muted);font-family:'Share Tech Mono',monospace}
+.tab-btn.active{color:var(--cyan);border-bottom:2px solid var(--cyan)}
+.tab-pane{display:none;overflow-y:auto;flex:1;padding:8px 14px}
+.tab-pane.active{display:block}
+
+.ctrl-row{display:flex;gap:7px;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
 .btn-main{flex:1;border:1px solid var(--cyan);color:var(--cyan);background:rgba(0,255,213,.1);
   font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:11px;
   border-radius:6px;cursor:pointer;letter-spacing:.08em;transition:all .2s}
@@ -123,18 +132,50 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 .btn-verdict:disabled{opacity:.3;cursor:default}
 
 /* Verdict modal */
-#verdictModal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);
-  align-items:center;justify-content:center}
+#verdictModal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.94);
+  align-items:center;justify-content:center;overflow-y:auto}
 #verdictModal.show{display:flex}
-.verdict-card{background:linear-gradient(160deg,#0a0620,#04081a);
-  border-radius:16px;padding:36px 28px;max-width:360px;width:92%;text-align:center;direction:rtl}
-.verdict-big{font-size:80px;line-height:1;margin-bottom:14px}
-.verdict-title{font-family:'Cinzel',serif;font-size:22px;letter-spacing:.15em;margin-bottom:8px}
-.verdict-stats{background:rgba(255,255,255,.04);border-radius:8px;padding:14px;margin:16px 0;font-size:12px;line-height:2.1;text-align:right}
-.verdict-row{display:flex;justify-content:space-between;align-items:center}
+.verdict-card{background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(139,61,255,.3);
+  border-radius:16px;padding:28px 24px;max-width:420px;width:95%;text-align:center;direction:rtl;margin:auto}
+.verdict-big{font-size:70px;line-height:1;margin-bottom:12px}
+.verdict-title{font-family:'Cinzel',serif;font-size:20px;letter-spacing:.15em;margin-bottom:6px}
+.v-score-ring{width:90px;height:90px;margin:14px auto;position:relative}
+.v-score-ring svg{transform:rotate(-90deg)}
+.v-score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.v-score-num{font-family:'Orbitron',monospace;font-size:22px;font-weight:900}
+.v-score-lbl{font-size:8px;color:var(--muted);letter-spacing:.1em}
+.verdict-section{background:rgba(255,255,255,.03);border-radius:8px;padding:12px;margin:10px 0;text-align:right}
+.verdict-section-title{font-size:9px;letter-spacing:.15em;color:var(--muted);margin-bottom:8px}
+.verdict-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.verdict-row:last-child{border:none}
 .verdict-row .vk{color:var(--muted)}
-.verdict-row .vv{font-family:'Orbitron',monospace;font-size:13px;font-weight:700}
-.verdict-btns{display:flex;gap:8px;margin-top:4px}
+.verdict-row .vv{font-family:'Orbitron',monospace;font-size:12px;font-weight:700}
+
+/* Summary items */
+.sum-item{display:flex;gap:8px;padding:6px 8px;border-radius:5px;font-size:11px;line-height:1.5;margin-bottom:4px;text-align:right}
+.sum-item.sum-good{background:rgba(0,255,170,.06);color:var(--success)}
+.sum-item.sum-bad{background:rgba(255,51,85,.06);color:#ff8099}
+.sum-item.sum-tip{background:rgba(255,193,77,.06);color:var(--gold)}
+.sum-item .sum-icon{flex-shrink:0;font-size:14px}
+
+.verdict-btns{display:flex;gap:8px;margin-top:14px}
+.v-btn{flex:1;font-family:'Share Tech Mono',monospace;font-size:11px;padding:10px;
+  border-radius:5px;cursor:pointer;border:1px solid}
+.v-btn.pri{background:rgba(0,255,170,.12);border-color:rgba(0,255,170,.35);color:var(--success)}
+.v-btn.sec{background:rgba(255,255,255,.05);border-color:var(--border);color:var(--muted)}
+.v-btn.retry{background:rgba(0,168,255,.1);border-color:rgba(0,168,255,.35);color:var(--blue)}
+
+/* Subscription gate */
+#gateScreen{position:fixed;inset:0;z-index:700;background:rgba(1,2,6,.97);
+  display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:20px;padding:40px}
+#gateScreen.show{display:flex}
+.gate-icon{font-size:64px}
+.gate-title{font-family:'Cinzel',serif;font-size:22px;letter-spacing:.15em;color:var(--gold)}
+.gate-sub{font-size:13px;color:var(--muted);line-height:2}
+.gate-btn{background:linear-gradient(135deg,rgba(0,255,213,.15),rgba(139,61,255,.15));
+  border:1px solid rgba(0,255,213,.5);color:var(--cyan);font-family:'Orbitron',monospace;
+  font-size:13px;padding:14px 32px;border-radius:8px;cursor:pointer;letter-spacing:.1em}
+.gate-back{color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;margin-top:4px}
 
 /* Loading */
 #loadingOv{position:fixed;inset:0;z-index:500;background:rgba(1,2,6,.97);
@@ -146,6 +187,20 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 </head>
 <body>
 
+<!-- Subscription gate (shown if not PRO) -->
+<div id="gateScreen">
+  <div class="gate-icon">🔒</div>
+  <div class="gate-title">KALOS AI COACH PRO</div>
+  <div class="gate-sub">
+    ניתוח מקצועי של הטכניקה שלך<br>
+    33 נקודות זיהוי · ניתוח מעמיק · טיפים אישיים<br><br>
+    <span style="color:var(--cyan);font-size:16px;font-family:'Orbitron',monospace">$9.99 / חודש</span>
+  </div>
+  <button class="gate-btn" onclick="window.location.href='index.html'">🏠 חזור לאפליקציה לרכישה</button>
+  <div class="gate-back" onclick="bypassForAdmin()">קוד מנהל</div>
+  <input type="text" id="adminInput" placeholder="הכנס קוד מנהל" style="display:none;margin-top:8px;background:rgba(255,255,255,.07);border:1px solid var(--border);color:#eaf6ff;padding:8px 14px;border-radius:5px;font-family:'Share Tech Mono',monospace;text-align:center">
+</div>
+
 <header>
   <div class="logo">
     <svg width="22" height="25" viewBox="0 0 64 72">
@@ -155,6 +210,7 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       </g>
     </svg>
     KALOS · AI COACH
+    <span class="pro-badge">PRO</span>
   </div>
   <button class="back-btn" onclick="history.back()">‹ חזרה</button>
 </header>
@@ -163,8 +219,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 
   <!-- VIDEO AREA -->
   <div class="cam-wrap" id="camWrap">
-
-    <!-- Drag flash -->
     <div class="drag-flash" id="dragFlash">
       <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
@@ -172,12 +226,10 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       <div class="drag-flash-txt">שחרר לניתוח</div>
     </div>
 
-    <!-- Media box — sized to match video AR -->
     <div id="mediaBox">
       <video id="inputVideo" playsinline muted style="display:none"></video>
       <video id="videoFile" playsinline loop style="display:none"></video>
       <canvas id="outputCanvas"></canvas>
-      <!-- HUD corners inside box -->
       <div class="hud-corner tl"></div><div class="hud-corner tr"></div>
       <div class="hud-corner bl"></div><div class="hud-corner br"></div>
     </div>
@@ -194,7 +246,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       <div class="form-label">FORM</div>
     </div>
 
-    <!-- Placeholder -->
     <div class="cam-placeholder" id="camPlaceholder">
       <div class="drop-zone-hint">🎬</div>
       <p>גרור סרטון לכאן<br>או בחר קובץ / מצלמה</p>
@@ -202,7 +253,6 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       <button class="placeholder-btn sec" onclick="startLive()">📷 מצלמה חיה</button>
       <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="handleFileSelect(this.files[0])">
     </div>
-
   </div>
 
   <!-- PANEL -->
@@ -220,42 +270,74 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       <div id="variantList"></div>
     </div>
 
-    <!-- Camera angle guide -->
-    <div id="angleGuide" style="display:none;margin:0 14px 12px;padding:10px 12px;
+    <!-- Angle guide -->
+    <div id="angleGuide" style="display:none;margin:0 14px 10px;padding:9px 12px;
       background:rgba(139,61,255,.06);border:1px solid rgba(139,61,255,.25);border-radius:7px;
       font-size:11px;line-height:1.7;color:#c8a4ff">
       <b style="color:var(--cyan)">📐 זווית:</b> <span id="angleText"></span>
     </div>
 
-    <!-- Metrics -->
-    <div class="panel-sec">
-      <div class="panel-title">מדדים</div>
-      <div class="metric"><span class="metric-label">זווית מרפק</span><span class="metric-val" id="mElbow" style="color:var(--cyan)">—°</span></div>
-      <div class="metric"><span class="metric-label">זווית ירך</span><span class="metric-val" id="mHip" style="color:var(--gold)">—°</span></div>
-      <div class="metric"><span class="metric-label">יישור גוף</span><span class="metric-val" id="mBody">—</span></div>
-      <div class="metric"><span class="metric-label">שלב תנועה</span><span class="metric-val" id="mPhase" style="color:var(--success)">—</span></div>
-      <div class="metric"><span class="metric-label">ביטחון זיהוי</span><span class="metric-val" id="mConf">—%</span></div>
+    <!-- Tabs: Metrics | Log | Feedback -->
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('metrics')">מדדים</button>
+      <button class="tab-btn" onclick="switchTab('log')">יומן</button>
+      <button class="tab-btn" onclick="switchTab('feedback')">משוב AI</button>
     </div>
 
-    <!-- Feedback -->
-    <div style="padding:8px 14px 4px;font-size:9px;letter-spacing:.2em;color:var(--muted)">משוב AI</div>
-    <div style="padding:0 14px 8px;flex:1;overflow-y:auto" id="feedbackList">
-      <div class="fb-item info">בחר קטגוריה ותרגיל להתחלה.</div>
+    <!-- METRICS TAB -->
+    <div class="tab-pane active" id="tab-metrics">
+      <div style="margin-bottom:6px">
+        <div class="panel-title" style="margin-top:6px">זוויות עיקריות</div>
+        <div class="metrics-grid">
+          <div class="metric"><span class="metric-label">מרפק ימין</span><span class="metric-val" id="mElbowR" style="color:var(--cyan)">—°</span></div>
+          <div class="metric"><span class="metric-label">מרפק שמאל</span><span class="metric-val" id="mElbowL" style="color:var(--cyan)">—°</span></div>
+          <div class="metric"><span class="metric-label">ברך ימין</span><span class="metric-val" id="mKneeR" style="color:var(--gold)">—°</span></div>
+          <div class="metric"><span class="metric-label">ברך שמאל</span><span class="metric-val" id="mKneeL" style="color:var(--gold)">—°</span></div>
+          <div class="metric"><span class="metric-label">ירך ימין</span><span class="metric-val" id="mHipR" style="color:#c8a4ff">—°</span></div>
+          <div class="metric"><span class="metric-label">ירך שמאל</span><span class="metric-val" id="mHipL" style="color:#c8a4ff">—°</span></div>
+          <div class="metric"><span class="metric-label">כתף ימין</span><span class="metric-val" id="mShldrR" style="color:var(--blue)">—°</span></div>
+          <div class="metric"><span class="metric-label">כתף שמאל</span><span class="metric-val" id="mShldrL" style="color:var(--blue)">—°</span></div>
+        </div>
+      </div>
+      <div style="margin-top:6px">
+        <div class="panel-title">יישור גוף</div>
+        <div class="metrics-grid">
+          <div class="metric"><span class="metric-label">עמוד שדרה</span><span class="metric-val" id="mSpine" style="color:var(--success)">—°</span></div>
+          <div class="metric"><span class="metric-label">סימטריה</span><span class="metric-val" id="mSym">—%</span></div>
+          <div class="metric"><span class="metric-label">שלב תנועה</span><span class="metric-val" id="mPhase" style="color:var(--gold)">—</span></div>
+          <div class="metric"><span class="metric-label">זיהוי AI</span><span class="metric-val" id="mConf">—%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOG TAB -->
+    <div class="tab-pane" id="tab-log">
+      <div class="panel-title" style="margin-top:6px">יומן חזרות</div>
+      <div id="repLogList">
+        <div style="font-size:11px;color:var(--muted);padding:10px 0">לא בוצעו חזרות עדיין</div>
+      </div>
+    </div>
+
+    <!-- FEEDBACK TAB -->
+    <div class="tab-pane" id="tab-feedback">
+      <div class="panel-title" style="margin-top:6px">משוב AI בזמן אמת</div>
+      <div id="feedbackList">
+        <div class="fb-item info">בחר תרגיל להתחלה.</div>
+      </div>
     </div>
 
     <!-- Controls -->
     <div class="ctrl-row">
       <button class="btn-main" id="startBtn" onclick="toggleSource()">▶ התחל</button>
-      <button class="btn-verdict" id="verdictBtn" onclick="showVerdict()" disabled>🏅 תוצאה</button>
+      <button class="btn-verdict" id="verdictBtn" onclick="showVerdict()" disabled>🏅 סיכום</button>
     </div>
-
   </div>
 </div>
 
 <!-- Loading -->
 <div id="loadingOv">
   <div class="loading-ring"></div>
-  <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.2em;color:var(--cyan)">AI COACH</div>
+  <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.2em;color:var(--cyan)">AI COACH PRO</div>
   <div style="font-size:11px;color:var(--muted)" id="loadingMsg">טוען מודל...</div>
 </div>
 
@@ -269,117 +351,72 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
 <script>
 /* ================================================================
-   EXERCISE DEFINITIONS — categories + variants
+   SUBSCRIPTION GATE
+   ================================================================ */
+const ADMIN_CODE='AJ@Ffd&@34';
+function hasProAccess(){
+  try{
+    const s=JSON.parse(localStorage.getItem('kalos_state')||'{}');
+    if(s.admin)return true;
+    const sub=s.subscription;
+    if(!sub)return false;
+    if(sub.expiresAt<Date.now()){s.subscription=null;localStorage.setItem('kalos_state',JSON.stringify(s));return false;}
+    return true;
+  }catch(e){return false;}
+}
+function checkGate(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('fromJarvis')==='1')return; // owner bypass
+  if(!hasProAccess())document.getElementById('gateScreen').classList.add('show');
+}
+function bypassForAdmin(){
+  const inp=document.getElementById('adminInput');
+  if(inp.style.display==='none'){inp.style.display='block';inp.focus();return;}
+  if(inp.value===ADMIN_CODE){
+    document.getElementById('gateScreen').classList.remove('show');
+  } else {
+    inp.style.borderColor='var(--danger)';setTimeout(()=>inp.style.borderColor='',800);
+  }
+}
+document.getElementById('adminInput').addEventListener('keydown',e=>{if(e.key==='Enter')bypassForAdmin();});
+
+/* ================================================================
+   EXERCISE DEFINITIONS
    ================================================================ */
 const CATS={
-  pullup:{name:'מתח',icon:'🦅',
-    variants:{
-      pu_basic:{name:'מתח רגיל',desc:'אחיזה על-יד',minReps:1,
-        angle:'פרופיל (צד) — הגוף ימין/שמאל למצלמה',
-        criteria:{reps:1,form:60},
-        analyze(lm,c){return analyzePullup(lm,c,'overhand');}},
-      pu_wide:{name:'מתח רחב',desc:'אחיזה רחבה מעל כתפיים',minReps:1,
-        angle:'פרופיל (צד)',
-        criteria:{reps:1,form:60},
-        analyze(lm,c){return analyzePullup(lm,c,'wide');}},
-      pu_archer:{name:'מתח קשת',desc:'יד אחת ישרה, יד אחת מושכת',minReps:1,
-        angle:'פרופיל (צד)',
-        criteria:{reps:1,form:55},
-        analyze(lm,c){return analyzePullup(lm,c,'archer');}},
-      pu_oa:{name:'מתח חד-יד',desc:'OA Pull-up',minReps:1,
-        angle:'פרופיל (צד)',
-        criteria:{reps:1,form:50},
-        analyze(lm,c){return analyzePullup(lm,c,'oa');}},
-    }
-  },
-  pushup:{name:'שכיבות',icon:'💪',
-    variants:{
-      pu_normal:{name:'שכיבות רגילות',desc:'ידיים רוחב כתפיים',minReps:5,
-        angle:'פרופיל (צד) — גוף שטוח',
-        criteria:{reps:5,form:65},
-        analyze:analyzePushup},
-      pu_diamond:{name:'שכיבות יהלום',desc:'אצבעות נוגעות — Triangle',minReps:5,
-        angle:'פרופיל (צד)',
-        criteria:{reps:5,form:65},
-        analyze:analyzePushup},
-      pu_pike:{name:'שכיבות פייק',desc:'ירכיים למעלה — V shape',minReps:5,
-        angle:'פרופיל (צד)',
-        criteria:{reps:5,form:60},
-        analyze:analyzePikePushup},
-      pu_pseudo:{name:'Pseudo Planche Push-up',desc:'ידיים לאחור, גוף קדימה',minReps:3,
-        angle:'פרופיל (צד)',
-        criteria:{reps:3,form:55},
-        analyze:analyzePushup},
-      pu_wall_hspu:{name:'HSPU לקיר',desc:'שכיבה בעמידת ידיים לקיר',minReps:1,
-        angle:'פרופיל (צד) — הקיר בצד',
-        criteria:{reps:1,form:55},
-        analyze:analyzeHSPU},
-      pu_free_hspu:{name:'HSPU חופשי',desc:'שכיבה בעמידת ידיים',minReps:1,
-        angle:'פרופיל (צד)',
-        criteria:{reps:1,form:60},
-        analyze:analyzeHSPU},
-    }
-  },
-  dip:{name:'מקבילים',icon:'🔻',
-    variants:{
-      dip_std:{name:'מקבילים רגיל',desc:'גוף אנכי',minReps:5,
-        angle:'פרופיל (צד)',
-        criteria:{reps:5,form:65},
-        analyze:analyzeDip},
-      dip_lean:{name:'מקבילים הטיה',desc:'הטיה קדימה לחזה',minReps:5,
-        angle:'פרופיל (צד)',
-        criteria:{reps:5,form:60},
-        analyze:analyzeDip},
-    }
-  },
-  handstand:{name:'עמידת ידיים',icon:'🤸',
-    variants:{
-      hs_wall:{name:'עמידת ידיים לקיר',desc:'חזה לקיר / גב לקיר',holdSec:10,
-        angle:'פרופיל (צד) — הקיר נראה, כל הגוף בפריים',
-        criteria:{hold:10,form:55},
-        analyze:analyzeHandstand},
-      hs_free:{name:'עמידת ידיים חופשית',desc:'ללא תמיכה',holdSec:5,
-        angle:'פרופיל (צד) — כל הגוף בפריים',
-        criteria:{hold:5,form:60},
-        analyze:analyzeHandstand},
-      hs_shape:{name:'Handstand Shape',desc:'בדיקת יישור — קו ישר מכף רגל לכף יד',holdSec:5,
-        angle:'מהצד — מרחק 3-4 מטר',
-        criteria:{hold:5,form:75},
-        analyze:analyzeHandstand},
-    }
-  },
-  skill:{name:'כוח / סקיל',icon:'⚡',
-    variants:{
-      lsit:{name:'L-Sit',desc:'רגליים מקביל לרצפה',holdSec:5,
-        angle:'פרופיל (צד)',
-        criteria:{hold:5,form:65},
-        analyze:analyzeLSit},
-      planche_lean:{name:'Planche Lean',desc:'הישענות פלאנץ׳',holdSec:10,
-        angle:'פרופיל (צד)',
-        criteria:{hold:10,form:60},
-        analyze:analyzePlancheLean},
-      fl_tuck:{name:'Front Lever Tuck',desc:'תנוחת מינוף קדמי מגולגל',holdSec:5,
-        angle:'פרופיל (צד)',
-        criteria:{hold:5,form:55},
-        analyze:analyzeFrontLever},
-    }
-  },
-  legs:{name:'רגליים',icon:'🦵',
-    variants:{
-      squat:{name:'סקוואט',desc:'מתחת למקבילה',minReps:10,
-        angle:'פרופיל (צד)',
-        criteria:{reps:10,form:65},
-        analyze:analyzeSquat},
-      pistol_neg:{name:'פיסטול שלילי',desc:'ירידה על רגל אחת',minReps:3,
-        angle:'פרופיל (צד)',
-        criteria:{reps:3,form:55},
-        analyze:analyzeSquat},
-      pistol:{name:'פיסטול',desc:'Pistol Squat מלא',minReps:1,
-        angle:'פרופיל (צד)',
-        criteria:{reps:1,form:60},
-        analyze:analyzeSquat},
-    }
-  },
+  pullup:{name:'מתח',icon:'🦅',variants:{
+    pu_basic:{name:'מתח רגיל',desc:'אחיזה על-יד',minReps:1,angle:'פרופיל (צד) — הגוף ימין/שמאל למצלמה',criteria:{reps:1,form:60},analyze(lm,c){return analyzePullup(lm,c,'overhand');}},
+    pu_wide:{name:'מתח רחב',desc:'אחיזה רחבה',minReps:1,angle:'פרופיל (צד)',criteria:{reps:1,form:60},analyze(lm,c){return analyzePullup(lm,c,'wide');}},
+    pu_archer:{name:'מתח קשת',desc:'יד אחת ישרה, יד אחת מושכת',minReps:1,angle:'פרופיל (צד)',criteria:{reps:1,form:55},analyze(lm,c){return analyzePullup(lm,c,'archer');}},
+    pu_oa:{name:'מתח חד-יד',desc:'OA Pull-up',minReps:1,angle:'פרופיל (צד)',criteria:{reps:1,form:50},analyze(lm,c){return analyzePullup(lm,c,'oa');}},
+  }},
+  pushup:{name:'שכיבות',icon:'💪',variants:{
+    pu_normal:{name:'שכיבות רגילות',desc:'ידיים רוחב כתפיים',minReps:5,angle:'פרופיל (צד) — גוף שטוח',criteria:{reps:5,form:65},analyze:analyzePushup},
+    pu_diamond:{name:'שכיבות יהלום',desc:'Triangle — אצבעות נוגעות',minReps:5,angle:'פרופיל (צד)',criteria:{reps:5,form:65},analyze:analyzePushup},
+    pu_pike:{name:'שכיבות פייק',desc:'ירכיים למעלה — V shape',minReps:5,angle:'פרופיל (צד)',criteria:{reps:5,form:60},analyze:analyzePikePushup},
+    pu_pseudo:{name:'Pseudo Planche',desc:'ידיים לאחור, גוף קדימה',minReps:3,angle:'פרופיל (צד)',criteria:{reps:3,form:55},analyze:analyzePushup},
+    pu_wall_hspu:{name:'HSPU לקיר',desc:'שכיבה בעמידת ידיים לקיר',minReps:1,angle:'פרופיל (צד) — הקיר בצד',criteria:{reps:1,form:55},analyze:analyzeHSPU},
+    pu_free_hspu:{name:'HSPU חופשי',desc:'שכיבה בעמידת ידיים',minReps:1,angle:'פרופיל (צד)',criteria:{reps:1,form:60},analyze:analyzeHSPU},
+  }},
+  dip:{name:'מקבילים',icon:'🔻',variants:{
+    dip_std:{name:'מקבילים רגיל',desc:'גוף אנכי',minReps:5,angle:'פרופיל (צד)',criteria:{reps:5,form:65},analyze:analyzeDip},
+    dip_lean:{name:'מקבילים הטיה',desc:'הטיה קדימה לחזה',minReps:5,angle:'פרופיל (צד)',criteria:{reps:5,form:60},analyze:analyzeDip},
+  }},
+  handstand:{name:'עמידת ידיים',icon:'🤸',variants:{
+    hs_wall:{name:'עמידת ידיים לקיר',desc:'חזה / גב לקיר',holdSec:10,angle:'פרופיל (צד) — כל הגוף בפריים',criteria:{hold:10,form:55},analyze:analyzeHandstand},
+    hs_free:{name:'עמידת ידיים חופשית',desc:'ללא תמיכה',holdSec:5,angle:'פרופיל (צד) — כל הגוף בפריים',criteria:{hold:5,form:60},analyze:analyzeHandstand},
+    hs_shape:{name:'Handstand Shape',desc:'קו ישר מכף רגל לכף יד',holdSec:5,angle:'מהצד — מרחק 3-4 מטר',criteria:{hold:5,form:75},analyze:analyzeHandstand},
+  }},
+  skill:{name:'כוח / סקיל',icon:'⚡',variants:{
+    lsit:{name:'L-Sit',desc:'רגליים מקביל לרצפה',holdSec:5,angle:'פרופיל (צד)',criteria:{hold:5,form:65},analyze:analyzeLSit},
+    planche_lean:{name:'Planche Lean',desc:'הישענות פלאנץ׳',holdSec:10,angle:'פרופיל (צד)',criteria:{hold:10,form:60},analyze:analyzePlancheLean},
+    fl_tuck:{name:'Front Lever Tuck',desc:'מינוף קדמי מגולגל',holdSec:5,angle:'פרופיל (צד)',criteria:{hold:5,form:55},analyze:analyzeFrontLever},
+  }},
+  legs:{name:'רגליים',icon:'🦵',variants:{
+    squat:{name:'סקוואט',desc:'מתחת למקבילה',minReps:10,angle:'פרופיל (צד)',criteria:{reps:10,form:65},analyze:analyzeSquat},
+    pistol_neg:{name:'פיסטול שלילי',desc:'ירידה על רגל אחת',minReps:3,angle:'פרופיל (צד)',criteria:{reps:3,form:55},analyze:analyzeSquat},
+    pistol:{name:'פיסטול',desc:'Pistol Squat מלא',minReps:1,angle:'פרופיל (צד)',criteria:{reps:1,form:60},analyze:analyzeSquat},
+  }},
 };
 
 /* ================================================================
@@ -392,147 +429,177 @@ function ang(a,b,c){
   const mag=Math.sqrt(ax*ax+ay*ay)*Math.sqrt(cx*cx+cy*cy);
   return mag===0?0:Math.round(Math.acos(Math.min(1,Math.max(-1,dot/mag)))*180/Math.PI);
 }
-function vis(lm,...idxs){return idxs.every(i=>lm[i]&&(lm[i].visibility||0)>0.4);}
+function vis(lm,...idxs){return idxs.every(i=>lm[i]&&(lm[i].visibility||0)>0.35);}
+function avgVis(lm,...idxs){return idxs.reduce((s,i)=>s+(lm[i]?.visibility||0),0)/idxs.length;}
 
 /* ================================================================
    ANALYZERS
    ================================================================ */
 function analyzePullup(lm,conf){
-  if(!vis(lm,12,14,16,24))return null;
-  const elbow=ang(lm[12],lm[14],lm[16]);
-  const body=ang(lm[12],lm[24],lm[28]);
-  const isUp=elbow<100&&lm[0].y>lm[12].y-0.05; // nose above shoulders
-  const isDown=elbow>155;
+  if(!vis(lm,12,14,16))return null;
+  const elR=ang(lm[12],lm[14],lm[16]);
+  const elL=vis(lm,11,13,15)?ang(lm[11],lm[13],lm[15]):elR;
+  const body=vis(lm,12,24,28)?ang(lm[12],lm[24],lm[28]):170;
+  const symm=100-Math.min(100,Math.abs(elR-elL));
+  const isUp=elR<100&&(lm[0]?.y||1)>lm[12].y-0.05;
+  const isDown=elR>155;
   const straight=body>155;
   const fb=[];
-  if(!straight)fb.push({t:'warn',m:'גוף לא ישר — לא לנדנד'});
-  if(isUp)fb.push({t:'good',m:'מצויין — סנטר מעל המוט'});
-  if(isDown&&straight)fb.push({t:'good',m:'ירידה מבוקרת'});
-  return{elbow,hip:body,phase:isUp?'למעלה':isDown?'תלייה':'בתנועה',isUp,isDown,form:straight?88:58,fb};
+  if(!straight)fb.push({t:'warn',m:'גוף לא ישר — אל תנדנד'});
+  if(isUp)fb.push({t:'good',m:'מצויין — סנטר מעל המוט ✓'});
+  if(isDown&&straight)fb.push({t:'good',m:'ירידה מבוקרת — טווח מלא'});
+  if(symm<75)fb.push({t:'bad',m:`אסימטריה — פער מרפקים ${Math.round(100-symm)}°`});
+  return{elR,elL,body,kneeR:0,kneeL:0,hipR:body,hipL:body,shldrR:0,shldrL:0,spine:body,symm,phase:isUp?'למעלה':isDown?'תלייה':'בתנועה',isUp,isDown,form:straight?88:58,fb};
 }
 function analyzePushup(lm,conf){
   if(!vis(lm,12,14,16,24,28))return null;
-  const elbow=ang(lm[12],lm[14],lm[16]);
-  const body=ang(lm[12],lm[24],lm[28]);
-  const sag=Math.abs(body-180);
-  const isUp=elbow>155; const isDown=elbow<100;
+  const elR=ang(lm[12],lm[14],lm[16]);
+  const elL=vis(lm,11,13,15)?ang(lm[11],lm[13],lm[15]):elR;
+  const hipR=ang(lm[12],lm[24],lm[28]);
+  const hipL=vis(lm,11,23,27)?ang(lm[11],lm[23],lm[27]):hipR;
+  const sag=Math.abs(hipR-180);
+  const symm=100-Math.min(100,Math.abs(elR-elL));
+  const isUp=elR>155; const isDown=elR<100;
   const plank=sag<22;
   const fb=[];
   if(!plank)fb.push({t:'bad',m:'הירכיים שוקעות — גוף ישר כקרש'});
-  else fb.push({t:'good',m:'פלאנק מושלם'});
-  if(isDown)fb.push({t:'good',m:'טווח מלא'});
-  return{elbow,hip:body,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:plank?86:52,fb};
+  else fb.push({t:'good',m:'פלאנק מושלם ✓'});
+  if(isDown)fb.push({t:'good',m:'טווח מלא — חזה קרוב לרצפה'});
+  if(symm<75)fb.push({t:'bad',m:`פער בין ידיים — ${Math.round(100-symm)}°`});
+  if(isDown&&elR<85)fb.push({t:'warn',m:'לא להגיע לנעילה בתחתית — עצור ב-90°'});
+  return{elR,elL,hipR,hipL,kneeR:0,kneeL:0,shldrR:0,shldrL:0,spine:hipR,symm,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:plank?86:52,fb};
 }
 function analyzePikePushup(lm,conf){
   if(!vis(lm,12,14,16,24))return null;
-  const elbow=ang(lm[12],lm[14],lm[16]);
-  const hip=ang(lm[12],lm[24],lm[28]);
-  const pikeOk=hip<100; // hips high
-  const isUp=elbow>150; const isDown=elbow<90;
+  const elR=ang(lm[12],lm[14],lm[16]);
+  const elL=vis(lm,11,13,15)?ang(lm[11],lm[13],lm[15]):elR;
+  const hipR=ang(lm[12],lm[24],lm[28]);
+  const hipL=vis(lm,11,23,27)?ang(lm[11],lm[23],lm[27]):hipR;
+  const pikeOk=hipR<100;
+  const isUp=elR>150; const isDown=elR<90;
   const fb=[];
   if(!pikeOk)fb.push({t:'warn',m:'הרם את הישבן — V כלפי מעלה'});
-  else fb.push({t:'good',m:'זווית Pike מצויינת'});
-  return{elbow,hip,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:pikeOk?82:55,fb};
+  else fb.push({t:'good',m:'זווית Pike מצויינת ✓'});
+  if(isDown&&pikeOk)fb.push({t:'good',m:'ראש כמעט בין הידיים — מושלם'});
+  return{elR,elL,hipR,hipL,kneeR:0,kneeL:0,shldrR:0,shldrL:0,spine:hipR,symm:100-Math.min(100,Math.abs(elR-elL)),phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:pikeOk?82:55,fb};
 }
 function analyzeHSPU(lm,conf){
   if(!vis(lm,15,16,12,14))return null;
-  // In HSPU: feet (27/28) are above head; wrists (15/16) on ground
-  const wristY=Math.max(lm[15].y,lm[16].y);
-  const feetY=Math.min(lm[27].y,lm[28].y);
+  const elR=ang(lm[12],lm[14],lm[16]);
+  const elL=vis(lm,11,13,15)?ang(lm[11],lm[13],lm[15]):elR;
+  const feetY=vis(lm,27,28)?Math.min(lm[27].y,lm[28].y):1;
   const inverted=feetY<lm[12].y;
-  const elbow=ang(lm[12],lm[14],lm[16]);
-  const isUp=elbow>155; const isDown=elbow<90;
+  const isUp=elR>155; const isDown=elR<90;
+  const symm=100-Math.min(100,Math.abs(elR-elL));
   const fb=[];
   if(!inverted)fb.push({t:'info',m:'עמוד על הידיים ← מחכה'});
-  else if(isDown)fb.push({t:'good',m:'ירידה מבוקרת'});
-  else if(isUp)fb.push({t:'good',m:'דחיפה מלאה'});
-  return{elbow,hip:0,phase:!inverted?'ממתין':isUp?'למעלה':isDown?'למטה':'בתנועה',isUp:inverted&&isUp,isDown:inverted&&isDown,form:inverted?80:30,fb};
+  else if(isDown)fb.push({t:'good',m:'ירידה מבוקרת — ראש קרוב לרצפה'});
+  else if(isUp)fb.push({t:'good',m:'דחיפה מלאה ✓'});
+  if(inverted&&symm<75)fb.push({t:'bad',m:'ידיים לא סימטריות — יישר'});
+  return{elR,elL,hipR:0,hipL:0,kneeR:0,kneeL:0,shldrR:0,shldrL:0,spine:0,symm,phase:!inverted?'ממתין':isUp?'למעלה':isDown?'למטה':'בתנועה',isUp:inverted&&isUp,isDown:inverted&&isDown,form:inverted?80:30,fb};
 }
 function analyzeDip(lm,conf){
   if(!vis(lm,12,14,16))return null;
-  const elbow=ang(lm[12],lm[14],lm[16]);
-  const shldr=ang(lm[14],lm[12],lm[24]);
-  const isUp=elbow>160; const isDown=elbow<100;
+  const elR=ang(lm[12],lm[14],lm[16]);
+  const elL=vis(lm,11,13,15)?ang(lm[11],lm[13],lm[15]):elR;
+  const shldrR=ang(lm[14],lm[12],lm[24]);
+  const shldrL=vis(lm,11,13,23)?ang(lm[13],lm[11],lm[23]):shldrR;
+  const isUp=elR>160; const isDown=elR<100;
   const fb=[];
-  if(shldr>55)fb.push({t:'warn',m:'אל תשפיל יותר מדי — סיכון לכתפיים'});
-  if(isDown)fb.push({t:'good',m:'עומק מצויין'});
-  return{elbow,hip:shldr,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:isDown&&shldr<55?88:65,fb};
+  if(shldrR>55)fb.push({t:'warn',m:'אל תשפיל יותר מדי — סיכון לכתפיים'});
+  else if(isDown)fb.push({t:'good',m:'עומק מצויין ✓'});
+  if(isUp)fb.push({t:'good',m:'נעילה מלאה בראש'});
+  return{elR,elL,shldrR,shldrL,hipR:shldrR,hipL:shldrL,kneeR:0,kneeL:0,spine:0,symm:100-Math.min(100,Math.abs(elR-elL)),phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:isDown&&shldrR<55?88:65,fb};
 }
 function analyzeHandstand(lm,conf){
   if(conf<0.5)return null;
-  const feetY=Math.min(lm[27]?.y||1,lm[28]?.y||1);
-  const shoulderY=(lm[11].y+lm[12].y)/2;
-  const inverted=feetY<shoulderY-0.1;
-  const feetX=(lm[27].x+lm[28].x)/2;
-  const wristX=(lm[15].x+lm[16].x)/2;
-  const aligned=Math.abs(feetX-wristX)<0.1;
+  const feetY=vis(lm,27,28)?Math.min(lm[27].y,lm[28].y):1;
+  const shldrY=(lm[11].y+lm[12].y)/2;
+  const inverted=feetY<shldrY-0.1;
+  const feetX=vis(lm,27,28)?(lm[27].x+lm[28].x)/2:0.5;
+  const wristX=vis(lm,15,16)?(lm[15].x+lm[16].x)/2:0.5;
+  const hipX=vis(lm,23,24)?(lm[23].x+lm[24].x)/2:0.5;
+  const aligned=Math.abs(feetX-wristX)<0.12;
+  const hipsAligned=Math.abs(hipX-wristX)<0.1;
+  const elR=vis(lm,12,14,16)?ang(lm[12],lm[14],lm[16]):180;
+  const symm=100-Math.min(100,Math.abs(feetX-wristX)*200);
   const fb=[];
   if(!inverted)fb.push({t:'info',m:'עמוד על הידיים ← ממתין'});
   else if(!aligned)fb.push({t:'warn',m:'יישר — כפות רגליים מעל ידיים'});
-  else fb.push({t:'good',m:'עמידת ידיים מיושרת! ✓'});
-  return{elbow:0,hip:0,phase:!inverted?'ממתין':aligned?'מיושר ✓':'לא מיושר',isUp:false,isDown:false,form:inverted&&aligned?92:inverted?62:20,fb};
+  else if(!hipsAligned)fb.push({t:'warn',m:'ירכיים לא מיושרות'});
+  else fb.push({t:'good',m:'עמידת ידיים מושלמת! ✓'});
+  if(inverted&&elR<160)fb.push({t:'warn',m:'נעל את המרפקים — ידיים ישרות'});
+  return{elR,elL:elR,hipR:0,hipL:0,kneeR:0,kneeL:0,shldrR:0,shldrL:0,spine:0,symm,phase:!inverted?'ממתין':aligned?'מיושר ✓':'לא מיושר',isUp:false,isDown:false,form:inverted&&aligned?92:inverted?62:20,fb};
 }
 function analyzeLSit(lm,conf){
   if(!vis(lm,12,24,26,14,16))return null;
-  const hipA=ang(lm[12],lm[24],lm[26]);
-  const kneeA=ang(lm[24],lm[26],lm[28]);
-  const elbowA=ang(lm[12],lm[14],lm[16]);
-  const hipsUp=hipA<100;
-  const legsStr=kneeA>155;
-  const armsLock=elbowA>155;
+  const hipR=ang(lm[12],lm[24],lm[26]);
+  const hipL=vis(lm,11,23,25)?ang(lm[11],lm[23],lm[25]):hipR;
+  const kneeR=ang(lm[24],lm[26],lm[28]);
+  const kneeL=vis(lm,23,25,27)?ang(lm[23],lm[25],lm[27]):kneeR;
+  const elR=ang(lm[12],lm[14],lm[16]);
+  const elL=vis(lm,11,13,15)?ang(lm[11],lm[13],lm[15]):elR;
+  const hipsUp=hipR<100; const legsStr=kneeR>155; const armsLock=elR>155;
   const fb=[];
-  if(!hipsUp)fb.push({t:'warn',m:`הרם את הרגליים — ירך: ${hipA}°`});
-  if(hipsUp&&!legsStr)fb.push({t:'warn',m:'ישר את הברכיים'});
-  if(hipsUp&&legsStr&&armsLock)fb.push({t:'good',m:'L-Sit מושלם!'});
-  return{elbow:elbowA,hip:hipA,phase:hipsUp&&armsLock?'L-SIT ✓':'עבודה...',isUp:false,isDown:false,form:hipsUp&&legsStr&&armsLock?92:hipsUp?68:40,fb};
+  if(!hipsUp)fb.push({t:'warn',m:`הרם את הרגליים — ירך: ${hipR}°`});
+  if(hipsUp&&!legsStr)fb.push({t:'warn',m:'ישר את הברכיים לחלוטין'});
+  if(hipsUp&&!armsLock)fb.push({t:'warn',m:'נעל את המרפקים — ידיים ישרות'});
+  if(hipsUp&&legsStr&&armsLock)fb.push({t:'good',m:'L-Sit מושלם! ✓'});
+  return{elR,elL,hipR,hipL,kneeR,kneeL,shldrR:0,shldrL:0,spine:0,symm:100-Math.min(100,Math.abs(kneeR-kneeL)),phase:hipsUp&&armsLock?'L-SIT ✓':'עבודה...',isUp:false,isDown:false,form:hipsUp&&legsStr&&armsLock?92:hipsUp?68:40,fb};
 }
 function analyzePlancheLean(lm,conf){
   if(!vis(lm,12,16,24))return null;
   const leanAngle=ang(lm[16],lm[12],lm[24]);
   const bodyA=ang(lm[12],lm[24],lm[28]);
-  const leanOk=leanAngle<65;
-  const bodyStr=bodyA>165;
+  const elR=vis(lm,12,14,16)?ang(lm[12],lm[14],lm[16]):180;
+  const elL=vis(lm,11,13,15)?ang(lm[11],lm[13],lm[15]):elR;
+  const leanOk=leanAngle<65; const bodyStr=bodyA>165;
   const fb=[];
   if(!leanOk)fb.push({t:'warn',m:'הטה יותר קדימה — כתפיים לפני ידיים'});
-  else fb.push({t:'good',m:'הטיה מצויינת'});
-  if(!bodyStr)fb.push({t:'bad',m:'גוף לא ישר'});
-  return{elbow:leanAngle,hip:bodyA,phase:leanOk&&bodyStr?'פוזיציה ✓':'מתכוונן',isUp:false,isDown:false,form:leanOk&&bodyStr?88:55,fb};
+  else fb.push({t:'good',m:'הטיה מצויינת ✓'});
+  if(!bodyStr)fb.push({t:'bad',m:'גוף לא ישר — שמור על פלאנק'});
+  if(leanOk&&bodyStr)fb.push({t:'good',m:'Planche Lean מושלם'});
+  return{elR,elL,hipR:bodyA,hipL:bodyA,kneeR:0,kneeL:0,shldrR:leanAngle,shldrL:leanAngle,spine:bodyA,symm:100-Math.min(100,Math.abs(elR-elL)),phase:leanOk&&bodyStr?'פוזיציה ✓':'מתכוונן',isUp:false,isDown:false,form:leanOk&&bodyStr?88:55,fb};
 }
 function analyzeFrontLever(lm,conf){
   if(!vis(lm,12,24,27))return null;
   const hipA=ang(lm[12],lm[24],lm[27]);
   const bodyHoriz=Math.abs(lm[12].y-lm[27].y)<0.08;
+  const elR=vis(lm,12,14,16)?ang(lm[12],lm[14],lm[16]):180;
   const fb=[];
-  if(!bodyHoriz)fb.push({t:'warn',m:'הגוף לא אופקי — הרם את הישבן והרגליים'});
+  if(!bodyHoriz)fb.push({t:'warn',m:'הגוף לא אופקי — הרם ישבן ורגליים'});
   else fb.push({t:'good',m:'גוף אופקי — Front Lever ✓'});
-  return{elbow:0,hip:hipA,phase:bodyHoriz?'אופקי ✓':'מתכוונן',isUp:false,isDown:false,form:bodyHoriz?85:45,fb};
+  if(elR<160)fb.push({t:'warn',m:'נעל מרפקים — ידיים ישרות לחלוטין'});
+  return{elR,elL:elR,hipR:hipA,hipL:hipA,kneeR:0,kneeL:0,shldrR:0,shldrL:0,spine:hipA,symm:90,phase:bodyHoriz?'אופקי ✓':'מתכוונן',isUp:false,isDown:false,form:bodyHoriz?85:45,fb};
 }
 function analyzeSquat(lm,conf){
   if(!vis(lm,24,26,28))return null;
-  const kneeA=ang(lm[24],lm[26],lm[28]);
-  const hipA=ang(lm[12],lm[24],lm[26]);
-  const isUp=kneeA>160; const isDown=kneeA<100;
+  const kneeR=ang(lm[24],lm[26],lm[28]);
+  const kneeL=vis(lm,23,25,27)?ang(lm[23],lm[25],lm[27]):kneeR;
+  const hipR=ang(lm[12],lm[24],lm[26]);
+  const hipL=vis(lm,11,23,25)?ang(lm[11],lm[23],lm[25]):hipR;
+  const symm=100-Math.min(100,Math.abs(kneeR-kneeL));
+  const isUp=kneeR>160; const isDown=kneeR<100;
   const fb=[];
-  if(isDown&&hipA>80)fb.push({t:'warn',m:'גב נוטה קדימה — שמור על עמוד שדרה ניטרלי'});
-  if(isDown&&kneeA<90)fb.push({t:'good',m:'עומק מתחת למקבילה ✓'});
+  if(isDown&&hipR>80)fb.push({t:'warn',m:'גב נוטה קדימה — שמור עמוד שדרה ניטרלי'});
+  if(isDown&&kneeR<90)fb.push({t:'good',m:'עומק מתחת למקבילה ✓'});
+  if(symm<75)fb.push({t:'bad',m:`אסימטריה בברכיים — פער ${Math.round(100-symm)}°`});
   if(isUp)fb.push({t:'good',m:'עמידה מלאה'});
-  return{elbow:kneeA,hip:hipA,phase:isUp?'למעלה':isDown?'עמוק':'בתנועה',isUp,isDown,form:isDown&&hipA<75?88:65,fb};
+  return{elR:kneeR,elL:kneeL,hipR,hipL,kneeR,kneeL,shldrR:0,shldrL:0,spine:hipR,symm,phase:isUp?'למעלה':isDown?'עמוק':'בתנועה',isUp,isDown,form:isDown&&hipR<75?88:65,fb};
 }
 
 /* ================================================================
    STATE
    ================================================================ */
-let currentCat=null, currentVariant=null, currentEx=null;
-let cameraRunning=false, videoFileMode=false;
-let repCount=0, holdSec=0, holdStart=null, lastPhase=null;
-let formHistory=[], allFeedback=[];
-let pose=null, cameraObj=null, lmBuf=[], fileTimer=null;
-let analysisFrames=0;
-let goodStreak=0;        // consecutive frames with form>=80
-let videoLoopCount=0;   // how many times the video looped
-let verdictShown=false; // don't auto-show twice
-const PASS_FORM=80;     // threshold %
-const PASS_FRAMES=25;   // need 25 consecutive good frames (~2s at 12fps)
+let currentCat=null,currentVariant=null,currentEx=null;
+let cameraRunning=false,videoFileMode=false;
+let repCount=0,holdSec=0,holdStart=null,lastPhase=null;
+let formHistory=[],allFeedback=[],repLog=[];
+let pose=null,cameraObj=null,lmBuf=[],fileTimer=null;
+let analysisFrames=0,goodStreak=0,videoLoopCount=0,verdictShown=false;
+let sessionErrors=[],sessionGoods=[];  // for summary
+const PASS_FORM=80,PASS_FRAMES=25;
+let currentTab='metrics';
 
 /* ================================================================
    MEDIAPIPE
@@ -555,7 +622,7 @@ async function initPose(){
    SMOOTH LANDMARKS
    ================================================================ */
 function smoothLm(lm){
-  lmBuf.push(lm); if(lmBuf.length>4)lmBuf.shift();
+  lmBuf.push(lm);if(lmBuf.length>4)lmBuf.shift();
   if(lmBuf.length<2)return lm;
   return lm.map((_,i)=>({
     x:lmBuf.reduce((s,f)=>s+f[i].x,0)/lmBuf.length,
@@ -566,53 +633,98 @@ function smoothLm(lm){
 }
 
 /* ================================================================
-   POSE RESULTS — draw ONLY inside #mediaBox
+   DRAW ALL 33 LANDMARKS — color by body part
+   ================================================================ */
+const JOINT_COLORS={
+  // Face
+  0:'#ffffff',1:'#cccccc',2:'#cccccc',3:'#cccccc',4:'#cccccc',5:'#cccccc',6:'#cccccc',7:'#cccccc',8:'#cccccc',9:'#cccccc',10:'#cccccc',
+  // Shoulders
+  11:'#00ffd5',12:'#00ffd5',
+  // Elbows
+  13:'#00a8ff',14:'#00a8ff',
+  // Wrists
+  15:'#8b3dff',16:'#8b3dff',
+  // Hands (17-22)
+  17:'#c8a4ff',18:'#c8a4ff',19:'#c8a4ff',20:'#c8a4ff',21:'#c8a4ff',22:'#c8a4ff',
+  // Hips
+  23:'#ffc14d',24:'#ffc14d',
+  // Knees
+  25:'#ff8c00',26:'#ff8c00',
+  // Ankles
+  27:'#ff3355',28:'#ff3355',
+  // Feet (29-32)
+  29:'#ff8099',30:'#ff8099',31:'#ff8099',32:'#ff8099',
+};
+const JOINT_SIZE={
+  // Big dots for key joints
+  11:7,12:7,13:6,14:6,15:5,16:5,
+  23:7,24:7,25:6,26:6,27:5,28:5,
+};
+function drawAllLandmarks(ctx,lm,cw,ch){
+  // Draw connections first
+  drawConnectors(ctx,lm,POSE_CONNECTIONS,{color:'rgba(0,168,255,.35)',lineWidth:2});
+  // Draw each landmark
+  lm.forEach((p,i)=>{
+    if((p.visibility||0)<0.3)return;
+    const x=p.x*cw,y=p.y*ch;
+    const r=JOINT_SIZE[i]||4;
+    const col=JOINT_COLORS[i]||'rgba(255,255,255,.7)';
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=col;ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.6)';ctx.lineWidth=1.5;ctx.stroke();
+  });
+}
+
+/* ================================================================
+   POSE RESULTS
    ================================================================ */
 function onPoseResults(results){
   const canvas=document.getElementById('outputCanvas');
   const ctx=canvas.getContext('2d');
 
-  // Size canvas to match the source image exactly
   if(canvas.width!==results.image.width||canvas.height!==results.image.height){
     canvas.width=results.image.width;
     canvas.height=results.image.height;
-    // Resize mediaBox to match AR
     sizeMediaBox(results.image.width,results.image.height);
   }
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  // Draw the video frame onto canvas (so skeleton overlays on top)
   ctx.drawImage(results.image,0,0,canvas.width,canvas.height);
 
-  if(!results.poseLandmarks||!currentEx){
-    setStatus('לא זוהה אדם...');return;
-  }
+  if(!results.poseLandmarks||!currentEx){setStatus('לא זוהה אדם...');return;}
 
   const lm=smoothLm(results.poseLandmarks);
   const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
   document.getElementById('mConf').textContent=Math.round(conf*100)+'%';
 
-  // Draw skeleton — custom colors
-  drawConnectors(ctx,lm,POSE_CONNECTIONS,{color:'rgba(0,168,255,.5)',lineWidth:3});
-  // Key joints highlighted
-  [12,14,16,11,13,15,24,26,28,23,25,27].forEach(i=>{
-    if(!lm[i]||lm[i].visibility<0.4)return;
-    ctx.beginPath();
-    ctx.arc(lm[i].x*canvas.width,lm[i].y*canvas.height,6,0,Math.PI*2);
-    ctx.fillStyle='rgba(0,255,213,.9)';ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.5;ctx.stroke();
-  });
+  // Draw all 33 landmarks
+  drawAllLandmarks(ctx,lm,canvas.width,canvas.height);
 
-  // Analyze
   const result=currentEx.analyze(lm,conf);
   if(!result){setStatus('מנסה לזהות...');return;}
   analysisFrames++;
 
-  // Update metrics
-  document.getElementById('mElbow').textContent=result.elbow+'°';
-  document.getElementById('mHip').textContent=result.hip?Math.round(result.hip)+'°':'—°';
-  document.getElementById('mBody').textContent=result.form>=75?'✓ טוב':'⚠ שיפור';
+  // Update all metrics
+  document.getElementById('mElbowR').textContent=result.elR?result.elR+'°':'—°';
+  document.getElementById('mElbowL').textContent=result.elL?result.elL+'°':'—°';
+  document.getElementById('mKneeR').textContent=result.kneeR?result.kneeR+'°':'—°';
+  document.getElementById('mKneeL').textContent=result.kneeL?result.kneeL+'°':'—°';
+  document.getElementById('mHipR').textContent=result.hipR?Math.round(result.hipR)+'°':'—°';
+  document.getElementById('mHipL').textContent=result.hipL?Math.round(result.hipL)+'°':'—°';
+  document.getElementById('mShldrR').textContent=result.shldrR?result.shldrR+'°':'—°';
+  document.getElementById('mShldrL').textContent=result.shldrL?result.shldrL+'°':'—°';
+  document.getElementById('mSpine').textContent=result.spine?result.spine+'°':'—°';
+  const sym=result.symm||0;
+  const symEl=document.getElementById('mSym');
+  symEl.textContent=Math.round(sym)+'%';
+  symEl.style.color=sym>=85?'var(--success)':sym>=70?'var(--gold)':'var(--danger)';
   document.getElementById('mPhase').textContent=result.phase;
+
+  // Angle labels on canvas
+  if(result.elR&&vis(lm,14))drawAngLabel(ctx,lm[14],result.elR+'°','#00ffd5',canvas);
+  if(result.hipR&&vis(lm,24))drawAngLabel(ctx,lm[24],Math.round(result.hipR)+'°','#ffc14d',canvas);
+  if(result.kneeR&&vis(lm,26))drawAngLabel(ctx,lm[26],result.kneeR+'°','#ff8c00',canvas);
+  if(result.elL&&vis(lm,13)&&Math.abs(result.elR-result.elL)>5)drawAngLabel(ctx,lm[13],result.elL+'°','#00c8ff',canvas);
 
   // Form score
   const fs=result.form||0;
@@ -621,24 +733,32 @@ function onPoseResults(results){
   fsEl.textContent=fs;
   fsEl.style.color=fs>=80?'var(--success)':fs>=60?'var(--gold)':'var(--danger)';
 
-  // Good-frame streak → auto-verdict at 80%+
+  // Collect session errors & goodies for summary
+  if(result.fb){
+    result.fb.forEach(f=>{
+      if(f.t==='bad'||f.t==='warn'){
+        if(!sessionErrors.find(e=>e.m===f.m))sessionErrors.push(f);
+      } else if(f.t==='good'){
+        if(!sessionGoods.find(e=>e.m===f.m))sessionGoods.push(f);
+      }
+    });
+  }
+
+  // Good-frame streak → auto-verdict
   if(!verdictShown){
     if(fs>=PASS_FORM){
       goodStreak++;
       const pct=Math.min(100,Math.round(goodStreak/PASS_FRAMES*100));
       setStatus(`🔥 צורה מצויינת — ${pct}% לעבור`);
       updateProgressBar(pct);
-      if(goodStreak>=PASS_FRAMES){
-        triggerAutoVerdict(true);
-        return;
-      }
+      if(goodStreak>=PASS_FRAMES){triggerAutoVerdict(true);return;}
     }else{
-      if(goodStreak>0)goodStreak=Math.max(0,goodStreak-3); // decay slowly
+      if(goodStreak>0)goodStreak=Math.max(0,goodStreak-3);
       updateProgressBar(Math.round(goodStreak/PASS_FRAMES*100));
     }
   }
 
-  // Rep / hold counting
+  // Rep / hold
   const ex=currentEx;
   if(ex.holdSec){
     if(fs>=50){
@@ -646,11 +766,14 @@ function onPoseResults(results){
       holdSec=Math.floor((Date.now()-holdStart)/1000);
       document.getElementById('repCount').textContent=holdSec+'s';
       if(!verdictShown)setStatus(`החזקה ${holdSec}/${ex.holdSec}s`);
-      if(holdSec>=ex.holdSec&&!verdictShown){triggerAutoVerdict(true);}
-    }else{holdStart=null;holdSec=0;if(!verdictShown)setStatus('שפר פוזיציה להתחלת ספירה');}
+      if(holdSec>=ex.holdSec&&!verdictShown)triggerAutoVerdict(true);
+    }else{holdStart=null;holdSec=0;if(!verdictShown)setStatus('שפר פוזיציה');}
   }else{
     if(result.isUp&&lastPhase==='down'){
       repCount++;
+      const avgFs=formHistory.length?Math.round(formHistory.slice(-15).reduce((a,b)=>a+b)/Math.min(15,formHistory.length)):fs;
+      repLog.push({rep:repCount,form:avgFs,phase:result.phase});
+      updateRepLog();
       const el=document.getElementById('repCount');
       el.textContent=repCount;
       el.style.color='var(--success)';setTimeout(()=>el.style.color='var(--cyan)',250);
@@ -658,10 +781,6 @@ function onPoseResults(results){
     lastPhase=result.isUp?'up':result.isDown?'down':lastPhase;
     if(!verdictShown&&goodStreak<PASS_FRAMES)setStatus(result.phase);
   }
-
-  // Angle labels on canvas
-  drawAngLabel(ctx,lm[14],result.elbow+'°','#00ffd5',canvas);
-  if(result.hip)drawAngLabel(ctx,lm[24],Math.round(result.hip)+'°','#ffc14d',canvas);
 
   // Throttled feedback
   if(result.fb?.length&&analysisFrames%15===0){
@@ -679,7 +798,6 @@ function triggerAutoVerdict(pass){
   if(verdictShown)return;
   verdictShown=true;
   updateProgressBar(pass?100:0);
-  // stop video/camera
   const vid=document.getElementById('videoFile');
   if(vid&&!vid.paused)vid.pause();
   if(fileTimer){clearInterval(fileTimer);fileTimer=null;}
@@ -687,7 +805,7 @@ function triggerAutoVerdict(pass){
   setTimeout(()=>showVerdict(pass),700);
 }
 
-/* ── Progress bar toward 80% ── */
+/* ── Progress bar ── */
 function updateProgressBar(pct){
   let bar=document.getElementById('formProgressBar');
   if(!bar){
@@ -701,17 +819,39 @@ function updateProgressBar(pct){
 }
 
 function drawAngLabel(ctx,lm,txt,color,canvas){
-  if(!lm||lm.visibility<0.4)return;
+  if(!lm||(lm.visibility||0)<0.35)return;
   const x=lm.x*canvas.width+8,y=lm.y*canvas.height-8;
-  ctx.font='bold 14px Share Tech Mono';
-  ctx.fillStyle='rgba(0,0,0,.6)';
-  ctx.fillRect(x-2,y-14,ctx.measureText(txt).width+6,18);
-  ctx.fillStyle=color;
-  ctx.fillText(txt,x+1,y);
+  ctx.font='bold 13px Share Tech Mono';
+  const w=ctx.measureText(txt).width;
+  ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(x-2,y-14,w+6,18);
+  ctx.fillStyle=color;ctx.fillText(txt,x+1,y);
+}
+
+/* ── Rep log ── */
+function updateRepLog(){
+  const list=document.getElementById('repLogList');
+  list.innerHTML=repLog.slice().reverse().map(r=>{
+    const cls=r.form>=75?'rep-good':r.form>=55?'rep-warn':'rep-bad';
+    return `<div class="rep-log-item ${cls}">
+      <span>חזרה #${r.rep}</span>
+      <span style="font-family:'Orbitron',monospace;font-size:12px">${r.form}<span style="font-size:9px;color:var(--muted)">/100</span></span>
+    </div>`;
+  }).join('');
+}
+
+/* ── Tab switch ── */
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const tabs=['metrics','log','feedback'];
+    b.classList.toggle('active',tabs[i]===tab);
+  });
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
 }
 
 /* ================================================================
-   SIZE MEDIA BOX — keeps video AR, no canvas overflow
+   SIZE MEDIA BOX
    ================================================================ */
 function sizeMediaBox(w,h){
   const wrap=document.getElementById('camWrap');
@@ -720,8 +860,7 @@ function sizeMediaBox(w,h){
   const ar=w/h;
   let bw=ww,bh=wh;
   if(ww/wh>ar){bw=wh*ar;}else{bh=ww/ar;}
-  box.style.width=bw+'px';
-  box.style.height=bh+'px';
+  box.style.width=bw+'px';box.style.height=bh+'px';
   document.getElementById('outputCanvas').style.width=bw+'px';
   document.getElementById('outputCanvas').style.height=bh+'px';
 }
@@ -747,9 +886,7 @@ async function startLive(){
   try{
     const vid=document.getElementById('inputVideo');
     vid.style.display='block';
-    cameraObj=new Camera(vid,{
-      onFrame:async()=>{if(pose&&cameraRunning)await pose.send({image:vid});},
-      width:1280,height:720});
+    cameraObj=new Camera(vid,{onFrame:async()=>{if(pose&&cameraRunning)await pose.send({image:vid});},width:1280,height:720});
     await cameraObj.start();
     cameraRunning=true;
     document.getElementById('camPlaceholder').style.display='none';
@@ -777,7 +914,7 @@ async function handleFileSelect(file){
   document.getElementById('startBtn').textContent='⏹ עצור';
   document.getElementById('startBtn').classList.add('stop');
   addFb('info','🎬 '+file.name);
-  vid.loop=false; // we control looping manually
+  vid.loop=false;
   vid.onended=()=>{
     if(verdictShown)return;
     videoLoopCount++;
@@ -785,9 +922,8 @@ async function handleFileSelect(file){
     if(videoLoopCount>=2||avgForm>=PASS_FORM){
       triggerAutoVerdict(avgForm>=PASS_FORM);
     }else{
-      addFb('info',`סיבוב ${videoLoopCount}/2 — ממוצע צורה: ${avgForm}% — מנגן שוב...`);
-      vid.currentTime=0;
-      vid.play();
+      addFb('info',`סיבוב ${videoLoopCount}/2 — ממוצע: ${avgForm}% — מנגן שוב...`);
+      vid.currentTime=0;vid.play();
     }
   };
   vid.onloadeddata=()=>{
@@ -829,7 +965,7 @@ cw.addEventListener('drop',e=>{
 });
 
 /* ================================================================
-   EXERCISE SELECTOR — two-level
+   EXERCISE SELECTOR
    ================================================================ */
 function buildCatGrid(){
   const g=document.getElementById('catGrid');
@@ -864,16 +1000,17 @@ function selectVariant(catId,varId){
   document.getElementById('angleText').textContent=currentEx.angle;
   resetCounts();
   addFb('info',`✓ נבחר: ${currentEx.name}`);
-  const g=currentEx.holdSec?`מטרה: ${currentEx.holdSec}s החזקה`:`מטרה: ${currentEx.minReps} חזרות`;
-  addFb('info',g);
+  addFb('info',currentEx.holdSec?`מטרה: ${currentEx.holdSec}s החזקה`:`מטרה: ${currentEx.minReps} חזרות`);
 }
 function resetCounts(){
   repCount=0;holdSec=0;holdStart=null;lastPhase=null;
-  formHistory=[];allFeedback=[];analysisFrames=0;
+  formHistory=[];allFeedback=[];analysisFrames=0;repLog=[];
+  sessionErrors=[];sessionGoods=[];
   goodStreak=0;videoLoopCount=0;verdictShown=false;
   document.getElementById('repCount').textContent='0';
   document.getElementById('repLabel').textContent=currentEx?.holdSec?'שניות':'חזרות';
   document.getElementById('verdictBtn').disabled=true;
+  document.getElementById('repLogList').innerHTML='<div style="font-size:11px;color:var(--muted);padding:10px 0">לא בוצעו חזרות עדיין</div>';
   updateProgressBar(0);
   clearFb();
 }
@@ -886,13 +1023,19 @@ function addFb(type,msg){
   const d=document.createElement('div');
   d.className='fb-item '+type;d.textContent=msg;
   list.insertBefore(d,list.firstChild);
-  while(list.children.length>10)list.removeChild(list.lastChild);
+  while(list.children.length>12)list.removeChild(list.lastChild);
+  if(currentTab!=='feedback'&&(type==='bad'||type==='warn')){
+    // Flash the feedback tab indicator
+    const tabBtn=document.querySelectorAll('.tab-btn')[2];
+    tabBtn.style.color='var(--danger)';
+    setTimeout(()=>tabBtn.style.color=currentTab==='feedback'?'var(--cyan)':'var(--muted)',1200);
+  }
 }
 function clearFb(){document.getElementById('feedbackList').innerHTML='';}
 function setStatus(t){document.getElementById('statusBar').textContent=t;}
 
 /* ================================================================
-   VERDICT
+   VERDICT — rich summary
    ================================================================ */
 function showVerdict(autoPass){
   const ex=currentEx;
@@ -901,12 +1044,24 @@ function showVerdict(autoPass){
   const repsOk=ex.holdSec?holdSec>=ex.holdSec:repCount>=(ex.minReps||1);
   const formOk=avgForm>=PASS_FORM;
   const pass=autoPass!==undefined?autoPass:(formOk&&repsOk);
-  const token=`KALOS-${currentVariant?.slice(0,4).toUpperCase()}-${Date.now().toString(36).slice(-4).toUpperCase()}`;
+  const token=`KALOS-${(currentVariant||'EX').slice(0,4).toUpperCase()}-${Date.now().toString(36).slice(-4).toUpperCase()}`;
 
   // Save
-  const v={ex:currentVariant,name:ex.name,reps:repCount,hold:holdSec,avgForm,pass,token,ts:Date.now()};
+  const v={ex:currentVariant,name:ex?.name,reps:repCount,hold:holdSec,avgForm,pass,token,ts:Date.now()};
   const saved=JSON.parse(localStorage.getItem('kalos_verifications')||'[]');
   saved.push(v);localStorage.setItem('kalos_verifications',JSON.stringify(saved.slice(-50)));
+
+  // Compute score ring
+  const scoreColor=avgForm>=75?'var(--success)':avgForm>=55?'var(--gold)':'var(--danger)';
+  const circumference=2*Math.PI*36;
+  const dash=Math.round((avgForm/100)*circumference);
+
+  // Build improvement tips based on errors
+  const tips=buildTips(sessionErrors,ex);
+
+  // Best & worst rep from repLog
+  const bestRep=repLog.length?repLog.reduce((a,b)=>a.form>b.form?a:b):null;
+  const worstRep=repLog.length>1?repLog.reduce((a,b)=>a.form<b.form?a:b):null;
 
   const card=document.getElementById('verdictCard');
   card.innerHTML=`
@@ -914,32 +1069,118 @@ function showVerdict(autoPass){
     <div class="verdict-title" style="color:${pass?'var(--success)':'var(--gold)'}">
       ${pass?'הצלחת!':'המשך לאמן'}
     </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">${ex.name}</div>
-    <div class="verdict-stats">
-      <div class="verdict-row"><span class="vk">${ex.holdSec?'זמן החזקה':'חזרות'}</span>
-        <span class="vv" style="color:var(--cyan)">${ex.holdSec?holdSec+'s':repCount}</span></div>
-      <div class="verdict-row"><span class="vk">ציון צורה ממוצע</span>
-        <span class="vv" style="color:${avgForm>=75?'var(--success)':avgForm>=55?'var(--gold)':'var(--danger)'}">${avgForm}/100</span></div>
-      <div class="verdict-row"><span class="vk">קריטריון עבר</span>
-        <span class="vv" style="color:${repsOk?'var(--success)':'var(--danger)'}">${repsOk?'✓':'✗'} ${ex.holdSec?`${c.hold||ex.holdSec}s`:c.reps||ex.minReps+' חזרות'}</span></div>
-      <div class="verdict-row"><span class="vk">קריטריון צורה</span>
-        <span class="vv" style="color:${formOk?'var(--success)':'var(--danger)'}">${formOk?'✓':'✗'} מינימום ${c.form||60}</span></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${ex?.name||''}</div>
+
+    <!-- Score ring -->
+    <div class="v-score-ring">
+      <svg width="90" height="90" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="8"/>
+        <circle cx="45" cy="45" r="36" fill="none" stroke="${scoreColor}" stroke-width="8"
+          stroke-dasharray="${dash} ${circumference}" stroke-linecap="round"/>
+      </svg>
+      <div class="v-score-center">
+        <div class="v-score-num" style="color:${scoreColor}">${avgForm}</div>
+        <div class="v-score-lbl">FORM</div>
+      </div>
     </div>
-    ${pass?`<div style="background:rgba(0,255,170,.06);border:1px solid rgba(0,255,170,.2);border-radius:7px;padding:10px;margin-bottom:14px;font-size:11px">
+
+    <!-- Stats -->
+    <div class="verdict-section">
+      <div class="verdict-section-title">📊 סטטיסטיקות</div>
+      <div class="verdict-row">
+        <span class="vk">${ex?.holdSec?'זמן החזקה':'חזרות שבוצעו'}</span>
+        <span class="vv" style="color:var(--cyan)">${ex?.holdSec?holdSec+'s':repCount}</span>
+      </div>
+      <div class="verdict-row">
+        <span class="vk">ממוצע צורה</span>
+        <span class="vv" style="color:${scoreColor}">${avgForm}/100</span>
+      </div>
+      <div class="verdict-row">
+        <span class="vk">פריימים נותחו</span>
+        <span class="vv" style="color:var(--muted)">${analysisFrames}</span>
+      </div>
+      ${bestRep?`<div class="verdict-row">
+        <span class="vk">חזרה מיטבית</span>
+        <span class="vv" style="color:var(--success)">חזרה #${bestRep.rep} — ${bestRep.form}</span>
+      </div>`:''}
+      ${worstRep?`<div class="verdict-row">
+        <span class="vk">חזרה הכי חלשה</span>
+        <span class="vv" style="color:var(--danger)">חזרה #${worstRep.rep} — ${worstRep.form}</span>
+      </div>`:''}
+    </div>
+
+    <!-- What was good -->
+    ${sessionGoods.length?`
+    <div class="verdict-section">
+      <div class="verdict-section-title">✅ מה היה טוב</div>
+      ${sessionGoods.slice(0,3).map(g=>`
+        <div class="sum-item sum-good"><span class="sum-icon">✓</span><span>${g.m}</span></div>
+      `).join('')}
+    </div>`:''}
+
+    <!-- Mistakes -->
+    ${sessionErrors.length?`
+    <div class="verdict-section">
+      <div class="verdict-section-title">⚠️ טעויות שזוהו</div>
+      ${sessionErrors.slice(0,4).map(e=>`
+        <div class="sum-item sum-bad"><span class="sum-icon">✗</span><span>${e.m}</span></div>
+      `).join('')}
+    </div>`:''}
+
+    <!-- Tips -->
+    ${tips.length?`
+    <div class="verdict-section">
+      <div class="verdict-section-title">💡 טיפים לשיפור</div>
+      ${tips.map(t=>`
+        <div class="sum-item sum-tip"><span class="sum-icon">→</span><span>${t}</span></div>
+      `).join('')}
+    </div>`:''}
+
+    <!-- Token -->
+    ${pass?`<div style="background:rgba(0,255,170,.05);border:1px solid rgba(0,255,170,.2);border-radius:7px;padding:10px;margin:10px 0;font-size:11px">
       <div style="color:var(--muted);font-size:9px;letter-spacing:.1em;margin-bottom:5px">קוד אימות</div>
       <div style="font-family:'Orbitron',monospace;color:var(--success);letter-spacing:.12em" id="vToken">${token}</div>
     </div>`:''}
+
     <div class="verdict-btns">
-      ${pass?`<button onclick="navigator.clipboard?.writeText('${token}');addFb('good','קוד הועתק')" style="flex:1;background:rgba(0,255,170,.12);border:1px solid rgba(0,255,170,.35);color:var(--success);font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px;border-radius:5px;cursor:pointer">📋 העתק קוד</button>`:''}
-      <button onclick="document.getElementById('verdictModal').classList.remove('show')" style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px;border-radius:5px;cursor:pointer">סגור</button>
+      ${pass?`<button class="v-btn pri" onclick="navigator.clipboard?.writeText('${token}');addFb('good','קוד הועתק')">📋 העתק קוד</button>`:''}
+      <button class="v-btn retry" onclick="document.getElementById('verdictModal').classList.remove('show');resetCounts()">🔄 נסה שוב</button>
+      <button class="v-btn sec" onclick="document.getElementById('verdictModal').classList.remove('show')">סגור</button>
     </div>`;
   document.getElementById('verdictModal').classList.add('show');
+}
+
+/* Build improvement tips from errors */
+function buildTips(errors,ex){
+  const tips=[];
+  const msgs=errors.map(e=>e.m);
+  if(msgs.some(m=>m.includes('גוף לא ישר')||m.includes('ירכיים שוקעות')))
+    tips.push('תרגל פלאנקים 3×30s בכל יום לחיזוק הליבה — זה הבסיס לגוף ישר');
+  if(msgs.some(m=>m.includes('אסימטריה')||m.includes('פער')))
+    tips.push('עבוד על כל יד בנפרד — תרגילי יד אחת גלגל גוף שווה');
+  if(msgs.some(m=>m.includes('יישר')||m.includes('ברכיים')))
+    tips.push('לפני כל תרגיל 30s מתיחת מחרוזים וזווית ישרה');
+  if(msgs.some(m=>m.includes('הטה')))
+    tips.push('Planche conditioning: 5×20s planche lean בכל אימון עד שההטיה תרגיש טבעית');
+  if(msgs.some(m=>m.includes('כתפיים')||m.includes('עמוד שדרה')))
+    tips.push('חזק את הכתפיים עם face pulls ו-external rotations — מניעת פציעות');
+  if(msgs.some(m=>m.includes('גב נוטה')))
+    tips.push('בסקוואט: הסתכל קדימה, לא למטה — זה אוטומטית ישמור על הגב ישר');
+  if(msgs.some(m=>m.includes('נעל')||m.includes('מרפקים')))
+    tips.push('חזק את הטריצפס עם overhead extensions — נעילה שלמה = יותר כוח');
+  if(tips.length===0&&ex){
+    if(ex.holdSec)tips.push('הגדל זמן ב-5s בכל שבוע — התקדמות הדרגתית');
+    else tips.push('הוסף חזרה אחת בשבוע עד שתגיע לכפול המינימום');
+    tips.push('צלם מהצד הנכון לניתוח מדויק יותר');
+  }
+  return tips.slice(0,3);
 }
 
 /* ================================================================
    INIT
    ================================================================ */
 buildCatGrid();
+checkGate();
 </script>
 </body>
 </html>
