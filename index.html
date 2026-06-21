@@ -760,7 +760,7 @@ function generateWeeklyPlan(){
   });
 
   const weekStart=getWeekStart();
-  state.weeklyPlan={weekStart,days:weekPlan,generated:new Date().toISOString(),tier};
+  state.weeklyPlan={weekStart,days:weekPlan,generated:new Date().toISOString(),tier,v:PLAN_VERSION};
   save();
   return weekPlan;
 }
@@ -775,9 +775,10 @@ function getWeekStart(){
 function formatDate(d){return d instanceof Date?d.toISOString().slice(0,10):d;}
 function todayStr(){return formatDate(new Date());}
 
+const PLAN_VERSION=2; // bump to force regenerate on all clients
 function getCurrentWeekPlan(){
   const ws=getWeekStart();
-  if(!state.weeklyPlan||state.weeklyPlan.weekStart!==ws){
+  if(!state.weeklyPlan||state.weeklyPlan.weekStart!==ws||state.weeklyPlan.v!==PLAN_VERSION){
     generateWeeklyPlan();
   }
   return state.weeklyPlan.days;
