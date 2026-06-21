@@ -2337,10 +2337,10 @@ function openNode(node){
     if(state.admin)html+=`<button class="mbtn" onclick="undoNode('${node.id}')">בטל (מנהל)</button>`;html+=`</div>`;}
   else if(unlocked){
     html+=`<div class="m-desc" style="font-size:12px;color:var(--muted)">צלם/הקלט שעשית את התרגיל כהוכחה (לא חובה), ואז סמן שהשלמת.</div>
-    <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(event)">
+    <input id="photoInput" type="file" accept="video/*" capture="environment" style="display:none" onchange="onPhoto(event)">
     <div id="photoPrev"></div>
     <div class="m-btns"><button class="mbtn" onclick="closeModal()">סגור</button>
-      <button class="mbtn mbtn-photo" onclick="document.getElementById('photoInput').click()">📷 צלם הוכחה</button>
+      <button class="mbtn mbtn-photo" onclick="document.getElementById('photoInput').click()">🎬 הקלט סרטון הוכחה</button>
       <button class="mbtn mbtn-go" onclick="completeNode('${node.id}')">✓ הוכחתי / סיימתי</button></div>`;
   }else{
     const treeTag=r=>r.startsWith('p_')?'<span style="color:var(--pull)">[Pull]</span>':r.startsWith('h_')?'<span style="color:var(--push)">[Push]</span>':'<span style="color:var(--balance)">[Balance]</span>';
@@ -2348,8 +2348,13 @@ function openNode(node){
     html+=`<div class="m-req">🔒 נעול. קודם עליך להשלים (גם מעצים אחרים!):<br>${missing.map(x=>'• '+x).join('<br>')}</div><div class="m-btns"><button class="mbtn" onclick="closeModal()">הבנתי</button></div>`;}
   m.innerHTML=html;document.getElementById('nodeBackdrop').classList.add('show');
 }
-function onPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{pendingPhoto=r.result;document.getElementById('photoPrev').innerHTML=`<img class="photo-prev" src="${r.result}">`;};r.readAsDataURL(f);}
+function onPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const url=URL.createObjectURL(f);
+  pendingPhoto=url;
+  document.getElementById('photoPrev').innerHTML=
+    `<video class="photo-prev" src="${url}" controls playsinline style="max-width:100%;max-height:180px;margin:10px auto 0;display:block;border:1px solid var(--border);border-radius:6px"></video>`;
+}
 function completeNode(id){if(isDone(id))return;state.done.push(id);
   if(pendingPhoto){state.proof=state.proof||{};state.proof[id]=pendingPhoto;}
   gainXP(nodeById(id).xp);save();closeModal();render();}
