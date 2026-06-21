@@ -2634,60 +2634,52 @@ function _ang(a,b,c){
 }
 function _vis(lm,...ii){return ii.every(i=>lm[i]&&(lm[i].visibility||0)>0.2);}
 
-/* ── PER-TYPE SCORER (returns 0-100) ── */
+/* ── PER-TYPE SCORER (returns 0-100) ──
+   Goal: did the person ATTEMPT the exercise? Not perfect form.
+   MediaPipe struggles with inverted poses (HSPU/handstand) so
+   we base scoring on: person visible + relevant joint movement.
+── */
 function _score(type,lm){
+  // Average landmark confidence
+  const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
+  if(conf<0.2)return 15; // barely any person detected
+
+  // Base: person is visible = they're doing something
+  let score=52;
+
+  // Elbow angles from both sides (works even if person is inverted/rotated)
+  const elR=_ang(lm[12],lm[14],lm[16]); // right side
+  const elL=_ang(lm[11],lm[13],lm[15]); // left side
+  const el=elR>5?elR:(elL>5?elL:0);
+
   switch(type){
-    case'pullup':{
-      if(!_vis(lm,12,14,16,24))return 30;
-      const el=_ang(lm[12],lm[14],lm[16]);
-      const body=_ang(lm[12],lm[24],lm[28]);
-      const straight=body>150;
-      // up position OR down position — just being there and straight counts
-      return straight?(el<120?92:el>150?85:75):50;
-    }
-    case'pushup':{
-      if(!_vis(lm,12,14,16,24,28))return 30;
-      const el=_ang(lm[12],lm[14],lm[16]);
-      const body=_ang(lm[12],lm[24],lm[28]);
-      const plank=Math.abs(body-180)<25;
-      return plank?(el<120?90:el>150?82:72):45;
-    }
-    case'hspu':{
-      if(!_vis(lm,12,14,15,16))return 20;
-      const feetY=Math.min(lm[27]?.y||1,lm[28]?.y||1);
-      const inv=feetY<(lm[11].y+lm[12].y)/2-0.08;
-      const el=_ang(lm[12],lm[14],lm[16]);
-      return inv?(el<120?90:85):25;
+    case'pullup':
+    case'pushup':
+    case'hspu':
+    case'planchelean':{
+      // Any elbow flexion = doing a push/pull movement
+      if(el>0&&el<165)score+=18;  // arms bent
+      if(el<110)score+=15;        // deep range of motion
+      if(conf>0.45)score+=10;
+      break;
     }
     case'handstand':{
-      if(!_vis(lm,11,12,27,28))return 20;
-      const feetY=Math.min(lm[27].y,lm[28].y);
-      const shY=(lm[11].y+lm[12].y)/2;
-      const inv=feetY<shY-0.08;
-      const aligned=Math.abs((lm[27].x+lm[28].x)/2-(lm[15].x+lm[16].x)/2)<0.12;
-      return inv&&aligned?90:inv?65:20;
+      // For handstand: wrists near ground = hands-down; or person visible + arm extension
+      if(conf>0.4)score+=20;
+      if(el>150||el===0)score+=10; // arms locked = holding position
+      break;
     }
-    case'frontlever':{
-      if(!_vis(lm,12,24,27))return 20;
-      const horiz=Math.abs(lm[12].y-lm[27].y)<0.1;
-      return horiz?88:40;
-    }
-    case'planchelean':{
-      if(!_vis(lm,12,16,24))return 20;
-      const lean=_ang(lm[16],lm[12],lm[24]);
-      const body=_ang(lm[12],lm[24],lm[28]);
-      return lean<70&&body>160?88:55;
-    }
+    case'frontlever':
     case'hold':{
-      // just check person is visible and somewhat stable
-      const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
-      return conf>0.5?82:40;
+      if(conf>0.4)score+=22;
+      if(conf>0.55)score+=10;
+      break;
     }
     default:{
-      const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
-      return conf>0.45?75:35;
+      if(conf>0.38)score+=20;
     }
   }
+  return Math.min(95,score);
 }
 
 /* ── MAIN ANALYSIS FUNCTION ── */
