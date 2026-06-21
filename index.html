@@ -920,7 +920,13 @@ function generateWeeklyPlan(){
   const days=p.daysPerWeek||3;
   const sessionLen=p.sessionLen||60;
   const goal=p.goalType||'skills';
-  const tier=tierFromLevel(state.level);
+  const globalTier=tierFromLevel(state.level);
+  // Per-category tiers (computed at onboarding; fallback to global)
+  const tiers=p.tiers||{};
+  function ct(cat){return tiers[cat]||globalTier;}
+  // Map muscle day index to the relevant category
+  const MUSCLE_CAT={0:'pull',1:'push',2:'core',3:'legs',4:'pull',6:'push'};
+
   const cardioOptions=p.cardio||[];
   const wantsCardio=['body','both','weightloss'].includes(goal)&&cardioOptions.length>0&&!cardioOptions.includes('none');
 
@@ -928,17 +934,11 @@ function generateWeeklyPlan(){
   const strengthSets=sessionLen<=30?2:sessionLen<=45?3:4;
   const coreSets=sessionLen<=30?1:2;
 
-  // Focus rotation across training days
-  const focusRot=['push','pull','push','pull','legs','push','pull'];
-
   const weekPlan=DAYS_HE.map((dayName,idx)=>{
     const trainIdx=trainDays.indexOf(idx);
     if(trainIdx===-1)return{type:'rest',day:dayName,label:'מנוחה — ריקוברי 💤'};
 
-    let focus=focusRot[trainIdx%focusRot.length];
-    // For weight-loss: every other train day can be cardio if cardio available
     const isCardioDay=wantsCardio&&trainIdx%2===1&&cardioOptions.length>0;
-
     if(isCardioDay){
       const cardioType=cardioOptions[trainIdx%cardioOptions.length];
       const cardioExercises=CARDIO_OPTIONS[cardioType]||[];
@@ -946,22 +946,31 @@ function generateWeeklyPlan(){
         type:'cardio',day:dayName,focus:'cardio',
         label:`קרדיו · ${cardioType==='running'?'ריצה':cardioType==='bike'?'אופניים':'שחייה'}`,
         cardioBlock:cardioExercises.slice(0,2),
-        strengthBlock:STRENGTH_POOL.legs[tier].slice(0,strengthSets-1),
-        coreBlock:CORE_POOL[tier].slice(0,coreSets),
+        strengthBlock:STRENGTH_POOL.legs[ct('legs')].slice(0,strengthSets-1),
+        coreBlock:CORE_POOL[ct('core')].slice(0,coreSets),
       };
     }
 
     const muscle=MUSCLE_SCHEDULE[idx];
+    const muscleCat=MUSCLE_CAT[idx]||'push';
+    const muscleTier=ct(muscleCat);
     const wantsWeights=['body','both','weightloss'].includes(goal);
-    const musclePool=(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[idx]?.[tier]||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[1][tier];
+    const musclePool=(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[idx]?.[muscleTier]
+      ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[idx]?.[globalTier]
+      ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[1][globalTier];
+
     const ppType=trainIdx%2===0?'push':'pull';
-    const ppPool=PUSH_PULL_POOL[ppType][tier]||PUSH_PULL_POOL[ppType].beginner;
+    const ppTier=ct(ppType);
+    const ppPool=PUSH_PULL_POOL[ppType][ppTier]||PUSH_PULL_POOL[ppType].beginner;
+
     return{
       type:'train',day:dayName,focus:idx,
       label:`מיומנות + ${ppType==='push'?'PUSH':'PULL'} + ${muscle.name}`,
       muscleName:muscle.name,
       muscleEmoji:muscle.emoji,
       ppType,
+      ppTier,
+      muscleTier,
       ppBlock:ppPool.slice(0,Math.min(3,strengthSets)),
       strengthBlock:musclePool.slice(0,strengthSets),
       coreBlock:[],
@@ -970,7 +979,7 @@ function generateWeeklyPlan(){
   });
 
   const weekStart=getWeekStart();
-  state.weeklyPlan={weekStart,days:weekPlan,generated:new Date().toISOString(),tier,v:PLAN_VERSION};
+  state.weeklyPlan={weekStart,days:weekPlan,generated:new Date().toISOString(),tiers,v:PLAN_VERSION};
   save();
   return weekPlan;
 }
@@ -985,7 +994,7 @@ function getWeekStart(){
 function formatDate(d){return d instanceof Date?d.toISOString().slice(0,10):d;}
 function todayStr(){return formatDate(new Date());}
 
-const PLAN_VERSION=4; // bump to force regenerate on all clients
+const PLAN_VERSION=5; // bump to force regenerate on all clients
 function getCurrentWeekPlan(){
   const ws=getWeekStart();
   if(!state.weeklyPlan||state.weeklyPlan.weekStart!==ws||state.weeklyPlan.v!==PLAN_VERSION){
@@ -1161,6 +1170,22 @@ function finishQuiz(){
   state.workoutLog=state.workoutLog||[];
   state.weeklyCheckins=state.weeklyCheckins||[];
   state.punishmentLevel=state.punishmentLevel||0;
+  // Compute per-category tiers from quiz answers
+  const _a=quiz.answers;
+  function _tierScore(score){return score<=1?'beginner':score<=2.5?'intermediate':'advanced';}
+  const _pushScore=((_a.pushups||0)+(_a.dips||0))/2;
+  const _pullScore=(_a.pullups||0);
+  const _coreScore=((_a.plank||0)+(_a.lsit||0)+(_a.situps||0))/3;
+  const _balScore=(_a.handstand||0); // 0 if beginner (no adv questions asked)
+  const _globalTier=tierFromLevel(state.level);
+  const _computedTiers={
+    push:_tierScore(_pushScore),
+    pull:_pullScore===0?'beginner':_pullScore<=1?'beginner':_pullScore<=2?'intermediate':'advanced',
+    core:_tierScore(_coreScore),
+    legs:_globalTier, // no leg-specific questions yet
+    balance:_balScore===0?_globalTier:_balScore<=2?'intermediate':'advanced',
+  };
+
   state.profile={
     first:document.getElementById('r_first').value||'',
     last:document.getElementById('r_last').value||'',
@@ -1174,6 +1199,7 @@ function finishQuiz(){
     daysPerWeek:profile1b.days,
     sessionLen:profile1b.sessionLen,
     morningCardio:profile1b.morningCardio,
+    tiers:_computedTiers,
   };
   generateWeeklyPlan();
   save();
