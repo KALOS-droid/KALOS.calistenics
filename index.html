@@ -799,6 +799,39 @@ const TRAIN_DAY_MAP={
   6:[0,1,2,3,4,6],
 };
 
+// Push/Pull alternating calisthenics block (20 min)
+const PUSH_PULL_POOL={
+  push:{
+    beginner:[['שכיבות סמיכה','3×מקס'],['שכיבות רחבות','3×10-12'],['שכיבות פייק','3×8-10'],['מקבילים על כיסאות','3×8-10']],
+    intermediate:[['מקבילים (Dips)','4×8-12'],['שכיבות פייק — רגליים גבוהות','4×10'],['שכיבות כוח מתפרץ','3×6-8'],['Pseudo Planche Pushups','3×8']],
+    advanced:[['HSPU על קיר','4×מקס'],['מקבילים עם משקל','4×5-6'],['Pseudo Planche Pushups','4×8'],['שכיבות ארצ׳ר','4×4 לכל צד']],
+  },
+  pull:{
+    beginner:[['מתח אוסטרלי','3×10-12'],['תליה אקטיבית (Scapular)','4×30ש׳'],['מתח שלילי (נגטיב)','4×3-5'],['Chin-up נגטיב','3×3-5']],
+    intermediate:[['מתח — הוריאציה הנוכחית','4×מקס-2'],['מתח עם עצירה 3ש׳','3×5'],['מתח אוסטרלי כבד','3×10-12'],['Chin-up','4×מקס-2']],
+    advanced:[["מתח ארצ'ר",'4×3 לכל צד'],['מתח עם משקל','4×5'],['L-Sit Pull-up','3×5-6'],['מתח שלילי איטי 6ש׳','4×3']],
+  },
+};
+
+// Muscle pool — bodyweight vs weighted (based on goal)
+const MUSCLE_POOL_BW={ // קליסטניקס בלבד
+  0:{beginner:[['Chin-up נגטיב','4×3-5'],['מתח אוסטרלי אחיזה תחתית','3×10-12'],['קרל ביצפס בגומייה','3×12-15'],['תליה עם כיפוף מרפק','3×20ש׳']],intermediate:[['Chin-up','4×מקס-2'],['מתח אחיזה צרה','4×6-8'],['קרל בגומייה כבדה','3×10'],['Chin-up עם עצירה','3×5']],advanced:[['Chin-up עם משקל','4×5-6'],['מתח יד אחת בעזרה','4×2-3 לכל יד'],['L-Sit Chin-up','3×5-8'],['Close Grip נגטיב איטי','4×3']]},
+  1:{beginner:[['שכיבות סמיכה','4×מקס'],['שכיבות רחבות','3×10-12'],['שכיבות על ידיים מוגבהות','3×10'],['מקבילים על כיסאות','3×8']],intermediate:[['שכיבות דיימונד','4×8-12'],['מקבילים','4×8-12'],['שכיבות כוח מתפרץ','3×6-8'],['שכיבות ארצ׳ר','3×4 לכל צד']],advanced:[['מקבילים עם משקל','4×6-8'],['שכיבות ארצ׳ר','4×5 לכל צד'],['שכיבות מתפרצות עם מחיאה','4×6'],['Pseudo Planche Pushups','4×8']]},
+  2:{beginner:[['פלאנק','4×45ש׳'],['כפיפות בטן','3×20'],['הרמות רגליים שכוב','3×12'],['גשר ירכיים','3×15']],intermediate:[['L-Sit','4×10ש׳'],['הרמות רגליים בתלייה','4×10-12'],['Hollow Body Hold','4×25ש׳'],['פלאנק צדדי','3×30ש׳ לכל צד']],advanced:[['L-Sit hold','4×20ש׳'],['Dragon Flag נגטיב','4×4-6'],['Windshield Wipers','3×8 לכל צד'],['הרמות רגליים בתלייה איטי','4×10']]},
+  3:{beginner:[['סקוואט','4×15-20'],['לאנג׳ (Lunges)','3×10 לרגל'],['הרמות עקב','4×20'],['גשר ירכיים','3×15']],intermediate:[['סקוואט קפיצה','4×10-12'],['פיסטול פרוגרסיה','3×5 לרגל'],['Nordic Hamstring Curls','3×5-8'],['Step-up על כיסא','3×12 לרגל']],advanced:[['פיסטול סקוואט','4×5-6 לרגל'],['סקוואט קפיצה + עצירה','4×8'],['Nordic Curls','4×6-8'],['ספרינטים','8×30מ׳']]},
+  4:{beginner:[['מתח אוסטרלי','4×10-12'],['תליה אקטיבית','4×30ש׳'],['מתח שלילי','4×3-5'],['Super Y שכוב','3×12']],intermediate:[['מתח','4×מקס-2'],['מתח עם עצירה','3×5'],['מתח אחיזה רחבה','4×מקס-2'],['Face Pull בגומייה','3×15']],advanced:[["מתח ארצ'ר",'4×3 לכל צד'],['מתח עם משקל','4×4-5'],['L-Sit Pull-up','3×5-6'],['מתח שלילי 6ש׳','4×3']]},
+  6:{beginner:[['מקבילים על כיסאות','4×8-12'],['שכיבות דיימונד','3×10-12'],['הרחקת טריצפס בגומייה','3×12-15'],['שכיבות ידיים צמודות','3×10']],intermediate:[['מקבילים','4×8-12'],['HSPU נגטיב על קיר','4×3-5'],['טריצפס אקסטנשן בתלייה','3×10-12'],['שכיבות דיימונד + עצירה','4×8']],advanced:[['מקבילים עם משקל','4×6-8'],['HSPU על קיר','4×מקס'],['Ring Dips','3×8-10'],['Close Grip HSPU נגטיב','4×3']]},
+};
+
+const MUSCLE_POOL_WEIGHTED={ // עם משקולות לפיתוח גוף
+  0:{beginner:[['קרל ביצפס עם משקל','3×12-15'],['קרל פטיש (Hammer Curl)','3×12'],['קרל כפוף (Concentration Curl)','3×10 לכל יד'],['Chin-up נגטיב','3×5']],intermediate:[['קרל ביצפס בעמידה','4×10-12'],['Chin-up','4×מקס-2'],['קרל ריכוז','3×10 לכל יד'],['קרל EZ Bar / ישר','4×10']],advanced:[['קרל ביצפס + עצירה 5ש׳','4×8'],['Chin-up עם משקל','4×6'],['קרל פטיש כבד','4×8 לכל יד'],['Spider Curl','3×10']]},
+  1:{beginner:[['שכיבות סמיכה','3×מקס'],['שכיבות רחבות','3×10-12'],['לחיצת חזה עם משקולות שכוב','3×12'],['מקבילים על כיסאות','3×10']],intermediate:[['לחיצת חזה עם משקולות','4×8-10'],['מקבילים (Dips)','4×8-12'],['פתיחות חזה (Fly)','3×12'],['שכיבות דיימונד','4×8-10']],advanced:[['לחיצת חזה כבדה','4×6-8'],['מקבילים עם משקל','4×6-8'],['פתיחות חזה כבדות','4×10'],['שכיבות ארצ׳ר','4×5 לכל צד']]},
+  2:{beginner:[['כפיפות בטן','4×20'],['פלאנק','4×45ש׳'],['הרמות רגליים שכוב','3×12'],['גשר ירכיים','3×15']],intermediate:[['כפיפות בטן עם משקל','4×15-20'],['הרמות רגליים בתלייה','4×12'],['Russian Twist עם משקל','3×20'],['L-Sit','4×10ש׳']],advanced:[['Dragon Flag','4×4-6'],['הרמות רגליים בתלייה + משקל','4×10'],['Weighted Plank','4×45ש׳'],['Windshield Wipers','3×8 לכל צד']]},
+  3:{beginner:[['סקוואט','4×15'],['לאנג׳','3×10 לרגל'],['לחיצת רגליים (Leg Press)','3×12'],['הרמות עקב','4×20']],intermediate:[['סקוואט עם משקל','4×8-10'],['Romanian Deadlift','4×10'],['פיסטול פרוגרסיה','3×5 לרגל'],['הרמות עגל עם משקל','4×15']],advanced:[['סקוואט כבד','4×5-6'],['פיסטול סקוואט','4×5 לרגל'],['Nordic Curls','4×6-8'],['Bulgarian Split Squat','4×8 לרגל']]},
+  4:{beginner:[['מתח אוסטרלי','3×10-12'],['חתירה עם משקולת (Row)','3×12'],['מתח שלילי','4×3-5'],['Face Pull בגומייה','3×15']],intermediate:[['מתח','4×מקס-2'],['Bent Over Row','4×10-12'],['חתירה חד-ידית','3×10 לכל יד'],['Lat Pulldown בגומייה','4×12']],advanced:[['מתח עם משקל','4×5-6'],['Barbell Row כבד','4×8'],["מתח ארצ'ר",'4×3 לכל צד'],['Meadows Row','3×10 לכל יד']]},
+  6:{beginner:[['מקבילים על כיסאות','4×10-12'],['הרחקת טריצפס בגומייה','3×12-15'],['שכיבות דיימונד','3×10'],['Kickback עם משקולת','3×12 לכל יד']],intermediate:[['לחיצת טריצפס מעל ראש','4×10-12'],['מקבילים','4×8-12'],['טריצפס אקסטנשן בתלייה','3×10-12'],['Skull Crusher','4×10']],advanced:[['מקבילים עם משקל','4×6-8'],['Skull Crusher כבד','4×8'],['לחיצת טריצפס כבדה','4×10'],['HSPU על קיר','4×מקס']]},
+};
+
 // יום → שריר קבוע (0=ראשון … 6=שבת)
 const MUSCLE_SCHEDULE={
   0:{name:'יד קדמית 💪',emoji:'💪'},
@@ -892,12 +925,17 @@ function generateWeeklyPlan(){
     }
 
     const muscle=MUSCLE_SCHEDULE[idx];
-    const musclePool=MUSCLE_POOL[idx]?.[tier]||MUSCLE_POOL[1][tier];
+    const wantsWeights=['body','both','weightloss'].includes(goal);
+    const musclePool=(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[idx]?.[tier]||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[1][tier];
+    const ppType=trainIdx%2===0?'push':'pull';
+    const ppPool=PUSH_PULL_POOL[ppType][tier]||PUSH_PULL_POOL[ppType].beginner;
     return{
       type:'train',day:dayName,focus:idx,
-      label:`מיומנות + ${muscle.name}`,
+      label:`מיומנות + ${ppType==='push'?'PUSH':'PULL'} + ${muscle.name}`,
       muscleName:muscle.name,
       muscleEmoji:muscle.emoji,
+      ppType,
+      ppBlock:ppPool.slice(0,Math.min(3,strengthSets)),
       strengthBlock:musclePool.slice(0,strengthSets),
       coreBlock:[],
       cardioBlock:[],
@@ -920,7 +958,7 @@ function getWeekStart(){
 function formatDate(d){return d instanceof Date?d.toISOString().slice(0,10):d;}
 function todayStr(){return formatDate(new Date());}
 
-const PLAN_VERSION=3; // bump to force regenerate on all clients
+const PLAN_VERSION=4; // bump to force regenerate on all clients
 function getCurrentWeekPlan(){
   const ws=getWeekStart();
   if(!state.weeklyPlan||state.weeklyPlan.weekStart!==ws||state.weeklyPlan.v!==PLAN_VERSION){
@@ -1214,8 +1252,11 @@ function renderWorkout(){
     wk.innerHTML=html;return;
   }
 
-  // Skill block
-  const skillMin=state.profile.sessionLen>=60?40:state.profile.sessionLen>=45?30:20;
+  // Calculate proportional block times (base: 40+20+30=90 min)
+  const sLen=state.profile.sessionLen||90;
+  const skillMin=Math.ceil(sLen*40/90);
+  const ppMin=Math.ceil(sLen*20/90);
+  const muscleMin=Math.ceil(sLen*30/90);
   html+=`<div class="wk-block"><div class="wk-h">🎯 מיומנות · ${skillMin} דקות (המטרות שלך)</div>`;
   if(!state.goals.length){
     html+=`<div class="wk-empty">עדיין לא בחרת מטרות.<br>לך לאחד העצים, פתח תרגיל-חלום ולחץ <b style="color:var(--gold)">🎯 הגדר כמטרה</b>. אפשר עד 2 מטרות.</div>`;
@@ -1238,10 +1279,17 @@ function renderWorkout(){
     html+=`</div>`;
   }
 
-  // Muscle block
+  // Push/Pull calisthenics block (20 min)
+  if(today.ppBlock?.length){
+    const ppLabel=today.ppType==='push'?'PUSH · דחיפה 💪':'PULL · משיכה 🔗';
+    html+=`<div class="wk-block"><div class="wk-h" style="color:${today.ppType==='push'?'var(--push)':'var(--pull)'}">⚡ ${ppLabel} · ${ppMin} דקות</div>`;
+    today.ppBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+    html+=`</div>`;
+  }
+
+  // Muscle-specific block (30 min)
   if(today.strengthBlock?.length){
-    const label=today.muscleName||'כוח';
-    html+=`<div class="wk-block"><div class="wk-h">⚡ אימון שריר · ${label}</div>`;
+    html+=`<div class="wk-block"><div class="wk-h">🎯 שריר · ${today.muscleName||'כוח'} · ${muscleMin} דקות</div>`;
     today.strengthBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
     html+=`</div>`;
   }
