@@ -920,7 +920,7 @@ function getWeekStart(){
 function formatDate(d){return d instanceof Date?d.toISOString().slice(0,10):d;}
 function todayStr(){return formatDate(new Date());}
 
-const PLAN_VERSION=2; // bump to force regenerate on all clients
+const PLAN_VERSION=3; // bump to force regenerate on all clients
 function getCurrentWeekPlan(){
   const ws=getWeekStart();
   if(!state.weeklyPlan||state.weeklyPlan.weekStart!==ws||state.weeklyPlan.v!==PLAN_VERSION){
