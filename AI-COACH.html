@@ -31,7 +31,15 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 /* ── CAMERA AREA ── */
 .cam-wrap{position:relative;background:#000;overflow:hidden}
 #inputVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
-#outputCanvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+#videoFile{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
+#outputCanvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* Drag overlay */
+.drag-over-overlay{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;background:rgba(0,255,213,.08);
+  border:3px dashed var(--cyan);pointer-events:none}
+.drag-over-overlay.active{display:flex}
+.drag-over-overlay svg{animation:pulse 1s ease infinite alternate}
+@keyframes pulse{from{opacity:.5;transform:scale(.95)}to{opacity:1;transform:scale(1.05)}}
 
 /* Overlay HUD */
 .hud{position:absolute;inset:0;pointer-events:none}
@@ -176,11 +184,29 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
       <div class="form-label">FORM</div>
     </div>
 
+    <!-- Drag-over flash -->
+    <div class="drag-over-overlay" id="dragOverlay">
+      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+      </svg>
+      <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:.2em;color:var(--cyan)">שחרר לניתוח</div>
+    </div>
+
+    <!-- Video file player (for uploaded videos) -->
+    <video id="videoFile" playsinline loop></video>
+
     <div class="cam-placeholder" id="camPlaceholder">
-      <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.2" opacity=".5">
         <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
       </svg>
-      <p>בחר תרגיל ולחץ "התחל" כדי לפעיל את המצלמה<br>הבינה המלאכותית תנתח את הצורה שלך בזמן אמת</p>
+      <p style="font-size:13px;color:var(--muted);text-align:center;line-height:2;margin-top:12px">
+        גרור סרטון לכאן<br>
+        <span style="font-size:20px">🎬</span><br>
+        או לחץ להעלאת קובץ
+      </p>
+      <button onclick="document.getElementById('fileInput').click()" style="margin-top:8px;background:rgba(0,255,213,.1);border:1px solid rgba(0,255,213,.4);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;letter-spacing:.08em">📂 בחר קובץ וידאו</button>
+      <button onclick="startLive()" style="margin-top:6px;background:rgba(139,61,255,.12);border:1px solid rgba(139,61,255,.4);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;letter-spacing:.08em">📷 מצלמה חיה</button>
+      <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="handleFileSelect(this.files[0])">
     </div>
   </div>
 
@@ -582,16 +608,70 @@ function drawAngleLabel(ctx,lm,text,color,canvas){
 }
 
 /* ============================================================
-   CAMERA
+   DRAG & DROP + FILE HANDLING
    ============================================================ */
-async function toggleCamera(){
-  if(cameraRunning){stopCamera();return;}
+const camWrap=document.getElementById('camWrap');
+camWrap.addEventListener('dragover',e=>{e.preventDefault();document.getElementById('dragOverlay').classList.add('active');});
+camWrap.addEventListener('dragleave',e=>{if(!camWrap.contains(e.relatedTarget))document.getElementById('dragOverlay').classList.remove('active');});
+camWrap.addEventListener('drop',e=>{
+  e.preventDefault();
+  document.getElementById('dragOverlay').classList.remove('active');
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type.startsWith('video/'))handleFileSelect(file);
+  else addFeedback('bad','יש לגרור קובץ וידאו בלבד');
+});
+
+let videoFileMode=false;
+let fileAnalysisInterval=null;
+
+async function handleFileSelect(file){
+  if(!file)return;
   if(!currentEx){addFeedback('warn','בחר תרגיל קודם');return;}
   if(!pose)await initPose();
+  stopCamera();
+  videoFileMode=true;
+  const url=URL.createObjectURL(file);
+  const vid=document.getElementById('videoFile');
+  vid.src=url;
+  vid.style.display='block';
+  document.getElementById('inputVideo').style.display='none';
+  document.getElementById('camPlaceholder').style.display='none';
+  document.getElementById('outputCanvas').style.transform='none'; // no mirror for file
+  document.getElementById('startBtn').textContent='⏹ עצור';
+  document.getElementById('startBtn').classList.add('danger');
+  document.getElementById('statusBar').textContent='מנתח וידאו...';
+  addFeedback('info','🎬 קובץ נטען: '+file.name);
+  vid.onloadeddata=async()=>{
+    vid.play();
+    fileAnalysisInterval=setInterval(async()=>{
+      if(!videoFileMode||vid.paused||vid.ended){
+        if(vid.ended){document.getElementById('statusBar').textContent='✅ ניתוח הסתיים';}
+        return;
+      }
+      if(pose)await pose.send({image:vid});
+    },80); // ~12fps analysis
+  };
+}
+
+/* ============================================================
+   CAMERA (LIVE)
+   ============================================================ */
+function toggleCamera(){
+  if(cameraRunning||videoFileMode){stopCamera();return;}
+  startLive();
+}
+
+async function startLive(){
+  if(!currentEx){addFeedback('warn','בחר תרגיל קודם');return;}
+  if(!pose)await initPose();
+  stopCamera();
   document.getElementById('loadingOverlay').style.display='flex';
   document.getElementById('loadingMsg').textContent='מפעיל מצלמה...';
   try{
     const video=document.getElementById('inputVideo');
+    video.style.display='block';
+    document.getElementById('videoFile').style.display='none';
+    document.getElementById('outputCanvas').style.transform='scaleX(-1)';
     cameraObj=new Camera(video,{
       onFrame:async()=>{if(pose&&cameraRunning)await pose.send({image:video});},
       width:1280,height:720,
@@ -611,14 +691,18 @@ async function toggleCamera(){
 
 function stopCamera(){
   if(cameraObj)cameraObj.stop();
-  cameraRunning=false;
+  if(fileAnalysisInterval){clearInterval(fileAnalysisInterval);fileAnalysisInterval=null;}
+  cameraRunning=false;videoFileMode=false;
   lmHistory=[];
+  const vid=document.getElementById('videoFile');
+  vid.pause();vid.src='';vid.style.display='none';
+  document.getElementById('inputVideo').style.display='block';
   document.getElementById('startBtn').textContent='▶ התחל';
   document.getElementById('startBtn').classList.remove('danger');
   document.getElementById('camPlaceholder').style.display='flex';
   const ctx=document.getElementById('outputCanvas').getContext('2d');
-  ctx.clearRect(0,0,9999,9999);
-  document.getElementById('statusBar').textContent='מצלמה כבויה';
+  ctx.clearRect(0,0,ctx.canvas.width||9999,ctx.canvas.height||9999);
+  document.getElementById('statusBar').textContent='ממתין...';
 }
 
 /* ============================================================
