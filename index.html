@@ -961,7 +961,36 @@ function generateWeeklyPlan(){
 
     const ppType=trainIdx%2===0?'push':'pull';
     const ppTier=ct(ppType);
-    const ppPool=PUSH_PULL_POOL[ppType][ppTier]||PUSH_PULL_POOL[ppType].beginner;
+
+    // Detect "maxed out" — user hit ceiling of bodyweight, needs weighted progression
+    const pullMaxed=(tiers.pullRaw||0)>=4;  // answered "10+ pullups"
+    const pushMaxed=(tiers.pushRaw||0)>=4;  // answered "30+ pushups"
+    const dipsMaxed=(tiers.dipsRaw||0)>=4;  // answered "15+ dips"
+    const isMaxed=(ppType==='pull'&&pullMaxed)||(ppType==='push'&&(pushMaxed||dipsMaxed));
+
+    let ppBlock, needsWeight=false;
+    if(isMaxed){
+      // Hybrid: 2 weighted sets (strength) + 2 BW max sets (volume)
+      needsWeight=true;
+      if(ppType==='pull'){
+        ppBlock=[
+          ['מתח עם חגורת משקל 🏋️','2×3-5 (בחר משקל שקשה ב-5)'],
+          ['מתח עם חגורת משקל 🏋️','2×3-5'],
+          ['מתח — מקס חזרות','מקס (ללא מנוחה באמצע)'],
+          ['מתח — מקס חזרות','מקס (זה הסט האחרון, תמות)'],
+        ];
+      } else {
+        ppBlock=[
+          ['מקבילים עם חגורת משקל 🏋️','2×4-6'],
+          ['מקבילים עם חגורת משקל 🏋️','2×4-6'],
+          ['שכיבות — מקס חזרות','מקס ללא הפסקה'],
+          ['שכיבות — מקס חזרות','מקס (אחרון — שבור אותו)'],
+        ];
+      }
+    } else {
+      const ppPool=PUSH_PULL_POOL[ppType][ppTier]||PUSH_PULL_POOL[ppType].beginner;
+      ppBlock=ppPool.slice(0,Math.min(3,strengthSets));
+    }
 
     return{
       type:'train',day:dayName,focus:idx,
@@ -971,7 +1000,8 @@ function generateWeeklyPlan(){
       ppType,
       ppTier,
       muscleTier,
-      ppBlock:ppPool.slice(0,Math.min(3,strengthSets)),
+      needsWeight,
+      ppBlock,
       strengthBlock:musclePool.slice(0,strengthSets),
       coreBlock:[],
       cardioBlock:[],
@@ -1182,8 +1212,12 @@ function finishQuiz(){
     push:_tierScore(_pushScore),
     pull:_pullScore===0?'beginner':_pullScore<=1?'beginner':_pullScore<=2?'intermediate':'advanced',
     core:_tierScore(_coreScore),
-    legs:_globalTier, // no leg-specific questions yet
+    legs:_globalTier,
     balance:_balScore===0?_globalTier:_balScore<=2?'intermediate':'advanced',
+    // Raw scores to detect "maxed out" — triggers weighted hybrid mode
+    pullRaw:_a.pullups||0,
+    pushRaw:_a.pushups||0,
+    dipsRaw:_a.dips||0,
   };
 
   state.profile={
@@ -1335,8 +1369,19 @@ function renderWorkout(){
   // Push/Pull calisthenics block (20 min)
   if(today.ppBlock?.length){
     const ppLabel=today.ppType==='push'?'PUSH · דחיפה 💪':'PULL · משיכה 🔗';
-    html+=`<div class="wk-block"><div class="wk-h" style="color:${today.ppType==='push'?'var(--push)':'var(--pull)'}">⚡ ${ppLabel} · ${ppMin} דקות</div>`;
+    html+=`<div class="wk-block"><div class="wk-h" style="color:${today.ppType==='push'?'var(--push)':'var(--pull)'}">⚡ ${ppLabel} · ${ppMin} דקות`;
+    if(today.needsWeight)html+=` <span style="font-size:10px;background:rgba(139,61,255,.25);color:#c8a4ff;padding:2px 7px;border-radius:3px;margin-right:6px;letter-spacing:.05em">HYBRID MODE</span>`;
+    html+=`</div>`;
     today.ppBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+    if(today.needsWeight){
+      html+=`<div style="margin:10px 0 4px;padding:10px 12px;background:linear-gradient(135deg,rgba(139,61,255,.15),rgba(0,168,255,.1));border:1px solid rgba(139,61,255,.4);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#c8a4ff;line-height:1.6">
+          🏋️ <b>הגעת לתקרת משקל הגוף</b><br>
+          <span style="color:var(--muted);font-size:10px">כדי להמשיך להתקדם — אתה צריך חגורת משקל / בגד עם כיסים / קטלבל</span>
+        </div>
+        <a href="#store" style="flex-shrink:0;background:var(--violet2);color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px 12px;border-radius:4px;text-decoration:none;letter-spacing:.08em;white-space:nowrap">🛒 חנות KALOS</a>
+      </div>`;
+    }
     html+=`</div>`;
   }
 
