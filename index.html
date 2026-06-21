@@ -704,6 +704,33 @@ const EX=[
   {id:'lsit_legs',name:'הרמות רגליים ב-L-Sit',  nameEn:'L-Sit Leg Raises',        cat:'balance',muscle:'ירכיים · ליבה',       lvl:3, sets:4,reps:'6-10 × לכל רגל',restType:'base', tags:['ליבה','מתחיל שיווי'],  desc:'ידיים על הרצפה, מרימים רגל-רגל לסירוגין.',video:null},
   {id:'hs_lean',  name:'הישענות לעמידת ידיים',  nameEn:'HS Lean / Kick-up',       cat:'balance',muscle:'כתפיים · ליבה',       lvl:4, sets:5,reps:'10 ניסיונות', restType:'skill',  tags:['עמידת ידיים','בסיס'],  desc:'בועטים לעמידת ידיים על הקיר — לומדים כניסה ויציאה.',video:null},
   {id:'hs_fingers',name:'עלייה על אצבעות בעמידת ידיים',nameEn:'HS Finger Balance',cat:'balance',muscle:'כתפיים · אצבעות · ליבה',lvl:7,sets:5,reps:'5-10 ניסיונות',restType:'skill',tags:['עמידת ידיים','שיווי'], desc:'ממקבעים שיווי על קצות האצבעות — בונה שיווי עדין.',video:null},
+
+  /* ── BALANCE — שיווי ידיים מתקדם ── */
+  {id:'crow',        name:'תנוחת עורב (Crow Pose)',    nameEn:'Crow Pose',              cat:'balance',muscle:'כתפיים · מרפקים · ליבה',lvl:3, sets:4,reps:'5-10 שניות',  restType:'skill',   tags:['שיווי משקל','מתחיל'],  desc:'ברכיים על המרפקים, משקל קדימה — שער כניסה לשיווי ידיים ולפלאנץ.',video:null},
+  {id:'elbow_lever', name:'אלבו לבר (Elbow Lever)',    nameEn:'Elbow Lever',            cat:'balance',muscle:'כתפיים · בטן · אמה',    lvl:5, sets:4,reps:'5-10 שניות',  restType:'skill',   tags:['שיווי משקל','אופקי'],  desc:'הגוף אופקי מקביל לרצפה על המרפקים — שיווי משקל חד-נקודתי נפלא.',video:null},
+
+  /* ── CORE / ליבה קיצונית ── */
+  {id:'hollow_body', name:'הולו בודי (Hollow Body)',   nameEn:'Hollow Body Hold',        cat:'balance',muscle:'ליבה · כתפיים',         lvl:2, sets:4,reps:'20-45 שניות', restType:'base',    tags:['ליבה','בסיס'],         desc:'גב שטוח לרצפה, ידיים ורגליים מורמות — יסוד כל התרגילים האקרובטיים.',video:null},
+  {id:'dragon_neg',  name:'דרגון פלאג — נגטיב',       nameEn:'Dragon Flag Negative',    cat:'balance',muscle:'ליבה · גב · כתפיים',   lvl:6, sets:4,reps:'3-5 × איטי',   restType:'skill',   tags:['ליבה','קיצוני'],       desc:'ירידה איטית מגוף ישר לרצפה — בסיס הכרחי לדרגון פלאג.',video:null},
+  {id:'dragon_flag', name:'דרגון פלאג (Dragon Flag)',  nameEn:'Dragon Flag',             cat:'balance',muscle:'ליבה · גב · כתפיים',   lvl:8, sets:4,reps:'4-6',          restType:'skill',   tags:['ליבה','elite'],        desc:'הגוף ישר מהכתפיים לרגליים, מקביל לרצפה על ספסל — כמו ברוס לי ורוקי.',video:null},
+
+  /* ── BACK LEVER ── */
+  {id:'tuck_bl',     name:'טאק בק לבר',               nameEn:'Tuck Back Lever',         cat:'balance',muscle:'כתפיים · גב · ביצפס',  lvl:6, sets:5,reps:'5-10 שניות',  restType:'skill',   tags:['בק לבר'],              desc:'תלייה הפוכה, ברכיים אסופות, גוף מקביל לרצפה מאחורה.',video:null},
+  {id:'adv_tuck_bl', name:'אדוונס טאק בק לבר',        nameEn:'Adv Tuck Back Lever',     cat:'balance',muscle:'כתפיים · גב · ליבה',  lvl:7, sets:5,reps:'5-8 שניות',   restType:'skill',   tags:['בק לבר'],              desc:'כמו טאק אבל גב ישר יותר, ברכיים פחות אסופות.',video:null},
+  {id:'full_bl',     name:'בק לבר מלא (Back Lever)',   nameEn:'Full Back Lever',         cat:'balance',muscle:'כתפיים · גב · ליבה',  lvl:9, sets:5,reps:'3-5 שניות',   restType:'skill',   tags:['בק לבר','elite'],      desc:'הגוף מקביל לרצפה, ישר לגמרי, מאחורה — מתוך תלייה על המתח.',video:null},
+
+  /* ── HUMAN FLAG ── */
+  {id:'tuck_flag',   name:'טאק פלאג (Tuck Flag)',      nameEn:'Tuck Human Flag',         cat:'balance',muscle:'ליבה · כתפיים · גב',  lvl:6, sets:4,reps:'5-8 שניות',   restType:'skill',   tags:['פלאג'],                desc:'גוף אופקי בצד, ברכיים אסופות — הצעד הראשון לדגל האנושי.',video:null},
+  {id:'human_flag',  name:'פלאג אנושי (Human Flag)',   nameEn:'Human Flag',              cat:'balance',muscle:'ליבה · כתפיים · גב',  lvl:9, sets:5,reps:'3-5 שניות',   restType:'skill',   tags:['פלאג','elite'],        desc:'הגוף אופקי בצד, ישר לגמרי על עמוד — אחד מהתרגילים האייקוניים.',video:null},
+
+  /* ── V-SIT & MANNA ── */
+  {id:'vsit',        name:'V-Sit',                     nameEn:'V-Sit',                   cat:'balance',muscle:'ליבה · ירכיים · טריצפס',lvl:6,sets:4,reps:'5-10 שניות',  restType:'skill',   tags:['ליבה','שיווי'],        desc:'כמו L-Sit אבל הרגליים בזווית V מעל הרצפה — דורש כוח ליבה וגמישות ירכיים.',video:null},
+  {id:'manna',       name:'מאנה (Manna)',              nameEn:'Manna',                   cat:'balance',muscle:'כתפיים · ליבה · ירכיים',lvl:10,sets:5,reps:'3-5 שניות', restType:'skill',   tags:['מאנה','elite','אולימפי'],desc:'הגוף אחורה 270° — רגליים גבוה מהכתפיים. אחד מהתרגילים הנדירים ביותר בעולם.',video:null},
+
+  /* ── FOREARM STAND & PARALLETTES ── */
+  {id:'forearm_wall',name:'עמידת אמות על קיר',        nameEn:'Wall Forearm Stand',      cat:'balance',muscle:'כתפיים · ליבה',        lvl:4, sets:4,reps:'20-40 שניות', restType:'skill',   tags:['עמידת אמות'],          desc:'עמידה על אמות הידיים ליד הקיר — בניית בסיס לשיווי חופשי.',video:null},
+  {id:'forearm_stand',name:'עמידת אמות חופשית',       nameEn:'Free Forearm Stand',      cat:'balance',muscle:'כתפיים · ליבה',        lvl:7, sets:4,reps:'5-15 שניות',  restType:'skill',   tags:['עמידת אמות','נדיר'],   desc:'שיווי חופשי על אמות הידיים — בין עמידת ראש לעמידת ידיים, נדיר בקאליסתניקס.',video:null},
+  {id:'par_hs',      name:'עמידת ידיים על מקבילים',   nameEn:'Parallette Handstand',    cat:'balance',muscle:'כתפיים · ליבה',        lvl:7, sets:5,reps:'10-20 שניות', restType:'skill',   tags:['עמידת ידיים','מקבילים'],desc:'עמידת ידיים על מקבילים — טווח תנועה מלא, מחזק פרקי כף יד.',video:null},
 ];
 
 function exById(id){return EX.find(e=>e.id===id)||null;}
