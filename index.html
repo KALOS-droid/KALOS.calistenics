@@ -2632,7 +2632,7 @@ function _ang(a,b,c){
   const dot=ax*cx+ay*cy,mag=Math.sqrt(ax*ax+ay*ay)*Math.sqrt(cx*cx+cy*cy);
   return mag?Math.round(Math.acos(Math.min(1,Math.max(-1,dot/mag)))*180/Math.PI):0;
 }
-function _vis(lm,...ii){return ii.every(i=>lm[i]&&(lm[i].visibility||0)>0.35);}
+function _vis(lm,...ii){return ii.every(i=>lm[i]&&(lm[i].visibility||0)>0.2);}
 
 /* ── PER-TYPE SCORER (returns 0-100) ── */
 function _score(type,lm){
@@ -2725,10 +2725,10 @@ async function analyzeProofVideo(nodeId, file){
   _proofPose.onResults(results=>{
     if(!results.poseLandmarks)return;
     scores.push(_score(exType,results.poseLandmarks));
-    if(scores.length>=25){
-      const last25=scores.slice(-25);
-      const avg25=last25.reduce((a,b)=>a+b)/25;
-      if(avg25>=80&&!done){done=true;finishAnalysis(true);}
+    if(scores.length>=15){
+      const last15=scores.slice(-15);
+      const avg15=last15.reduce((a,b)=>a+b)/15;
+      if(avg15>=60&&!done){done=true;finishAnalysis(true);}
     }
   });
 
@@ -2742,8 +2742,8 @@ async function analyzeProofVideo(nodeId, file){
     if(done)return;
     loopCount++;
     const avg=scores.length?scores.reduce((a,b)=>a+b)/scores.length:0;
-    if(loopCount>=2||avg>=80){
-      done=true;finishAnalysis(avg>=80);
+    if(loopCount>=2||avg>=60){
+      done=true;finishAnalysis(avg>=60);
     }else{
       // play again
       if(statusEl)statusEl.innerHTML=`⏳ סיבוב ${loopCount}/2 — ממוצע: ${Math.round(avg)}% — ממשיך לנתח...`;
@@ -2758,17 +2758,16 @@ async function analyzeProofVideo(nodeId, file){
     vid.pause();
     setTimeout(()=>document.body.removeChild(vid),500);
     const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b)/scores.length):0;
+    const effectivePass=pass||(avg>=60);
 
-    if(pass){
+    if(effectivePass){
       if(statusEl){
         statusEl.style.background='rgba(0,255,170,.1)';
         statusEl.style.border='1px solid rgba(0,255,170,.35)';
         statusEl.style.color='var(--success)';
         statusEl.innerHTML=`✅ כל הכבוד! עברת! (${avg}%)<br><b>גאים בך! 🏆</b>`;
       }
-      setTimeout(()=>{
-        completeNode(nodeId);
-      },1200);
+      setTimeout(()=>completeNode(nodeId),1200);
     }else{
       if(statusEl){
         statusEl.style.background='rgba(255,51,85,.08)';
