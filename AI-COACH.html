@@ -528,6 +528,11 @@ let repCount=0, holdSec=0, holdStart=null, lastPhase=null;
 let formHistory=[], allFeedback=[];
 let pose=null, cameraObj=null, lmBuf=[], fileTimer=null;
 let analysisFrames=0;
+let goodStreak=0;        // consecutive frames with form>=80
+let videoLoopCount=0;   // how many times the video looped
+let verdictShown=false; // don't auto-show twice
+const PASS_FORM=80;     // threshold %
+const PASS_FRAMES=25;   // need 25 consecutive good frames (~2s at 12fps)
 
 /* ================================================================
    MEDIAPIPE
@@ -616,6 +621,23 @@ function onPoseResults(results){
   fsEl.textContent=fs;
   fsEl.style.color=fs>=80?'var(--success)':fs>=60?'var(--gold)':'var(--danger)';
 
+  // Good-frame streak → auto-verdict at 80%+
+  if(!verdictShown){
+    if(fs>=PASS_FORM){
+      goodStreak++;
+      const pct=Math.min(100,Math.round(goodStreak/PASS_FRAMES*100));
+      setStatus(`🔥 צורה מצויינת — ${pct}% לעבור`);
+      updateProgressBar(pct);
+      if(goodStreak>=PASS_FRAMES){
+        triggerAutoVerdict(true);
+        return;
+      }
+    }else{
+      if(goodStreak>0)goodStreak=Math.max(0,goodStreak-3); // decay slowly
+      updateProgressBar(Math.round(goodStreak/PASS_FRAMES*100));
+    }
+  }
+
   // Rep / hold counting
   const ex=currentEx;
   if(ex.holdSec){
@@ -623,19 +645,18 @@ function onPoseResults(results){
       if(!holdStart)holdStart=Date.now();
       holdSec=Math.floor((Date.now()-holdStart)/1000);
       document.getElementById('repCount').textContent=holdSec+'s';
-      setStatus(`החזקה ${holdSec}/${ex.holdSec}s`);
-      if(holdSec>=ex.holdSec){document.getElementById('verdictBtn').disabled=false;setStatus('✅ הצלחה!');}
-    }else{holdStart=null;holdSec=0;setStatus('שפר פוזיציה להתחלת ספירה');}
+      if(!verdictShown)setStatus(`החזקה ${holdSec}/${ex.holdSec}s`);
+      if(holdSec>=ex.holdSec&&!verdictShown){triggerAutoVerdict(true);}
+    }else{holdStart=null;holdSec=0;if(!verdictShown)setStatus('שפר פוזיציה להתחלת ספירה');}
   }else{
     if(result.isUp&&lastPhase==='down'){
       repCount++;
       const el=document.getElementById('repCount');
       el.textContent=repCount;
       el.style.color='var(--success)';setTimeout(()=>el.style.color='var(--cyan)',250);
-      if(repCount>=ex.minReps){document.getElementById('verdictBtn').disabled=false;}
     }
     lastPhase=result.isUp?'up':result.isDown?'down':lastPhase;
-    setStatus(result.phase);
+    if(!verdictShown&&goodStreak<PASS_FRAMES)setStatus(result.phase);
   }
 
   // Angle labels on canvas
@@ -651,6 +672,32 @@ function onPoseResults(results){
       }
     });
   }
+}
+
+/* ── Auto verdict ── */
+function triggerAutoVerdict(pass){
+  if(verdictShown)return;
+  verdictShown=true;
+  updateProgressBar(pass?100:0);
+  // stop video/camera
+  const vid=document.getElementById('videoFile');
+  if(vid&&!vid.paused)vid.pause();
+  if(fileTimer){clearInterval(fileTimer);fileTimer=null;}
+  setStatus(pass?'✅ עובר! מציג תוצאה...':'❌ לא הגעת ל-80% — מציג תוצאה...');
+  setTimeout(()=>showVerdict(pass),700);
+}
+
+/* ── Progress bar toward 80% ── */
+function updateProgressBar(pct){
+  let bar=document.getElementById('formProgressBar');
+  if(!bar){
+    bar=document.createElement('div');
+    bar.id='formProgressBar';
+    bar.style.cssText='position:absolute;bottom:0;left:0;height:3px;background:var(--cyan);transition:width .3s ease;z-index:6;border-radius:0 2px 2px 0';
+    document.getElementById('mediaBox').appendChild(bar);
+  }
+  bar.style.width=pct+'%';
+  bar.style.background=pct>=100?'var(--success)':pct>=60?'var(--gold)':'var(--cyan)';
 }
 
 function drawAngLabel(ctx,lm,txt,color,canvas){
@@ -730,11 +777,23 @@ async function handleFileSelect(file){
   document.getElementById('startBtn').textContent='⏹ עצור';
   document.getElementById('startBtn').classList.add('stop');
   addFb('info','🎬 '+file.name);
+  vid.loop=false; // we control looping manually
+  vid.onended=()=>{
+    if(verdictShown)return;
+    videoLoopCount++;
+    const avgForm=formHistory.length?Math.round(formHistory.reduce((a,b)=>a+b)/formHistory.length):0;
+    if(videoLoopCount>=2||avgForm>=PASS_FORM){
+      triggerAutoVerdict(avgForm>=PASS_FORM);
+    }else{
+      addFb('info',`סיבוב ${videoLoopCount}/2 — ממוצע צורה: ${avgForm}% — מנגן שוב...`);
+      vid.currentTime=0;
+      vid.play();
+    }
+  };
   vid.onloadeddata=()=>{
     vid.play();
     fileTimer=setInterval(async()=>{
-      if(!videoFileMode||vid.paused)return;
-      if(vid.ended){setStatus('✅ ניתוח הסתיים');return;}
+      if(!videoFileMode||vid.paused||vid.ended)return;
       if(pose)await pose.send({image:vid});
     },80);
   };
@@ -811,9 +870,11 @@ function selectVariant(catId,varId){
 function resetCounts(){
   repCount=0;holdSec=0;holdStart=null;lastPhase=null;
   formHistory=[];allFeedback=[];analysisFrames=0;
+  goodStreak=0;videoLoopCount=0;verdictShown=false;
   document.getElementById('repCount').textContent='0';
   document.getElementById('repLabel').textContent=currentEx?.holdSec?'שניות':'חזרות';
   document.getElementById('verdictBtn').disabled=true;
+  updateProgressBar(0);
   clearFb();
 }
 
@@ -833,13 +894,13 @@ function setStatus(t){document.getElementById('statusBar').textContent=t;}
 /* ================================================================
    VERDICT
    ================================================================ */
-function showVerdict(){
+function showVerdict(autoPass){
   const ex=currentEx;
   const avgForm=formHistory.length?Math.round(formHistory.reduce((a,b)=>a+b)/formHistory.length):0;
   const c=ex.criteria||{};
-  const repsOk=ex.holdSec?holdSec>=ex.holdSec:repCount>=ex.minReps;
-  const formOk=avgForm>=(c.form||60);
-  const pass=repsOk&&formOk;
+  const repsOk=ex.holdSec?holdSec>=ex.holdSec:repCount>=(ex.minReps||1);
+  const formOk=avgForm>=PASS_FORM;
+  const pass=autoPass!==undefined?autoPass:(formOk&&repsOk);
   const token=`KALOS-${currentVariant?.slice(0,4).toUpperCase()}-${Date.now().toString(36).slice(-4).toUpperCase()}`;
 
   // Save
