@@ -419,7 +419,10 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 <!-- ============ APP ============ -->
 <div id="app">
   <header>
-    <div class="title"><svg width="26" height="29" viewBox="0 0 64 72" style="vertical-align:-5px;margin-left:8px"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>KALOS</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="title"><svg width="26" height="29" viewBox="0 0 64 72" style="vertical-align:-5px;margin-left:8px"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>KALOS</div>
+      <button class="admin-btn" onclick="openStore()" style="border-color:rgba(139,61,255,.5);color:#c8a4ff;font-size:11px;padding:4px 10px;letter-spacing:.08em">🛒 חנות</button>
+    </div>
     <div class="player">
       <button class="admin-btn" onclick="logout()" style="border-color:rgba(255,51,85,.4);color:#ff8099">יציאה ↩</button>
       <span id="pName">PLAYER</span>
@@ -454,6 +457,106 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
   </div>
 </div>
 <div id="flash"><div class="t" id="flashText">LEVEL UP</div></div>
+
+<!-- ============ STORE SCREEN ============ -->
+<div id="storeScreen" style="display:none;position:fixed;inset:0;z-index:200;background:radial-gradient(ellipse at 50% 0%,#0a0620,#010206 70%);overflow-y:auto;direction:rtl">
+
+  <!-- Header -->
+  <div style="position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(2,4,12,.95);border-bottom:1px solid rgba(139,61,255,.3);backdrop-filter:blur(12px)">
+    <div style="font-family:'Cinzel',serif;font-weight:900;font-size:18px;letter-spacing:.18em;color:#eaf6ff;text-shadow:0 0 16px var(--violet)">
+      <svg width="20" height="22" viewBox="0 0 64 72" style="vertical-align:-3px;margin-left:6px"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>KALOS STORE
+    </div>
+    <button class="admin-btn" onclick="closeStore()" style="border-color:rgba(255,51,85,.4);color:#ff8099;font-size:12px">‹ חזרה לאימון</button>
+  </div>
+
+  <!-- USER VIEW: Coming Soon -->
+  <div id="storeUser" style="padding:30px 20px;max-width:520px;margin:0 auto">
+
+    <!-- Hero -->
+    <div style="text-align:center;padding:40px 0 30px">
+      <div style="font-family:'Cinzel',serif;font-size:13px;letter-spacing:.4em;color:var(--violet2);margin-bottom:14px">KALOS · STORE</div>
+      <div style="font-family:'Cinzel',serif;font-size:32px;font-weight:900;letter-spacing:.1em;color:#eaf6ff;line-height:1.2;text-shadow:0 0 30px var(--violet)">STRENGTH<br>IS BEAUTY</div>
+      <div style="margin-top:18px;display:inline-block;background:linear-gradient(135deg,rgba(139,61,255,.25),rgba(0,168,255,.15));border:1px solid rgba(139,61,255,.5);padding:10px 28px;font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:.25em;color:#c8a4ff">COMING SOON</div>
+    </div>
+
+    <!-- Product categories preview -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px">
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(139,61,255,.2);border-radius:8px;padding:18px 14px;text-align:center;filter:blur(0)">
+        <div style="font-size:28px;margin-bottom:8px">🏋️</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;color:#c8a4ff">EQUIPMENT</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">חגורות משקל · מוטות · גומיות</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(0,168,255,.2);border-radius:8px;padding:18px 14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">👕</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--blue)">APPAREL</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">חולצות · מכנסיים · כובעים</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(0,255,170,.15);border-radius:8px;padding:18px 14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🏆</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--success)">REWARDS</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">מרצ׳ אקסקלוסיבי לפי הישגים</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,170,0,.15);border-radius:8px;padding:18px 14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🤖</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;color:#ffd580">AI COACH</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">מאמן AI אישי · $9.99/חודש</div>
+      </div>
+    </div>
+
+    <!-- Notify me -->
+    <div style="background:rgba(139,61,255,.08);border:1px solid rgba(139,61,255,.3);border-radius:8px;padding:18px 16px;text-align:center">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#c8a4ff;margin-bottom:12px;letter-spacing:.06em">🔔 רוצה לדעת ראשון כשנפתח?</div>
+      <div style="display:flex;gap:8px;max-width:340px;margin:0 auto">
+        <input id="storeNotifyEmail" type="email" placeholder="האימייל שלך" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(139,61,255,.3);border-radius:4px;padding:9px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;outline:none;direction:ltr">
+        <button onclick="storeNotify()" style="background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px 14px;border-radius:4px;cursor:pointer;letter-spacing:.06em;white-space:nowrap">שלח ›</button>
+      </div>
+      <div id="storeNotifyMsg" style="margin-top:8px;font-size:11px;color:var(--success);display:none">✅ נרשמת! נעדכן אותך.</div>
+    </div>
+
+    <div style="text-align:center;padding:24px 0 10px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em">KALOS · CALISTHENICS · ΚΆΛΛΟΣ · ΣΘΈΝΟΣ</div>
+  </div>
+
+  <!-- ADMIN VIEW: Store Management -->
+  <div id="storeAdmin" style="display:none;padding:20px;max-width:580px;margin:0 auto">
+    <div style="background:rgba(139,61,255,.1);border:1px solid rgba(139,61,255,.4);border-radius:8px;padding:16px;margin-bottom:16px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#c8a4ff;letter-spacing:.1em;margin-bottom:12px">⚙️ ניהול חנות · ADMIN ONLY</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)">סטטוס החנות:</span>
+        <div style="display:flex;gap:8px">
+          <button onclick="setStoreStatus('soon')" id="sBtn_soon" style="font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 12px;border-radius:4px;border:1px solid rgba(139,61,255,.5);background:rgba(139,61,255,.2);color:#c8a4ff;cursor:pointer">🔒 COMING SOON</button>
+          <button onclick="setStoreStatus('live')" id="sBtn_live" style="font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 12px;border-radius:4px;border:1px solid rgba(0,255,170,.3);background:rgba(0,255,170,.08);color:var(--success);cursor:pointer">🟢 LIVE</button>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:6px">קישור לחנות Shopify / חיצוני:</div>
+        <div style="display:flex;gap:8px">
+          <input id="storeUrlInput" type="url" placeholder="https://kalos-store.myshopify.com" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(139,61,255,.3);border-radius:4px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#eaf6ff;outline:none;direction:ltr">
+          <button onclick="saveStoreUrl()" style="background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;padding:8px 14px;border-radius:4px;cursor:pointer">שמור</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notify list -->
+    <div style="background:rgba(0,168,255,.06);border:1px solid rgba(0,168,255,.2);border-radius:8px;padding:14px;margin-bottom:16px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--blue);margin-bottom:10px;letter-spacing:.08em">📧 רשימת המתנה</div>
+      <div id="storeWaitlist" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);max-height:160px;overflow-y:auto;line-height:2"></div>
+    </div>
+
+    <!-- Roadmap -->
+    <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:14px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.08em;margin-bottom:10px">📋 צ׳קליסט השקה</div>
+      <div style="font-size:12px;line-height:2;color:#eaf6ff;font-family:'Share Tech Mono',monospace">
+        <div>☐ פתיחת חשבון Shopify (דורש הורה / 18+)</div>
+        <div>☐ חיבור דומיין kalos-store.com</div>
+        <div>☐ הגדרת CJDropshipping / AliExpress</div>
+        <div>☐ העלאת מוצרים: ציוד · בגדים · מרצ׳ KALOS</div>
+        <div>☐ חיבור Stripe / PayPal</div>
+        <div>☐ עדכון קישור למעלה ← לחיצה בודדת</div>
+        <div>☐ שינוי סטטוס ל-LIVE 🟢</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ============ WORKOUT RUNNER ============ -->
 <div id="runnerBackdrop">
@@ -1836,6 +1939,55 @@ function undoNode(id){state.done=state.done.filter(x=>x!==id);save();closeModal(
 function closeModal(){document.getElementById('nodeBackdrop').classList.remove('show');}
 function gainXP(n){state.xp+=n;while(state.xp>=XP_PER_LEVEL){state.xp-=XP_PER_LEVEL;state.level++;flash('LEVEL UP');}save();renderXP();}
 function flash(t){document.getElementById('flashText').textContent=t;const f=document.getElementById('flash');f.classList.add('show');chime();setTimeout(()=>f.classList.remove('show'),1600);}
+
+/* ============================================================
+   STORE
+   ============================================================ */
+function openStore(){
+  const s=document.getElementById('storeScreen');
+  s.style.display='block';
+  document.body.style.overflow='hidden';
+  // Load waitlist + url for admin
+  if(state.admin){
+    document.getElementById('storeUser').style.display='none';
+    document.getElementById('storeAdmin').style.display='block';
+    const wl=JSON.parse(localStorage.getItem('kalos_waitlist')||'[]');
+    document.getElementById('storeWaitlist').innerHTML=wl.length
+      ?wl.map((e,i)=>`<div>${i+1}. ${e}</div>`).join('')
+      :'<div style="color:var(--muted)">אין נרשמים עדיין.</div>';
+    const url=localStorage.getItem('kalos_store_url')||'';
+    document.getElementById('storeUrlInput').value=url;
+    const status=localStorage.getItem('kalos_store_status')||'soon';
+    document.getElementById('sBtn_soon').style.opacity=status==='soon'?'1':'.4';
+    document.getElementById('sBtn_live').style.opacity=status==='live'?'1':'.4';
+  } else {
+    document.getElementById('storeUser').style.display='block';
+    document.getElementById('storeAdmin').style.display='none';
+  }
+}
+function closeStore(){
+  document.getElementById('storeScreen').style.display='none';
+  document.body.style.overflow='';
+}
+function storeNotify(){
+  const inp=document.getElementById('storeNotifyEmail');
+  const email=inp.value.trim();
+  if(!email||!email.includes('@')){inp.style.borderColor='var(--hp)';return;}
+  const wl=JSON.parse(localStorage.getItem('kalos_waitlist')||'[]');
+  if(!wl.includes(email)){wl.push(email);localStorage.setItem('kalos_waitlist',JSON.stringify(wl));}
+  inp.value='';inp.style.borderColor='';
+  document.getElementById('storeNotifyMsg').style.display='block';
+}
+function setStoreStatus(v){
+  localStorage.setItem('kalos_store_status',v);
+  document.getElementById('sBtn_soon').style.opacity=v==='soon'?'1':'.4';
+  document.getElementById('sBtn_live').style.opacity=v==='live'?'1':'.4';
+}
+function saveStoreUrl(){
+  const url=document.getElementById('storeUrlInput').value.trim();
+  localStorage.setItem('kalos_store_url',url);
+  flash('קישור נשמר ✓');
+}
 
 function logout(){
   sessionStorage.removeItem('kalos_session');
