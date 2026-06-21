@@ -2336,24 +2336,29 @@ function openNode(node){
   if(done){html+=`<div class="m-desc" style="color:var(--success)">✓ הושלם! כל הכבוד.</div><div class="m-btns"><button class="mbtn" onclick="closeModal()">סגור</button>`;
     if(state.admin)html+=`<button class="mbtn" onclick="undoNode('${node.id}')">בטל (מנהל)</button>`;html+=`</div>`;}
   else if(unlocked){
-    html+=`<div class="m-desc" style="font-size:12px;color:var(--muted)">צלם/הקלט שעשית את התרגיל כהוכחה (לא חובה), ואז סמן שהשלמת.</div>
-    <input id="photoInput" type="file" accept="video/*" capture="environment" style="display:none" onchange="onPhoto(event)">
+    html+=`<div class="m-desc" style="font-size:12px;color:var(--muted);margin-bottom:8px">
+      🤖 <b style="color:var(--cyan)">AI יבדוק את הסרטון שלך אוטומטית.</b><br>
+      צלם מהצד, כל הגוף בפריים. אם עברת 80%+ — יסמן לך וי לבד.
+    </div>
+    <input id="photoInput" type="file" accept="video/*" capture="environment" style="display:none" onchange="onPhoto(event,'${node.id}')">
     <div id="photoPrev"></div>
-    <div class="m-btns"><button class="mbtn" onclick="closeModal()">סגור</button>
-      <button class="mbtn mbtn-photo" onclick="document.getElementById('photoInput').click()">🎬 הקלט סרטון הוכחה</button>
-      <button class="mbtn mbtn-go" onclick="completeNode('${node.id}')">✓ הוכחתי / סיימתי</button></div>`;
+    <div id="aiProofStatus" style="display:none;margin-top:10px;padding:10px 12px;border-radius:7px;font-size:12px;text-align:center"></div>
+    <div class="m-btns" style="margin-top:10px"><button class="mbtn" onclick="closeModal()">סגור</button>
+      <button class="mbtn mbtn-photo" id="uploadProofBtn" onclick="document.getElementById('photoInput').click()">🎬 העלה סרטון הוכחה</button>
+    </div>`;
   }else{
     const treeTag=r=>r.startsWith('p_')?'<span style="color:var(--pull)">[Pull]</span>':r.startsWith('h_')?'<span style="color:var(--push)">[Push]</span>':'<span style="color:var(--balance)">[Balance]</span>';
     const missing=node.req.filter(r=>!isDone(r)).map(r=>`${treeTag(r)} ${nodeById(r)?.name||r}`);
     html+=`<div class="m-req">🔒 נעול. קודם עליך להשלים (גם מעצים אחרים!):<br>${missing.map(x=>'• '+x).join('<br>')}</div><div class="m-btns"><button class="mbtn" onclick="closeModal()">הבנתי</button></div>`;}
   m.innerHTML=html;document.getElementById('nodeBackdrop').classList.add('show');
 }
-function onPhoto(e){
+function onPhoto(e, nodeId){
   const f=e.target.files[0];if(!f)return;
   const url=URL.createObjectURL(f);
   pendingPhoto=url;
   document.getElementById('photoPrev').innerHTML=
-    `<video class="photo-prev" src="${url}" controls playsinline style="max-width:100%;max-height:180px;margin:10px auto 0;display:block;border:1px solid var(--border);border-radius:6px"></video>`;
+    `<video id="proofVid" src="${url}" controls playsinline style="max-width:100%;max-height:150px;margin:8px auto 0;display:block;border:1px solid var(--border);border-radius:6px"></video>`;
+  if(nodeId) analyzeProofVideo(nodeId, f);
 }
 function completeNode(id){if(isDone(id))return;state.done.push(id);
   if(pendingPhoto){state.proof=state.proof||{};state.proof[id]=pendingPhoto;}
@@ -2594,6 +2599,190 @@ function chime(){try{const a=new(AudioContext||webkitAudioContext)();[880,1320].
 
 /* ---------------- boot ---------------- */
 initAuth();
+</script>
+<!-- MediaPipe for proof video analysis -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script>
+/* ── NODE → EXERCISE TYPE MAPPING ── */
+const NODE_EX_TYPE={
+  // Pull
+  p_hang:'hold',p_scap:'pullup',p_rows:'pullup',p_neg:'pullup',
+  p_pull1:'pullup',p_pull5:'pullup',p_pull10:'pullup',p_mu:'pullup',
+  p_archer:'pullup',p_weight:'pullup',p_typewriter:'pullup',
+  p_oa_neg:'pullup',p_oa_assist:'pullup',p_oa:'pullup',
+  p_tuckfl:'frontlever',p_advfl:'frontlever',p_strfl:'frontlever',
+  p_fl:'frontlever',p_flpull:'pullup',p_oafl:'frontlever',
+  // Push
+  h_knee:'pushup',h_pushup:'pushup',h_dia:'pushup',h_pike:'pushup',
+  h_pseudo:'pushup',h_whspu:'hspu',h_hspu:'hspu',
+  h_lean:'planchelean',h_leanpush:'planchelean',h_tuck:'planchelean',
+  h_adv:'planchelean',h_str:'planchelean',h_planche:'planchelean',
+  h_planchepush:'planchelean',h_90:'planchelean',h_maltese:'planchelean',
+  // Balance
+  b_wall:'handstand',b_legoff:'handstand',b_free5:'handstand',
+  b_free30:'handstand',b_taps:'handstand',b_full:'handstand',
+  b_press:'handstand',b_oa_assist:'handstand',b_oa:'handstand',
+};
+
+/* ── ANGLE HELPER ── */
+function _ang(a,b,c){
+  if(!a||!b||!c)return 0;
+  const ax=a.x-b.x,ay=a.y-b.y,cx=c.x-b.x,cy=c.y-b.y;
+  const dot=ax*cx+ay*cy,mag=Math.sqrt(ax*ax+ay*ay)*Math.sqrt(cx*cx+cy*cy);
+  return mag?Math.round(Math.acos(Math.min(1,Math.max(-1,dot/mag)))*180/Math.PI):0;
+}
+function _vis(lm,...ii){return ii.every(i=>lm[i]&&(lm[i].visibility||0)>0.35);}
+
+/* ── PER-TYPE SCORER (returns 0-100) ── */
+function _score(type,lm){
+  switch(type){
+    case'pullup':{
+      if(!_vis(lm,12,14,16,24))return 30;
+      const el=_ang(lm[12],lm[14],lm[16]);
+      const body=_ang(lm[12],lm[24],lm[28]);
+      const straight=body>150;
+      // up position OR down position — just being there and straight counts
+      return straight?(el<120?92:el>150?85:75):50;
+    }
+    case'pushup':{
+      if(!_vis(lm,12,14,16,24,28))return 30;
+      const el=_ang(lm[12],lm[14],lm[16]);
+      const body=_ang(lm[12],lm[24],lm[28]);
+      const plank=Math.abs(body-180)<25;
+      return plank?(el<120?90:el>150?82:72):45;
+    }
+    case'hspu':{
+      if(!_vis(lm,12,14,15,16))return 20;
+      const feetY=Math.min(lm[27]?.y||1,lm[28]?.y||1);
+      const inv=feetY<(lm[11].y+lm[12].y)/2-0.08;
+      const el=_ang(lm[12],lm[14],lm[16]);
+      return inv?(el<120?90:85):25;
+    }
+    case'handstand':{
+      if(!_vis(lm,11,12,27,28))return 20;
+      const feetY=Math.min(lm[27].y,lm[28].y);
+      const shY=(lm[11].y+lm[12].y)/2;
+      const inv=feetY<shY-0.08;
+      const aligned=Math.abs((lm[27].x+lm[28].x)/2-(lm[15].x+lm[16].x)/2)<0.12;
+      return inv&&aligned?90:inv?65:20;
+    }
+    case'frontlever':{
+      if(!_vis(lm,12,24,27))return 20;
+      const horiz=Math.abs(lm[12].y-lm[27].y)<0.1;
+      return horiz?88:40;
+    }
+    case'planchelean':{
+      if(!_vis(lm,12,16,24))return 20;
+      const lean=_ang(lm[16],lm[12],lm[24]);
+      const body=_ang(lm[12],lm[24],lm[28]);
+      return lean<70&&body>160?88:55;
+    }
+    case'hold':{
+      // just check person is visible and somewhat stable
+      const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
+      return conf>0.5?82:40;
+    }
+    default:{
+      const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
+      return conf>0.45?75:35;
+    }
+  }
+}
+
+/* ── MAIN ANALYSIS FUNCTION ── */
+let _proofPose=null;
+async function analyzeProofVideo(nodeId, file){
+  const statusEl=document.getElementById('aiProofStatus');
+  const uploadBtn=document.getElementById('uploadProofBtn');
+  if(statusEl){
+    statusEl.style.display='block';
+    statusEl.style.background='rgba(0,168,255,.1)';
+    statusEl.style.border='1px solid rgba(0,168,255,.3)';
+    statusEl.style.color='#7dd3fc';
+    statusEl.innerHTML='⏳ AI סורק את הסרטון שלך...';
+  }
+  if(uploadBtn)uploadBtn.disabled=true;
+
+  const exType=NODE_EX_TYPE[nodeId]||'default';
+  const scores=[];
+  let loopCount=0;
+  let done=false;
+
+  // Init pose if needed
+  if(!_proofPose){
+    _proofPose=new Pose({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
+    _proofPose.setOptions({modelComplexity:1,smoothLandmarks:true,enableSegmentation:false,
+      minDetectionConfidence:0.6,minTrackingConfidence:0.5});
+  }
+
+  // Hidden video element for analysis
+  const vid=document.createElement('video');
+  vid.src=URL.createObjectURL(file);
+  vid.muted=true;vid.playsInline=true;vid.loop=false;
+  vid.style.cssText='position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px';
+  document.body.appendChild(vid);
+
+  _proofPose.onResults=results=>{
+    if(!results.poseLandmarks)return;
+    scores.push(_score(exType,results.poseLandmarks));
+    // Check if we already hit 80% consistently (25 frames)
+    if(scores.length>=25){
+      const last25=scores.slice(-25);
+      const avg25=last25.reduce((a,b)=>a+b)/25;
+      if(avg25>=80&&!done){done=true;finishAnalysis(true);}
+    }
+  };
+
+  // Analyze frame by frame
+  const interval=setInterval(async()=>{
+    if(done||vid.paused&&vid.ended)return;
+    try{await _proofPose.send({image:vid});}catch(e){}
+  },80);
+
+  vid.onended=()=>{
+    if(done)return;
+    loopCount++;
+    const avg=scores.length?scores.reduce((a,b)=>a+b)/scores.length:0;
+    if(loopCount>=2||avg>=80){
+      done=true;finishAnalysis(avg>=80);
+    }else{
+      // play again
+      if(statusEl)statusEl.innerHTML=`⏳ סיבוב ${loopCount}/2 — ממוצע: ${Math.round(avg)}% — ממשיך לנתח...`;
+      vid.currentTime=0;vid.play();
+    }
+  };
+
+  vid.onloadeddata=()=>vid.play();
+
+  function finishAnalysis(pass){
+    clearInterval(interval);
+    vid.pause();
+    setTimeout(()=>document.body.removeChild(vid),500);
+    const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b)/scores.length):0;
+
+    if(pass){
+      if(statusEl){
+        statusEl.style.background='rgba(0,255,170,.1)';
+        statusEl.style.border='1px solid rgba(0,255,170,.35)';
+        statusEl.style.color='var(--success)';
+        statusEl.innerHTML=`✅ כל הכבוד! עברת! (${avg}%)<br><b>גאים בך! 🏆</b>`;
+      }
+      setTimeout(()=>{
+        completeNode(nodeId);
+      },1200);
+    }else{
+      if(statusEl){
+        statusEl.style.background='rgba(255,51,85,.08)';
+        statusEl.style.border='1px solid rgba(255,51,85,.3)';
+        statusEl.style.color='#ff8099';
+        statusEl.innerHTML=`❌ הסרטון לא הראה את התרגיל בצורה מספקת (${avg}%)<br>
+          <span style="font-size:11px;color:var(--muted)">ודא שכל הגוף נראה, צלם מהצד, ונסה שוב.</span>`;
+      }
+      if(uploadBtn){uploadBtn.disabled=false;uploadBtn.textContent='🎬 נסה שוב';}
+    }
+  }
+}
 </script>
 </body>
 </html>
