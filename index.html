@@ -269,6 +269,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       </div>
       <!-- name (register only) -->
       <div id="authNameWrap" class="field hidden"><label>שם פרטי</label><input id="authName" type="text" placeholder="שם פרטי"></div>
+      <!-- phone (register only) -->
+      <div id="authPhoneWrap" class="field hidden"><label>מספר טלפון</label><input id="authPhone" type="tel" placeholder="05X-XXXXXXX" dir="ltr"></div>
       <!-- email + password -->
       <div class="field"><label>אימייל</label><input id="authEmail" type="email" placeholder="you@email.com" dir="ltr"></div>
       <div class="field"><label>סיסמא</label><input id="authPass" type="password" placeholder="לפחות 6 תווים" dir="ltr" onkeydown="if(event.key==='Enter')submitAuth()"></div>
@@ -789,6 +791,7 @@ function authTab(mode){
   document.getElementById('tabLogin').style.cssText=!isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-left:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
   document.getElementById('tabReg').style.cssText=isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-right:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
   document.getElementById('authNameWrap').classList.toggle('hidden',!isReg);
+  document.getElementById('authPhoneWrap').classList.toggle('hidden',!isReg);
   document.getElementById('authSubmitBtn').textContent=isReg?'הרשמה ›':'כניסה ›';
   document.getElementById('authErr').textContent='';
 }
@@ -809,10 +812,12 @@ function showForgotMsg(){
   document.getElementById("forgotLink").style.display="none";
 }
 
+function normalizePhone(p){return p.replace(/[\s\-\(\)]/g,'').replace(/^0/,'+972');}
 async function submitAuth(){
   const email=document.getElementById('authEmail').value.trim().toLowerCase();
   const pass=document.getElementById('authPass').value;
   const name=document.getElementById('authName').value.trim();
+  const phoneRaw=document.getElementById('authPhone')?.value.trim()||'';
   const err=t=>{document.getElementById('authErr').textContent=t;};
   if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
@@ -822,8 +827,14 @@ async function submitAuth(){
   const hash=await hashPass(pass);
   if(authMode==='register'){
     if(!name){err('הכנס שם פרטי');return;}
+    // Phone validation
+    if(!phoneRaw){err('הכנס מספר טלפון');return;}
+    const phone=normalizePhone(phoneRaw);
+    if(!/^\+?\d{9,15}$/.test(phone)){err('מספר טלפון לא תקין');return;}
     if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
-    const newUser={email,name,hash,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
+    // Block duplicate phone
+    if(users.find(u=>u.phone&&normalizePhone(u.phone)===phone)){err('מספר הטלפון כבר רשום במערכת');return;}
+    const newUser={email,name,phone,hash,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
     await saveUser(newUser);
     currentUser={email,name};
     sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));

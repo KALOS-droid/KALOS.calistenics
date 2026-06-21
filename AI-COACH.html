@@ -484,19 +484,38 @@ function analyzePikePushup(lm,conf){
   return{elR,elL,hipR,hipL,kneeR:0,kneeL:0,shldrR:0,shldrL:0,spine:hipR,symm:100-Math.min(100,Math.abs(elR-elL)),phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:pikeOk?82:55,fb};
 }
 function analyzeHSPU(lm,conf){
-  if(!vis(lm,15,16,12,14))return null;
+  if(!vis(lm,12,14)||conf<0.25)return null;
   const elR=ang(lm[12],lm[14],lm[16]);
   const elL=vis(lm,11,13,15)?ang(lm[11],lm[13],lm[15]):elR;
-  const feetY=vis(lm,27,28)?Math.min(lm[27].y,lm[28].y):1;
-  const inverted=feetY<lm[12].y;
+  const shldrY=(lm[11].y+lm[12].y)/2;
+  // Inverted detection: use ankles OR hips (hips always visible even when feet cut off)
+  const ankleY=vis(lm,27,28)?Math.min(lm[27].y,lm[28].y):null;
+  const hipY=vis(lm,23,24)?(lm[23].y+lm[24].y)/2:null;
+  // Wrists at bottom of frame = good indicator of handstand
+  const wristY=vis(lm,15,16)?Math.max(lm[15].y,lm[16].y):0;
+  const inverted=(ankleY!==null&&ankleY<shldrY-0.05)||
+                 (hipY!==null&&hipY<shldrY-0.05)||
+                 (wristY>shldrY+0.15&&conf>0.35);
   const isUp=elR>155; const isDown=elR<90;
   const symm=100-Math.min(100,Math.abs(elR-elL));
+  // Base score: if we see the person clearly, assume they're attempting the exercise
+  let formScore=30;
+  if(conf>0.35)formScore=52;  // person visible
+  if(inverted)formScore=70;   // inverted confirmed
+  if(inverted&&elR>140)formScore=78; // arms somewhat extended
+  if(inverted&&isUp)formScore=88;    // full lockout
+  if(inverted&&isDown&&elR<90)formScore=82; // good descent
+  if(symm<70&&inverted)formScore=Math.max(formScore-10,60);
   const fb=[];
-  if(!inverted)fb.push({t:'info',m:'עמוד על הידיים ← מחכה'});
+  if(!inverted)fb.push({t:'info',m:'עמוד על הידיים ← מחכה לזיהוי'});
   else if(isDown)fb.push({t:'good',m:'ירידה מבוקרת — ראש קרוב לרצפה'});
-  else if(isUp)fb.push({t:'good',m:'דחיפה מלאה ✓'});
-  if(inverted&&symm<75)fb.push({t:'bad',m:'ידיים לא סימטריות — יישר'});
-  return{elR,elL,hipR:0,hipL:0,kneeR:0,kneeL:0,shldrR:0,shldrL:0,spine:0,symm,phase:!inverted?'ממתין':isUp?'למעלה':isDown?'למטה':'בתנועה',isUp:inverted&&isUp,isDown:inverted&&isDown,form:inverted?80:30,fb};
+  else if(isUp)fb.push({t:'good',m:'דחיפה מלאה — נעילת מרפקים ✓'});
+  else fb.push({t:'good',m:'עמידת ידיים מזוהה ✓'});
+  if(inverted&&elR<160&&elR>100)fb.push({t:'warn',m:'נעל מרפקים בראש — ידיים ישרות'});
+  if(inverted&&symm<70)fb.push({t:'bad',m:`אסימטריה בין ידיים — פער ${Math.round(100-symm)}°`});
+  return{elR,elL,hipR:0,hipL:0,kneeR:0,kneeL:0,shldrR:0,shldrL:0,spine:0,symm,
+    phase:!inverted?'ממתין':isUp?'למעלה':isDown?'למטה':'בתנועה',
+    isUp:inverted&&isUp,isDown:inverted&&isDown,form:formScore,fb};
 }
 function analyzeDip(lm,conf){
   if(!vis(lm,12,14,16))return null;
