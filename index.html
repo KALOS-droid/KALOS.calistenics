@@ -189,6 +189,31 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .back-link:hover{color:var(--cyan);border-color:var(--cyan)}
 .back-link.visible{display:block}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:linear-gradient(var(--border),rgba(110,50,255,.5))}
+
+/* ── workout runner ── */
+#runnerBackdrop{position:fixed;inset:0;z-index:180;background:rgba(0,0,8,.97);display:none;align-items:center;justify-content:center;padding:20px}
+#runnerBackdrop.show{display:flex}
+.runner-card{width:min(480px,96vw);background:linear-gradient(160deg,rgba(6,14,36,.99),rgba(10,8,32,.99));border:1px solid rgba(0,168,255,.7);box-shadow:0 0 40px rgba(0,140,255,.3),0 0 80px rgba(90,40,255,.2);padding:28px 26px;clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 16px,100% calc(100% - 16px),calc(100% - 16px) 100%,16px 100%,0 calc(100% - 16px),0 16px)}
+.runner-progress{display:flex;gap:4px;margin-bottom:18px}
+.runner-pip{flex:1;height:4px;background:rgba(0,168,255,.2);border-radius:2px;transition:all .3s}
+.runner-pip.done{background:var(--success)}
+.runner-pip.active{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.runner-ex-num{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.12em;margin-bottom:6px}
+.runner-ex-name{font-family:'Cinzel',serif;font-size:22px;font-weight:900;color:#eaf6ff;text-shadow:0 0 14px var(--blue);margin-bottom:4px}
+.runner-ex-muscle{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.06em}
+.runner-video{width:100%;aspect-ratio:16/9;background:rgba(0,60,120,.15);border:1px solid rgba(0,168,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:13px;color:var(--muted);font-family:'Share Tech Mono',monospace}
+.runner-video iframe{width:100%;height:100%;border:none}
+.runner-set-info{text-align:center;padding:16px;border:1px solid rgba(0,255,213,.25);background:rgba(0,255,213,.04);margin-bottom:16px;clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px)}
+.runner-set-label{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;margin-bottom:6px}
+.runner-reps{font-family:'Orbitron',monospace;font-weight:900;font-size:32px;color:var(--cyan);text-shadow:0 0 20px rgba(0,255,213,.5)}
+.runner-desc{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:16px;background:rgba(0,40,80,.3);padding:10px 12px;border-right:2px solid var(--blue)}
+/* rest timer */
+.rest-ring{width:120px;height:120px;margin:0 auto 16px;position:relative}
+.rest-ring svg{transform:rotate(-90deg)}
+.rest-ring circle{fill:none;stroke-width:8;transition:stroke-dashoffset .9s linear}
+.rest-ring .track{stroke:rgba(0,168,255,.15)}
+.rest-ring .fill{stroke:var(--cyan);stroke-linecap:round}
+.rest-count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-weight:900;font-size:28px;color:var(--cyan);text-shadow:0 0 16px rgba(0,255,213,.5)}
 /* daily workout */
 #workout{max-width:560px;margin:6px auto 150px;padding:0 14px}
 .wk-block{border:1px solid var(--border);background:rgba(6,12,28,.6);margin:14px 0;padding:14px 16px;
@@ -428,6 +453,39 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 </div>
 <div id="flash"><div class="t" id="flashText">LEVEL UP</div></div>
 
+<!-- ============ WORKOUT RUNNER ============ -->
+<div id="runnerBackdrop">
+  <div class="runner-card">
+    <div class="runner-progress" id="runnerPips"></div>
+    <div class="runner-ex-num" id="runnerExNum"></div>
+    <div class="runner-ex-name" id="runnerExName"></div>
+    <div class="runner-ex-muscle" id="runnerExMuscle"></div>
+    <div class="runner-video" id="runnerVideo"></div>
+    <div class="runner-set-info">
+      <div class="runner-set-label" id="runnerSetLabel"></div>
+      <div class="runner-reps" id="runnerReps"></div>
+    </div>
+    <div class="runner-desc" id="runnerDesc"></div>
+    <!-- rest timer (hidden during exercise) -->
+    <div id="restScreen" style="display:none;text-align:center">
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--muted);letter-spacing:.12em;margin-bottom:12px">מנוחה</div>
+      <div class="rest-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle class="track" cx="60" cy="60" r="52"/>
+          <circle class="fill" id="restArc" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"/>
+        </svg>
+        <div class="rest-count" id="restCount">0</div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px" id="restNextLabel"></div>
+      <button class="btn" onclick="skipRest()" style="margin-top:12px;background:transparent;border-color:var(--muted);color:var(--muted);font-size:11px;padding:8px">דלג על המנוחה ›</button>
+    </div>
+    <div id="runnerBtns" style="display:flex;gap:10px;margin-top:4px">
+      <button class="mbtn" onclick="stopRunner()" style="flex-shrink:0">✕ עצור</button>
+      <button class="mbtn mbtn-go" id="runnerMainBtn" onclick="runnerAction()" style="flex:1;font-size:15px">✅ סיימתי סט</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ WEEKLY CHECK-IN MODAL ============ -->
 <div class="backdrop" id="checkinBackdrop" style="z-index:150">
   <div class="modal" style="width:min(500px,96vw);max-height:90vh;overflow-y:auto">
@@ -586,6 +644,68 @@ function startApp(email){
    - single, real level/XP calculation (no level:1 TODO override)
    - fixed inverted "competing" toggles, removed dead links
    ============================================================ */
+
+/* ============================================================
+   EXERCISE LIBRARY
+   rest types: base=60s, strength=90s, skill=180s, heavy=150s
+   ============================================================ */
+const REST={base:60,strength:90,skill:180,heavy:150};
+const EX=[
+  /* ── PULL ── */
+  {id:'hang',     name:'תלייה על המתח',          nameEn:'Dead Hang',              cat:'pull',muscle:'גב · כתפיים · אחיזה',   lvl:1, sets:4,reps:'30-60 שניות',restType:'base',    tags:['מתחיל','חימום'],        desc:'בסיס האחיזה. מתיחה ובניית כוח שכמות לכל עבודת המתח.',video:null},
+  {id:'active_hang',name:'תלייה אקטיבית',        nameEn:'Active/Scapular Hang',   cat:'pull',muscle:'שכמות · גב עליון',      lvl:2, sets:4,reps:'5×2 שניות',  restType:'base',    tags:['מתחיל','חימום','בסיס'], desc:'מושכים את השכמות למטה בזמן התלייה — מפעיל את הגב ומונע פציעות.',video:null},
+  {id:'neg_pu',   name:'מתח שלילי (נגטיב)',      nameEn:'Negative Pull-up',        cat:'pull',muscle:'גב · ביצפס',            lvl:3, sets:5,reps:'3-5 × 4-5 שניות',restType:'strength',tags:['מתחיל','בסיס'],       desc:'עולים בקפיצה ויורדים לאט 4-5 שניות. הדרך הכי מהירה לבנות כוח מתח.',video:null},
+  {id:'hold_90',  name:'עצירה 90° במתח',         nameEn:'90° Pull-up Hold',        cat:'pull',muscle:'גב · ביצפס · ליבה',    lvl:4, sets:5,reps:'5-8 שניות',  restType:'skill',   tags:['בניית כוח','מתקדם בסיס'],desc:'עצירה ב-90° מעלות — בונה כוח מטורף. בדרך כלל אחרי שבוע הם עושים מתח מלא.',video:null},
+  {id:'pull_90',  name:'עליות מ-90° למעלה',      nameEn:'Pull from 90°',           cat:'pull',muscle:'גב עליון · ביצפס',     lvl:5, sets:5,reps:'3-5',        restType:'skill',   tags:['בניית כוח'],            desc:'מתחילים מ-90° ועולים למעלה. משלים את הטווח שהנגטיב לא מכסה.',video:null},
+  {id:'pullup',   name:'מתח מלא',                nameEn:'Pull-up',                 cat:'pull',muscle:'גב רחב · ביצפס',       lvl:5, sets:4,reps:'מקס-2',      restType:'strength',tags:['בסיס','כוח'],           desc:'מתח מלא — סנטר מעל המוט, ירידה מבוקרת.',video:null},
+  {id:'close_pu', name:'מתח צמוד',               nameEn:'Close Grip Pull-up',      cat:'pull',muscle:'ביצפס · גב תחתון',     lvl:6, sets:4,reps:'מקס-2',      restType:'strength',tags:['וריאציה'],              desc:'ידיים צמודות — מדגיש ביצפס ואמה.',video:null},
+  {id:'wide_pu',  name:'מתח רחב',                nameEn:'Wide Grip Pull-up',       cat:'pull',muscle:'גב רחב · כתפיים',      lvl:6, sets:4,reps:'מקס-2',      restType:'strength',tags:['וריאציה'],              desc:'ידיים רחבות — מדגיש גב רחב ועובד יותר על הכתף.',video:null},
+  {id:'archer',   name:"מתח ארצ'ר",              nameEn:'Archer Pull-up',          cat:'pull',muscle:'גב · ביצפס חד-צדדי',  lvl:8, sets:4,reps:'3 לכל צד',   restType:'skill',   tags:['מתקדם','ליד אחת'],     desc:"מעבר משקל לצד אחד — שלב ביניים למתח יד אחת.",video:null},
+  {id:'oa_neg',   name:'מתח יד אחת — שלילי',    nameEn:'One Arm Negative',        cat:'pull',muscle:'גב · ביצפס',           lvl:9, sets:5,reps:'1-2 × 5 שניות לכל צד',restType:'skill',tags:['יד אחת'],          desc:'יורדים על יד אחת לאט לאט — בניית כוח יד-אחת.',video:null},
+  {id:'oa_pu',    name:'מתח יד אחת',             nameEn:'One Arm Pull-up',         cat:'pull',muscle:'גב · ביצפס',           lvl:10,sets:5,reps:'1-3 לכל צד', restType:'skill',   tags:['elite','יד אחת'],      desc:'הגביע הקדוש של המשיכה.',video:null},
+  {id:'weight_pu',name:'מתח עם משקל',            nameEn:'Weighted Pull-up',        cat:'pull',muscle:'גב · ביצפס',           lvl:7, sets:5,reps:'3-5',        restType:'heavy',   tags:['כוח מירבי'],            desc:'עולים משקל לאט לאט לפי החוזק שנבנה — +2.5-5 ק"ג כל שבוע.',video:null},
+  {id:'mu_neg',   name:'עליות כוח — נגטיב',     nameEn:'Muscle-up Negative',      cat:'pull',muscle:'גב · כתפיים · טריצפס',lvl:8, sets:5,reps:'2-3 × איטי',  restType:'skill',   tags:['עליות כוח'],            desc:'עוברים מעל המוט ויורדים לאט משני הצדדים. החלק הראשון של עליות הכוח.',video:null},
+  {id:'mu_dip',   name:'פוש אפ על מתח גבוה',    nameEn:'Muscle-up Top Dip',       cat:'pull',muscle:'טריצפס · כתפיים',      lvl:8, sets:4,reps:'5-8',        restType:'strength',tags:['עליות כוח'],            desc:'החלק השני של עליות הכוח — הדחיפה מעל המוט.',video:null},
+  /* Front Lever */
+  {id:'fl_tuck',  name:'טאק פרונט לבר',          nameEn:'Tuck Front Lever',        cat:'pull',muscle:'גב רחב · ליבה',       lvl:6, sets:5,reps:'5-10 שניות', restType:'skill',   tags:['פרונט לבר'],            desc:'רגליים אסופות, גב מקביל לרצפה.',video:null},
+  {id:'fl_adv',   name:'אדוונס טאק פרונט',       nameEn:'Advanced Tuck FL',        cat:'pull',muscle:'גב רחב · ליבה',       lvl:7, sets:5,reps:'5-8 שניות',  restType:'skill',   tags:['פרונט לבר'],            desc:'ברכיים פתוחות חלקית, גב ישר.',video:null},
+  {id:'fl_full',  name:'פרונט לבר מלא',          nameEn:'Full Front Lever',        cat:'pull',muscle:'גב רחב · ליבה · כתפיים',lvl:9,sets:6,reps:'3-5 שניות', restType:'skill',   tags:['פרונט לבר','elite'],   desc:'הגוף מקביל לרצפה, ישר לגמרי.',video:null},
+  {id:'fl_pull',  name:'פול-אפ בפרונט לבר',     nameEn:'Front Lever Pull-up',     cat:'pull',muscle:'גב רחב · ליבה',       lvl:9, sets:4,reps:'2-4',        restType:'skill',   tags:['פרונט לבר','דינמי'],   desc:'משיכה דינמית מתוך פרונט לבר מלא.',video:null},
+  {id:'adv_fl_pull',name:'פול-אפ באדוונס פרונט',nameEn:'Adv Tuck FL Pull-up',     cat:'pull',muscle:'גב · ליבה',           lvl:8, sets:4,reps:'3-5',        restType:'skill',   tags:['פרונט לבר','דינמי'],   desc:'משיכות דינמיות מתוך אדוונס טאק פרונט.',video:null},
+
+  /* ── PUSH ── */
+  {id:'wall_pu',  name:'שכיבות על הקיר',         nameEn:'Wall Push-up',            cat:'push',muscle:'חזה · כתפיים',         lvl:1, sets:3,reps:'15-20',       restType:'base',    tags:['מתחיל','קל מאוד'],     desc:'למתחיל האמיתי — ידיים על הקיר.',video:null},
+  {id:'incline_pu',name:'שכיבות ידיים על כיסא', nameEn:'Incline Push-up',         cat:'push',muscle:'חזה · כתפיים',         lvl:2, sets:3,reps:'12-15',       restType:'base',    tags:['מתחיל'],                desc:'ידיים גבוהות על כיסא/ספסל — קל יותר מהרצפה.',video:null},
+  {id:'knee_pu',  name:'שכיבות על הברכיים',      nameEn:'Knee Push-up',            cat:'push',muscle:'חזה · טריצפס',         lvl:2, sets:3,reps:'12-15',       restType:'base',    tags:['מתחיל'],                desc:'שכיבות מהברכיים — שלב לפני השכיבה המלאה.',video:null},
+  {id:'pushup',   name:'שכיבות סמיכה',           nameEn:'Push-up',                 cat:'push',muscle:'חזה · טריצפס · כתפיים',lvl:3,sets:4,reps:'מקס-2',       restType:'base',    tags:['בסיס'],                 desc:'שכיבות מלאות — גוף ישר כמו קרש.',video:null},
+  {id:'diamond',  name:'שכיבות דיימונד',         nameEn:'Diamond Push-up',         cat:'push',muscle:'טריצפס · חזה פנימי',  lvl:4, sets:3,reps:'8-12',        restType:'strength',tags:['טריצפס'],               desc:'ידיים בצורת יהלום מתחת לחזה.',video:null},
+  {id:'wide_pu2', name:'שכיבות רחבות',           nameEn:'Wide Push-up',            cat:'push',muscle:'חזה חיצוני · כתפיים',lvl:4, sets:3,reps:'10-12',        restType:'base',    tags:['חזה'],                  desc:'ידיים רחבות — מדגיש חזה חיצוני.',video:null},
+  {id:'archer_pu',name:'שכיבות ארצ׳ר',          nameEn:'Archer Push-up',          cat:'push',muscle:'חזה · טריצפס חד-צדדי',lvl:6,sets:4,reps:'4-6 לכל צד',  restType:'strength',tags:['כוח חד-צדדי'],          desc:'מעבר משקל לצד — שלב ביניים ל-90°.',video:null},
+  {id:'explosive_pu',name:'שכיבות כוח מתפרץ',   nameEn:'Clap/Explosive Push-up',  cat:'push',muscle:'חזה · טריצפס',         lvl:5, sets:4,reps:'5-8',        restType:'strength',tags:['כוח מתפרץ'],            desc:'דחיפה נפיצה — הידיים עוזבות את הרצפה.',video:null},
+  {id:'weight_pu2',name:'שכיבות עם משקל',        nameEn:'Weighted Push-up',        cat:'push',muscle:'חזה · טריצפס',         lvl:5, sets:4,reps:'6-10',        restType:'strength',tags:['עומס'],                 desc:'משקל על הגב — מדרגה לפני פרונט לבר.',video:null},
+  {id:'pike_pu',  name:'שכיבות פייק',            nameEn:'Pike Push-up',            cat:'push',muscle:'כתפיים · טריצפס',      lvl:5, sets:4,reps:'8-12',        restType:'strength',tags:['כתפיים','HSPU'],        desc:'ירך גבוה, ראש בין הידיים — מכין לעמידת ידיים.',video:null},
+  {id:'elevated_pu',name:'שכיבות רגליים על כיסא',nameEn:'Feet Elevated Push-up',  cat:'push',muscle:'כתפיים · חזה עליון',  lvl:5, sets:4,reps:'8-12',        restType:'strength',tags:['כתפיים'],               desc:'ככל שהרגליים גבוהות יותר, כך יותר משקל על הכתפיים.',video:null},
+  {id:'hspu_par', name:'HSPU על מקבילים',        nameEn:'Parallette HSPU',         cat:'push',muscle:'כתפיים · טריצפס',      lvl:8, sets:4,reps:'3-6',        restType:'skill',   tags:['HSPU'],                 desc:'טווח תנועה מלא על מקבילים — מאתגר יותר מהרצפה.',video:null},
+  {id:'hspu_floor',name:'HSPU על הרצפה',         nameEn:'Freestanding HSPU',       cat:'push',muscle:'כתפיים · טריצפס',      lvl:9, sets:5,reps:'1-3',        restType:'skill',   tags:['HSPU','elite'],         desc:'עמידת ידיים חופשית + שכיבה — שיא הדחיפה.',video:null},
+  {id:'neg_90',   name:'נגטיב 90° Push-up',      nameEn:'90° Push-up Negative',    cat:'push',muscle:'כתפיים · טריצפס · ליבה',lvl:7,sets:5,reps:'2-3 × 5 שניות',restType:'skill',  tags:['90°','בניית כוח'],     desc:'יורדים לאט ל-90° ועולים — בונה כוח לתרגיל המלא.',video:null},
+  {id:'pu_90',    name:'90° Push-up מלא',         nameEn:'90-Degree Push-up',       cat:'push',muscle:'כתפיים · ליבה',        lvl:10,sets:5,reps:'1-3',        restType:'skill',   tags:['90°','elite'],          desc:'כפות הידיים בלבד נוגעות ברצפה — תרגיל מטורף.',video:null},
+  /* Planche */
+  {id:'pl_lean',  name:'הישענות לפלאנץ',         nameEn:'Planche Lean',            cat:'push',muscle:'כתפיים · ליבה',        lvl:5, sets:5,reps:'10-20 שניות',restType:'skill',   tags:['פלאנץ','בסיס'],        desc:'ידיים מסובבות החוצה, משקל קדימה — בסיס הפלאנץ.',video:null},
+  {id:'tuck_pl',  name:'טאק פלאנץ',              nameEn:'Tuck Planche',            cat:'push',muscle:'כתפיים · ליבה',        lvl:7, sets:6,reps:'5-10 שניות', restType:'skill',   tags:['פלאנץ'],                desc:'ברכיים אסופות, גוף מרחף.',video:null},
+  {id:'adv_tuck_pl',name:'אדוונס טאק פלאנץ',    nameEn:'Adv Tuck Planche',        cat:'push',muscle:'כתפיים · ליבה',        lvl:8, sets:6,reps:'5-8 שניות',  restType:'skill',   tags:['פלאנץ'],                desc:'גב ישר, ברכיים פחות אסופות.',video:null},
+  {id:'full_pl',  name:'פלאנץ מלא',              nameEn:'Full Planche',            cat:'push',muscle:'כתפיים · ליבה · חזה',  lvl:10,sets:6,reps:'3-5 שניות', restType:'skill',   tags:['פלאנץ','elite'],       desc:'הגוף מרחף אופקית, רגליים צמודות.',video:null},
+  {id:'pl_push',  name:'שכיבות פלאנץ',           nameEn:'Planche Push-up',         cat:'push',muscle:'כתפיים · ליבה · חזה',  lvl:10,sets:5,reps:'1-3',        restType:'skill',   tags:['פלאנץ','elite','דינמי'],desc:'דחיפה דינמית מתוך פלאנץ מלא.',video:null},
+  {id:'adv_pl_push',name:'שכיבות אדוונס טאק פלאנץ',nameEn:'Adv Tuck Planche PU', cat:'push',muscle:'כתפיים · ליבה',        lvl:9, sets:5,reps:'2-5',        restType:'skill',   tags:['פלאנץ','דינמי'],       desc:'דחיפות דינמיות מתוך אדוונס טאק.',video:null},
+
+  /* ── BALANCE ── */
+  {id:'lsit',     name:'L-Sit',                  nameEn:'L-Sit',                   cat:'balance',muscle:'ליבה · טריצפס · ירכיים',lvl:4,sets:4,reps:'5-10 שניות',restType:'skill',  tags:['ליבה','בסיס שיווי'],   desc:'ישיבה בין הידיים, רגליים מקבילות לרצפה.',video:null},
+  {id:'lsit_legs',name:'הרמות רגליים ב-L-Sit',  nameEn:'L-Sit Leg Raises',        cat:'balance',muscle:'ירכיים · ליבה',       lvl:3, sets:4,reps:'6-10 × לכל רגל',restType:'base', tags:['ליבה','מתחיל שיווי'],  desc:'ידיים על הרצפה, מרימים רגל-רגל לסירוגין.',video:null},
+  {id:'hs_lean',  name:'הישענות לעמידת ידיים',  nameEn:'HS Lean / Kick-up',       cat:'balance',muscle:'כתפיים · ליבה',       lvl:4, sets:5,reps:'10 ניסיונות', restType:'skill',  tags:['עמידת ידיים','בסיס'],  desc:'בועטים לעמידת ידיים על הקיר — לומדים כניסה ויציאה.',video:null},
+  {id:'hs_fingers',name:'עלייה על אצבעות בעמידת ידיים',nameEn:'HS Finger Balance',cat:'balance',muscle:'כתפיים · אצבעות · ליבה',lvl:7,sets:5,reps:'5-10 ניסיונות',restType:'skill',tags:['עמידת ידיים','שיווי'], desc:'ממקבעים שיווי על קצות האצבעות — בונה שיווי עדין.',video:null},
+];
+
+function exById(id){return EX.find(e=>e.id===id)||null;}
+function exByCategory(cat,maxLvl){return EX.filter(e=>e.cat===cat&&e.lvl<=(maxLvl||10));}
 
 /* ============================================================
    STEP 1B — Goals & Schedule helpers
@@ -1086,9 +1206,167 @@ function renderWorkout(){
     html+=`<div style="padding:14px"><button class="btn" onclick="logTodayWorkout()" style="background:rgba(0,255,170,.12);border-color:var(--success);color:var(--success)">✅ סיימתי את האימון · שמור ›</button></div>`;
   }
 
+  if(!logged){
+    html+=`<div style="padding:0 14px 14px"><button class="btn" onclick="startRunner()" style="background:rgba(139,61,255,.15);border-color:var(--violet2);color:var(--violet2);font-size:15px;letter-spacing:.18em">▶ התחל אימון מודרך</button></div>`;
+  }
   html+=`<div class="wk-empty" style="margin-top:4px">חימום 5-10 דק׳ לפני · מתיחות אחרי · לחץ על תרגיל מיומנות לפרטים.</div>`;
   wk.innerHTML=html;
 }
+/* ============================================================
+   WORKOUT RUNNER
+   ============================================================ */
+let _runner={queue:[],exIdx:0,setIdx:0,restTimer:null};
+
+function buildWorkoutQueue(){
+  const plan=getCurrentWeekPlan();
+  const today=plan[new Date().getDay()];
+  if(!today||today.type==='rest')return[];
+  const tier=tierFromLevel(state.level);
+  const queue=[];
+
+  // Skill exercises (from goals)
+  state.goals.forEach(gid=>{
+    const step=currentStep(gid);
+    if(!step)return;
+    const libEx=EX.find(e=>e.name===step.name)||null;
+    queue.push({
+      name:step.name, nameEn:'', muscle:'מיומנות',
+      sets:libEx?libEx.sets:5, reps:step.pre||step.cond,
+      restType:'skill', desc:step.desc||'',
+      video:content.videos[step.id]||null,
+      tag:'🎯 מיומנות'
+    });
+  });
+  if(!state.goals.length){
+    queue.push({name:'בחר מטרה מהעצים',nameEn:'',muscle:'',sets:1,reps:'לחץ על אחד מהטאבים',restType:'base',desc:'לך לעץ PULL/PUSH/BALANCE ובחר תרגיל-חלום כמטרה.',video:null,tag:'🎯'});
+  }
+
+  // Strength exercises from library matching today's focus
+  const catMap={push:'push',pull:'pull',legs:'balance',cardio:'push'};
+  const cat=catMap[today.focus]||'push';
+  const maxLvl={beginner:4,intermediate:7,advanced:10}[tier];
+  const pool=exByCategory(cat,maxLvl).filter(e=>!['pl_lean','tuck_pl','adv_tuck_pl','full_pl','pl_push','adv_pl_push','fl_tuck','fl_adv','fl_full','fl_pull','adv_fl_pull'].includes(e.id));
+  const picked=pool.sort(()=>Math.random()-.5).slice(0,today.strengthBlock?.length||3);
+  picked.forEach(e=>queue.push({...e,tag:'⚡ כוח'}));
+
+  // Core
+  if(today.coreBlock?.length){
+    const corePool=exByCategory('balance',maxLvl).filter(e=>['lsit','lsit_legs'].includes(e.id));
+    const corePick=corePool[0]||null;
+    if(corePick)queue.push({...corePick,tag:'🔥 ליבה'});
+  }
+  return queue;
+}
+
+function startRunner(){
+  const queue=buildWorkoutQueue();
+  if(!queue.length){alert('אין אימון להיום.');return;}
+  _runner={queue,exIdx:0,setIdx:0,restTimer:null};
+  document.getElementById('runnerBackdrop').classList.add('show');
+  showRunnerExercise();
+}
+
+function showRunnerExercise(){
+  clearInterval(_runner.restTimer);
+  document.getElementById('restScreen').style.display='none';
+  document.getElementById('runnerBtns').style.display='flex';
+  document.getElementById('runnerMainBtn').textContent='✅ סיימתי סט';
+  document.getElementById('runnerMainBtn').onclick=runnerAction;
+
+  const ex=_runner.queue[_runner.exIdx];
+  const totalEx=_runner.queue.length;
+  const exNum=_runner.exIdx+1;
+
+  // Progress pips
+  document.getElementById('runnerPips').innerHTML=
+    _runner.queue.map((_,i)=>`<div class="runner-pip ${i<_runner.exIdx?'done':i===_runner.exIdx?'active':''}"></div>`).join('');
+
+  document.getElementById('runnerExNum').textContent=`${ex.tag||''} · תרגיל ${exNum} מתוך ${totalEx}`;
+  document.getElementById('runnerExName').textContent=ex.name;
+  document.getElementById('runnerExMuscle').textContent=ex.muscle||(ex.nameEn?`${ex.nameEn}`:'');
+  document.getElementById('runnerSetLabel').textContent=`סט ${_runner.setIdx+1} מתוך ${ex.sets}`;
+  document.getElementById('runnerReps').textContent=ex.reps||'מקס';
+  document.getElementById('runnerDesc').textContent=ex.desc||'';
+
+  // Video
+  const vidDiv=document.getElementById('runnerVideo');
+  if(ex.video){
+    const ytId=ex.video.match(/(?:youtu\.be\/|v=)([\w-]+)/)?.[1];
+    if(ytId) vidDiv.innerHTML=`<iframe src="https://www.youtube.com/embed/${ytId}" allowfullscreen></iframe>`;
+    else vidDiv.innerHTML=`<a href="${esc(ex.video)}" target="_blank" rel="noopener" style="color:var(--cyan)">▶ צפה בסרטון</a>`;
+  }else{
+    vidDiv.innerHTML=`<span>📹 אין סרטון עדיין${state.admin?' · <button class=\'mbtn mbtn-photo\' onclick=\'addRunnerVideo()\'>הוסף סרטון</button>':''}</span>`;
+  }
+}
+
+function runnerAction(){
+  const ex=_runner.queue[_runner.exIdx];
+  const isLastSet=_runner.setIdx+1>=ex.sets;
+  const isLastEx=_runner.exIdx+1>=_runner.queue.length;
+
+  if(isLastSet&&isLastEx){
+    finishRunner();return;
+  }
+
+  // Advance set/exercise
+  if(isLastSet){_runner.exIdx++;_runner.setIdx=0;}
+  else{_runner.setIdx++;}
+
+  // Show rest
+  const restSec=REST[ex.restType]||90;
+  showRest(restSec,isLastSet);
+}
+
+function showRest(sec,isLastSet){
+  document.getElementById('restScreen').style.display='block';
+  document.getElementById('runnerBtns').style.display='flex';
+  document.getElementById('runnerMainBtn').style.display='none';
+  const nextEx=_runner.queue[_runner.exIdx];
+  document.getElementById('restNextLabel').textContent=
+    isLastSet?(nextEx?`הבא: ${nextEx.name}`:''):`הסט הבא: ${nextEx?.reps||'מקס'}`;
+
+  let remaining=sec;
+  const arc=document.getElementById('restArc');
+  const circ=326.7;
+  arc.style.strokeDashoffset=0;
+  document.getElementById('restCount').textContent=remaining;
+
+  _runner.restTimer=setInterval(()=>{
+    remaining--;
+    document.getElementById('restCount').textContent=remaining;
+    arc.style.strokeDashoffset=circ*(1-remaining/sec);
+    if(remaining<=0){skipRest();}
+  },1000);
+}
+
+function skipRest(){
+  clearInterval(_runner.restTimer);
+  document.getElementById('runnerMainBtn').style.display='';
+  showRunnerExercise();
+}
+
+function finishRunner(){
+  clearInterval(_runner.restTimer);
+  document.getElementById('runnerBackdrop').classList.remove('show');
+  logTodayWorkout();
+  flash('אימון הושלם! 🔥');
+}
+
+function stopRunner(){
+  clearInterval(_runner.restTimer);
+  document.getElementById('runnerBackdrop').classList.remove('show');
+}
+
+function addRunnerVideo(){
+  const ex=_runner.queue[_runner.exIdx];
+  const url=prompt('קישור לסרטון:');
+  if(!url)return;
+  // Find matching tree node
+  for(const t in TREES){const n=TREES[t].nodes.find(x=>x.name===ex.name);if(n){content.videos[n.id]=url;saveContent();break;}}
+  ex.video=url;
+  showRunnerExercise();
+}
+
 /* ============================================================
    WORKOUT LOGGING
    ============================================================ */
