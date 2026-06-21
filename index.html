@@ -436,11 +436,13 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
     <div class="tab" data-tree="pull" onclick="switchTree('pull')">PULL · מתח <span class="cnt" id="cnt-pull"></span></div>
     <div class="tab" data-tree="push" onclick="switchTree('push')">PUSH · דחיפה <span class="cnt" id="cnt-push"></span></div>
     <div class="tab" data-tree="balance" onclick="switchTree('balance')">BALANCE · שיווי <span class="cnt" id="cnt-balance"></span></div>
+    <div class="tab" data-tree="library" id="libraryTab" onclick="switchTree('library')" style="display:none;border-color:var(--gold);color:var(--gold)">📚 מאגר תרגילים</div>
   </div>
   <div class="tree-head" id="treeHead"><div class="tree-name" id="treeName">PULL</div><div class="tree-sub" id="treeSub"></div></div>
   <div id="treeBanner"></div>
   <div class="path" id="path" data-tree="pull"></div>
   <div id="workout" class="hidden"></div>
+  <div id="library" class="hidden" style="max-width:600px;margin:0 auto 150px;padding:0 14px"></div>
 </div>
 
 <div class="backdrop" id="nodeBackdrop" onclick="if(event.target===this)closeModal()"><div class="modal" id="nodeModal"></div></div>
@@ -1114,11 +1116,46 @@ function switchTree(t){
   activeTree=t;
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tree===t));
   const isWk=(t==='workout');
-  document.getElementById('treeHead').style.display=isWk?'none':'';
-  document.getElementById('treeBanner').style.display=isWk?'none':'';
-  document.getElementById('path').style.display=isWk?'none':'';
+  const isLib=(t==='library');
+  document.getElementById('treeHead').style.display=(isWk||isLib)?'none':'';
+  document.getElementById('treeBanner').style.display=(isWk||isLib)?'none':'';
+  document.getElementById('path').style.display=(isWk||isLib)?'none':'';
   document.getElementById('workout').classList.toggle('hidden',!isWk);
-  if(isWk){renderWorkout();renderXP();}else{render();}
+  document.getElementById('library').classList.toggle('hidden',!isLib);
+  if(isWk){renderWorkout();renderXP();}
+  else if(isLib){renderLibrary();}
+  else{render();}
+}
+
+function renderLibrary(){
+  if(!state.admin){document.getElementById('library').innerHTML='<div class="wk-empty">🔒 גישת מנהל בלבד.</div>';return;}
+  const cats={pull:'PULL · משיכה',push:'PUSH · דחיפה',balance:'BALANCE · שיווי משקל'};
+  let html=`<div class="tree-head"><div class="tree-name" style="color:var(--gold)">📚 מאגר תרגילים</div><div class="tree-sub">לחץ על תרגיל להוספת סרטון</div></div>`;
+  for(const cat of['pull','push','balance']){
+    html+=`<div class="wk-block"><div class="wk-h" style="color:var(--gold)">${cats[cat]}</div>`;
+    EX.filter(e=>e.cat===cat).forEach(ex=>{
+      const vid=content.videos[ex.id]||ex.video;
+      html+=`<div class="wk-ex" style="cursor:pointer;flex-wrap:wrap;gap:6px" onclick="editLibraryEx('${ex.id}')">
+        <div style="flex:1;min-width:0">
+          <div class="wk-ex-name">${ex.name} ${vid?'🎬':''}</div>
+          <div class="wk-ex-sub">${ex.muscle} · רמה ${ex.lvl} · ${ex.sets}×${ex.reps}</div>
+        </div>
+        <span class="wk-sets" style="color:${vid?'var(--success)':'var(--muted)'}">${vid?'✓ סרטון':'+ הוסף'}</span>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  document.getElementById('library').innerHTML=html;
+}
+
+function editLibraryEx(id){
+  const ex=EX.find(e=>e.id===id);if(!ex)return;
+  const cur=content.videos[id]||ex.video||'';
+  const url=prompt(`סרטון עבור "${ex.name}":\n(YouTube או קישור ישיר)`,cur);
+  if(url===null)return;
+  if(url.trim()){content.videos[id]=url.trim();ex.video=url.trim();}
+  else{delete content.videos[id];ex.video=null;}
+  saveContent();renderLibrary();
 }
 
 /* find the next trainable step toward a goal (deepest not-done prerequisite that's ready) */
@@ -1572,6 +1609,7 @@ function renderXP(){
   document.getElementById('xpFill').style.width=(state.xp/XP_PER_LEVEL*100)+'%';
   document.getElementById('adminBtn').classList.toggle('on',state.admin);
   document.getElementById('adminBtn').textContent=state.admin?'🗝️ קוד':'🔒 קוד';
+  document.getElementById('libraryTab').style.display=state.admin?'':'none';
   const bl=document.querySelector('.back-link');if(bl)bl.classList.toggle('visible',!!state.admin);
   // role badge
   const badge=document.getElementById('roleBadge');
