@@ -1736,6 +1736,48 @@ function buildWorkoutQueue(){
     const corePick=corePool[0]||null;
     if(corePick)queue.push({...corePick,tag:'🔥 ליבה'});
   }
+
+  // ── MAINTENANCE BLOCK ──
+  // For every unlocked skill in today's relevant tree(s), add a light maintenance set
+  // so the user doesn't lose what they earned. Max 2 per workout, rotated by week.
+  const treesForToday=[];
+  if(today.ppType==='push'||today.focus==='push')treesForToday.push('push');
+  if(today.ppType==='pull'||today.focus==='pull')treesForToday.push('pull');
+  // balance maintenance runs on any training day (skill work)
+  treesForToday.push('balance');
+
+  const currentGoalSteps=new Set(state.goals.map(gid=>{const s=currentStep(gid);return s?.id;}).filter(Boolean));
+
+  const maintenanceCandidates=[];
+  treesForToday.forEach(treeName=>{
+    const tree=TREES[treeName];
+    if(!tree)return;
+    tree.nodes.forEach(node=>{
+      if(!isDone(node.id))return;                          // not unlocked yet
+      if(currentGoalSteps.has(node.id))return;            // already in workout as goal step
+      const exEntry=EX.find(e=>e.id===node.id);
+      if(!exEntry)return;
+      if(exEntry.restType!=='skill'&&exEntry.lvl<5)return; // skip trivial basics
+      maintenanceCandidates.push(exEntry);
+    });
+  });
+
+  if(maintenanceCandidates.length){
+    // Rotate which ones appear — use week number to cycle, so different skills each week
+    const weekOff=(state.profile.weekNumber||0)%Math.max(1,maintenanceCandidates.length);
+    const rotated=[...maintenanceCandidates.slice(weekOff),...maintenanceCandidates.slice(0,weekOff)];
+    // Take max 2 maintenance exercises
+    rotated.slice(0,2).forEach(e=>{
+      queue.push({
+        ...e,
+        sets:2,                    // light: 2 sets only
+        reps:e.reps,
+        tag:'🔄 תחזוקה',
+        desc:(e.desc||'')+'  ⚠ שמור על הסקיל — אל תאבד מה שהרווחת.',
+      });
+    });
+  }
+
   return queue;
 }
 
