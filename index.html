@@ -1236,15 +1236,12 @@ function renderWorkout(){
     html+=`<div style="border:1px solid rgba(0,255,170,.2);background:rgba(0,255,170,.04);padding:10px 14px;margin:10px 14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--success);line-height:1.7">🥩 יעד חלבון יומי: <b>${protein}ג׳</b> (${state.profile.weight}ק"ג × 1.8) · חלוק על 4-5 ארוחות</div>`;
   }
 
-  // Log button
+  // Buttons
   if(logged){
     html+=`<div style="text-align:center;padding:16px"><div style="border:1px solid var(--success);background:rgba(0,255,170,.08);padding:12px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--success)">✅ האימון של היום הוגש · כל הכבוד!</div></div>`;
   }else{
-    html+=`<div style="padding:14px"><button class="btn" onclick="logTodayWorkout()" style="background:rgba(0,255,170,.12);border-color:var(--success);color:var(--success)">✅ סיימתי את האימון · שמור ›</button></div>`;
-  }
-
-  if(!logged){
-    html+=`<div style="padding:0 14px 14px"><button class="btn" onclick="startRunner()" style="background:rgba(139,61,255,.15);border-color:var(--violet2);color:var(--violet2);font-size:15px;letter-spacing:.18em">▶ התחל אימון מודרך</button></div>`;
+    html+=`<div style="padding:14px 14px 6px"><button class="btn" onclick="startRunner()" style="background:rgba(139,61,255,.2);border-color:var(--violet2);color:#fff;font-size:16px;letter-spacing:.14em;box-shadow:0 0 22px rgba(139,61,255,.4)">▶ התחל אימון מודרך</button></div>`;
+    html+=`<div style="padding:6px 14px 14px"><button class="btn" onclick="logTodayWorkout()" style="background:transparent;border-color:rgba(0,255,170,.3);color:var(--muted);font-size:12px;margin-top:0">✅ סיימתי בלי רנר · שמור ›</button></div>`;
   }
   html+=`<div class="wk-empty" style="margin-top:4px">חימום 5-10 דק׳ לפני · מתיחות אחרי · לחץ על תרגיל מיומנות לפרטים.</div>`;
   wk.innerHTML=html;
