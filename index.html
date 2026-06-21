@@ -1051,8 +1051,9 @@ function generateWeeklyPlan(){
   const wantsCardio=['body','both','weightloss'].includes(goal)&&cardioOptions.length>0&&!cardioOptions.includes('none');
 
   const trainDays=TRAIN_DAY_MAP[days]||TRAIN_DAY_MAP[3];
-  const strengthSets=sessionLen<=30?2:sessionLen<=45?3:4;
-  const coreSets=sessionLen<=30?1:2;
+  const isRecovery=!!p.recoveryWeek;
+  const strengthSets=isRecovery?2:sessionLen<=30?2:sessionLen<=45?3:4;
+  const coreSets=isRecovery?1:sessionLen<=30?1:2;
 
   const weekPlan=DAYS_HE.map((dayName,idx)=>{
     const trainIdx=trainDays.indexOf(idx);
@@ -1816,30 +1817,71 @@ function submitCheckin(){
   // Update weight if provided
   if(entry.weight)state.profile.weight=entry.weight;
 
-  // Adjust difficulty for next week
-  if(checkinAnswers.difficulty<=3){
-    // Too easy → increase (already handled by level progression)
-    state._nextWeekBoost='harder';
-  }else if(checkinAnswers.difficulty>=9){
-    // Too hard → reduce slightly
-    state._nextWeekBoost='easier';
+  // ── Smart tier adjustment based on check-in data ──
+  const TIER_ORDER=['beginner','intermediate','advanced'];
+  function bumpTier(t,delta){const i=TIER_ORDER.indexOf(t||'beginner');return TIER_ORDER[Math.max(0,Math.min(2,i+delta))];}
+
+  const tiers=state.profile.tiers||{};
+  const diff=checkinAnswers.difficulty;          // 1-10
+  const sore=checkinAnswers.soreness||'none';
+  const sessionsRatio=(checkinAnswers.sessions||0)/(state.profile.daysPerWeek||3);
+  const changes=[];
+
+  // Recovery week: heavy soreness or injury → reduce next week's volume
+  if(sore==='heavy'||sore==='injury'){
+    state.profile.recoveryWeek=true;
+    changes.push('🧊 שבוע ריקוברי — נפח מופחת ');
+    if(sore==='injury'){
+      alert('⚠️ דיווחת על כאב חד / פציעה. הייעץ לרופא לפני שממשיכים. לא לאמן עם כאב חד.');
+    }
+  } else {
+    state.profile.recoveryWeek=false;
   }
 
-  // Handle soreness warning
-  if(entry.soreness==='injury'){
-    alert('⚠️ אתה דיווח על כאב חד / פציעה. הייעץ לרופא לפני שממשיכים. אל תאמן עם כאב חד.');
+  // Only adjust tiers if the user actually trained (at least 50% of sessions)
+  if(sessionsRatio>=0.5){
+    if(diff<=3){
+      // קל מדי — מעלה את כל ה-tiers
+      ['push','pull','core','legs'].forEach(cat=>{
+        const before=tiers[cat];
+        tiers[cat]=bumpTier(tiers[cat],1);
+        if(tiers[cat]!==before)changes.push(`⬆️ ${cat}: ${before}→${tiers[cat]}`);
+      });
+    } else if(diff>=8){
+      // קשה מדי — מוריד tier אחד
+      ['push','pull','core'].forEach(cat=>{
+        const before=tiers[cat];
+        tiers[cat]=bumpTier(tiers[cat],-1);
+        if(tiers[cat]!==before)changes.push(`⬇️ ${cat}: ${before}→${tiers[cat]}`);
+      });
+    } else {
+      changes.push('✅ הרמה מתאימה — התוכנית ממשיכה');
+    }
+  } else {
+    changes.push('⚠️ פחות מ-50% מהאימונים בוצעו — רמה לא שונתה');
   }
 
+  state.profile.tiers=tiers;
   state.weeklyCheckins=state.weeklyCheckins||[];
   state.weeklyCheckins.push(entry);
 
-  // Regenerate next week plan
+  // Regenerate with updated tiers
   generateWeeklyPlan();
   save();
 
   document.getElementById('checkinBackdrop').classList.remove('show');
-  flash('תוכנית שבועית חדשה נוצרה! 🎯');
-  setTimeout(()=>renderWorkout(),800);
+
+  // Show smart summary popup
+  const summaryLines=changes.map(c=>`<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px">${c}</div>`).join('');
+  const summaryHtml=`<div style="position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7)" onclick="this.remove();renderWorkout()">
+    <div style="background:#080e22;border:1px solid rgba(139,61,255,.5);border-radius:10px;padding:24px;max-width:340px;width:90%;direction:rtl" onclick="event.stopPropagation()">
+      <div style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:.15em;color:#c8a4ff;margin-bottom:4px">AI PLAN UPDATE</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:16px">תוכנית האימון עודכנה לפי הדוח</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:#eaf6ff;margin-bottom:16px">${summaryLines}</div>
+      <button onclick="this.closest('[style*=fixed]').remove();renderWorkout()" style="width:100%;background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:11px;border-radius:5px;cursor:pointer;letter-spacing:.08em">אוקי, בואו נאמן ›</button>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend',summaryHtml);
 }
 
 function toggleGoal(id){
