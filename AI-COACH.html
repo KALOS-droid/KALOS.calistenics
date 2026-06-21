@@ -8,135 +8,138 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --cyan:#00ffd5;--blue:#00a8ff;--violet:#8b3dff;--violet2:#7b2dff;
-  --push:#ff6b6b;--pull:#00cfff;--gold:#ffc14d;--success:#00ffaa;
+  --cyan:#00ffd5;--blue:#00a8ff;--violet:#8b3dff;
+  --gold:#ffc14d;--success:#00ffaa;--danger:#ff3355;
   --bg:#010206;--border:rgba(0,168,255,.18);--muted:#4a5a7a;
-  --danger:#ff3355;
 }
 html,body{height:100%;background:var(--bg);color:#eaf6ff;font-family:'Share Tech Mono',monospace;overflow:hidden}
 body{display:flex;flex-direction:column}
 
-/* ── HEADER ── */
 header{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;
-  background:rgba(2,4,12,.97);border-bottom:1px solid rgba(139,61,255,.4);backdrop-filter:blur(12px);z-index:10}
-.logo{font-family:'Cinzel',serif;font-size:18px;font-weight:900;letter-spacing:.18em;color:#eaf6ff;
+  background:rgba(2,4,12,.97);border-bottom:1px solid rgba(139,61,255,.4);z-index:10}
+.logo{font-family:'Cinzel',serif;font-size:18px;font-weight:900;letter-spacing:.18em;
   text-shadow:0 0 16px var(--violet);display:flex;align-items:center;gap:8px}
 .back-btn{background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.4);color:#ff8099;
-  font-family:'Share Tech Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer;letter-spacing:.06em}
+  font-family:'Share Tech Mono',monospace;font-size:11px;padding:6px 14px;border-radius:4px;cursor:pointer}
 
-/* ── MAIN LAYOUT ── */
-.main{flex:1;display:grid;grid-template-columns:1fr 320px;overflow:hidden}
-@media(max-width:768px){.main{grid-template-columns:1fr;grid-template-rows:1fr auto}}
+.main{flex:1;display:grid;grid-template-columns:1fr 300px;overflow:hidden;min-height:0}
 
-/* ── CAMERA AREA ── */
-.cam-wrap{position:relative;background:#000;overflow:hidden}
-#inputVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
-#videoFile{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
-#outputCanvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* ── VIDEO AREA ── */
+.cam-wrap{position:relative;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center}
+/* The video and canvas sit inside a sized box that preserves AR */
+#mediaBox{position:relative;max-width:100%;max-height:100%}
+#inputVideo,#videoFile{display:block;max-width:100%;max-height:100%;object-fit:contain}
+#outputCanvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+
+/* HUD corners */
+.hud-corner{position:absolute;width:28px;height:28px;border-color:var(--cyan);border-style:solid;opacity:.65;z-index:5;pointer-events:none}
+.hud-corner.tl{top:0;left:0;border-width:2px 0 0 2px}
+.hud-corner.tr{top:0;right:0;border-width:2px 2px 0 0}
+.hud-corner.bl{bottom:0;left:0;border-width:0 0 2px 2px}
+.hud-corner.br{bottom:0;right:0;border-width:0 2px 2px 0}
+
+/* Status bar */
+.status-bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.75);border:1px solid rgba(0,255,213,.35);border-radius:20px;
+  padding:4px 14px;font-size:11px;color:var(--cyan);letter-spacing:.07em;white-space:nowrap;z-index:5;pointer-events:none}
+
+/* Overlays */
+.rep-overlay{position:absolute;bottom:14px;right:14px;background:rgba(0,0,0,.8);
+  border:2px solid var(--cyan);border-radius:10px;padding:10px 16px;text-align:center;z-index:5}
+.rep-num{font-family:'Orbitron',monospace;font-size:46px;font-weight:900;color:var(--cyan);line-height:1}
+.rep-label{font-size:9px;color:var(--muted);letter-spacing:.12em;margin-top:2px}
+.form-overlay{position:absolute;bottom:14px;left:14px;background:rgba(0,0,0,.8);
+  border:2px solid var(--violet);border-radius:10px;padding:8px 12px;text-align:center;z-index:5;min-width:70px}
+.form-score-val{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;color:var(--violet);line-height:1}
+.form-label{font-size:9px;color:var(--muted);letter-spacing:.1em;margin-top:2px}
+
+/* Placeholder */
+.cam-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;background:linear-gradient(160deg,#010206,#0a0620);z-index:3}
+.cam-placeholder p{font-size:12px;color:var(--muted);text-align:center;line-height:2}
+.drop-zone-hint{font-size:32px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.placeholder-btn{background:rgba(0,255,213,.1);border:1px solid rgba(0,255,213,.4);color:var(--cyan);
+  font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;letter-spacing:.07em}
+.placeholder-btn.sec{background:rgba(139,61,255,.1);border-color:rgba(139,61,255,.4);color:#c8a4ff;margin-top:2px}
+
 /* Drag overlay */
-.drag-over-overlay{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;
-  align-items:center;justify-content:center;gap:12px;background:rgba(0,255,213,.08);
-  border:3px dashed var(--cyan);pointer-events:none}
-.drag-over-overlay.active{display:flex}
-.drag-over-overlay svg{animation:pulse 1s ease infinite alternate}
-@keyframes pulse{from{opacity:.5;transform:scale(.95)}to{opacity:1;transform:scale(1.05)}}
+.drag-flash{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;
+  background:rgba(0,255,213,.07);border:3px dashed var(--cyan)}
+.drag-flash.on{display:flex}
+.drag-flash-txt{font-family:'Orbitron',monospace;font-size:16px;letter-spacing:.2em;color:var(--cyan)}
 
-/* Overlay HUD */
-.hud{position:absolute;inset:0;pointer-events:none}
-.hud-corner{position:absolute;width:30px;height:30px;border-color:var(--cyan);border-style:solid;opacity:.7}
-.hud-corner.tl{top:12px;right:12px;border-width:2px 0 0 2px}
-.hud-corner.tr{top:12px;left:12px;border-width:2px 2px 0 0}
-.hud-corner.bl{bottom:12px;right:12px;border-width:0 0 2px 2px}
-.hud-corner.br{bottom:12px;left:12px;border-width:0 2px 2px 0}
-.hud-label{position:absolute;top:16px;left:50%;transform:translateX(-50%);
-  font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.2em;color:var(--cyan);
-  background:rgba(0,0,0,.6);padding:4px 12px;border-radius:20px;white-space:nowrap}
-
-/* Rep counter overlay */
-.rep-overlay{position:absolute;bottom:20px;right:20px;
-  background:rgba(0,0,0,.75);border:2px solid var(--cyan);border-radius:12px;
-  padding:12px 18px;text-align:center;backdrop-filter:blur(8px)}
-.rep-num{font-family:'Orbitron',monospace;font-size:52px;font-weight:900;color:var(--cyan);
-  line-height:1;text-shadow:0 0 20px var(--cyan)}
-.rep-label{font-size:10px;letter-spacing:.15em;color:var(--muted);margin-top:2px}
-
-/* Form score */
-.form-overlay{position:absolute;bottom:20px;left:20px;
-  background:rgba(0,0,0,.75);border:2px solid var(--violet);border-radius:12px;
-  padding:10px 14px;min-width:90px;text-align:center;backdrop-filter:blur(8px)}
-.form-score{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:var(--violet);line-height:1}
-.form-label{font-size:9px;letter-spacing:.1em;color:var(--muted);margin-top:2px}
-
-/* Status bar (top of camera) */
-.status-bar{position:absolute;top:44px;left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,.7);border:1px solid rgba(0,255,213,.3);border-radius:20px;
-  padding:5px 16px;font-size:11px;color:var(--cyan);letter-spacing:.08em;white-space:nowrap;max-width:90%;text-align:center}
-
-/* No camera placeholder */
-.cam-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
-  background:linear-gradient(160deg,#010206,#0a0620)}
-.cam-placeholder svg{opacity:.3}
-.cam-placeholder p{font-size:12px;color:var(--muted);letter-spacing:.08em;text-align:center;max-width:240px;line-height:1.7}
-
-/* ── SIDE PANEL ── */
-.panel{display:flex;flex-direction:column;background:rgba(4,8,26,.98);border-right:1px solid var(--border);
-  overflow-y:auto;scrollbar-width:thin}
-
-/* Exercise selector */
-.panel-section{padding:14px;border-bottom:1px solid rgba(255,255,255,.06)}
+/* ── PANEL ── */
+.panel{display:flex;flex-direction:column;background:rgba(4,8,26,.98);
+  border-right:1px solid var(--border);overflow-y:auto;scrollbar-width:thin}
+.panel-sec{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
 .panel-title{font-size:9px;letter-spacing:.2em;color:var(--muted);margin-bottom:10px}
-.ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ex-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;
-  padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;font-family:'Share Tech Mono',monospace}
-.ex-btn:hover{border-color:rgba(0,255,213,.4);background:rgba(0,255,213,.06)}
-.ex-btn.active{border-color:var(--cyan);background:rgba(0,255,213,.12);color:var(--cyan)}
-.ex-btn .ex-icon{font-size:20px;display:block;margin-bottom:4px}
-.ex-btn .ex-name{font-size:9px;letter-spacing:.05em;color:var(--muted);line-height:1.3}
-.ex-btn.active .ex-name{color:var(--cyan)}
+
+/* Category grid */
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.cat-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;
+  padding:8px 4px;text-align:center;cursor:pointer;transition:all .15s;font-family:'Share Tech Mono',monospace}
+.cat-btn:hover{border-color:rgba(0,255,213,.4);background:rgba(0,255,213,.05)}
+.cat-btn.active{border-color:var(--cyan);background:rgba(0,255,213,.1);color:var(--cyan)}
+.cat-btn .ci{font-size:18px;display:block;margin-bottom:3px}
+.cat-btn .cn{font-size:8px;color:var(--muted);line-height:1.3}
+.cat-btn.active .cn{color:var(--cyan)}
+
+/* Variant list */
+#variantList{display:flex;flex-direction:column;gap:5px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
+.var-btn{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;
+  padding:9px 12px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:11px;
+  text-align:right;transition:all .15s;display:flex;align-items:center;gap:8px}
+.var-btn:hover{border-color:rgba(139,61,255,.5);background:rgba(139,61,255,.08)}
+.var-btn.active{border-color:var(--violet);background:rgba(139,61,255,.15);color:#ddbfff}
+.var-btn .vi{font-size:14px;flex-shrink:0}
+.var-btn .vn{flex:1;line-height:1.4}
+.var-btn .vd{font-size:9px;color:var(--muted);margin-top:2px}
 
 /* Metrics */
-.metric{display:flex;justify-content:space-between;align-items:center;padding:7px 0;
+.metric{display:flex;justify-content:space-between;align-items:center;padding:6px 0;
   border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
 .metric-label{color:var(--muted)}
-.metric-val{font-weight:700;font-family:'Orbitron',monospace;font-size:13px}
+.metric-val{font-weight:700;font-family:'Orbitron',monospace;font-size:12px}
 
-/* Feedback feed */
-.feedback-list{display:flex;flex-direction:column;gap:6px;padding:14px}
-.feedback-item{padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.5;
-  border-right:3px solid;animation:fadeInFb .3s ease}
-.feedback-item.good{background:rgba(0,255,170,.08);border-color:var(--success);color:var(--success)}
-.feedback-item.warn{background:rgba(255,193,77,.08);border-color:var(--gold);color:var(--gold)}
-.feedback-item.bad{background:rgba(255,51,85,.08);border-color:var(--danger);color:#ff8099}
-.feedback-item.info{background:rgba(0,168,255,.08);border-color:var(--blue);color:var(--blue)}
-@keyframes fadeInFb{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
-
-/* Camera angle guide */
-.angle-guide{padding:12px 14px;background:rgba(139,61,255,.06);border:1px solid rgba(139,61,255,.2);
-  border-radius:8px;margin:0 14px 14px;font-size:11px;line-height:1.7;color:#c8a4ff}
+/* Feedback */
+.fb-item{padding:7px 10px;border-radius:5px;font-size:11px;line-height:1.5;
+  border-right:3px solid;animation:fbIn .25s ease;margin-bottom:5px}
+.fb-item.good{background:rgba(0,255,170,.07);border-color:var(--success);color:var(--success)}
+.fb-item.warn{background:rgba(255,193,77,.07);border-color:var(--gold);color:var(--gold)}
+.fb-item.bad{background:rgba(255,51,85,.07);border-color:var(--danger);color:#ff8099}
+.fb-item.info{background:rgba(0,168,255,.07);border-color:var(--blue);color:#7dd3fc}
+@keyframes fbIn{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:translateX(0)}}
 
 /* Controls */
-.ctrl-row{display:flex;gap:8px;padding:14px;border-top:1px solid rgba(255,255,255,.06)}
-.btn-start{flex:1;background:linear-gradient(135deg,rgba(0,255,213,.2),rgba(0,168,255,.15));
-  border:1px solid var(--cyan);color:var(--cyan);font-family:'Share Tech Mono',monospace;
-  font-size:13px;font-weight:700;padding:12px;border-radius:6px;cursor:pointer;letter-spacing:.1em;transition:all .2s}
-.btn-start:hover{box-shadow:0 0 20px rgba(0,255,213,.3)}
-.btn-start.danger{background:rgba(255,51,85,.15);border-color:var(--danger);color:#ff8099}
-.btn-verify{background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,140,0,.1));
-  border:1px solid rgba(255,215,0,.4);color:#ffd700;font-family:'Share Tech Mono',monospace;
-  font-size:12px;padding:12px 14px;border-radius:6px;cursor:pointer;white-space:nowrap}
-.btn-verify:disabled{opacity:.3;cursor:default}
+.ctrl-row{display:flex;gap:7px;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06);margin-top:auto;flex-shrink:0}
+.btn-main{flex:1;border:1px solid var(--cyan);color:var(--cyan);background:rgba(0,255,213,.1);
+  font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:11px;
+  border-radius:6px;cursor:pointer;letter-spacing:.08em;transition:all .2s}
+.btn-main.stop{border-color:var(--danger);color:#ff8099;background:rgba(255,51,85,.1)}
+.btn-verdict{border:1px solid rgba(255,215,0,.45);color:#ffd700;background:rgba(255,215,0,.08);
+  font-family:'Share Tech Mono',monospace;font-size:12px;padding:11px 14px;border-radius:6px;cursor:pointer}
+.btn-verdict:disabled{opacity:.3;cursor:default}
 
-/* Verification modal */
-#verifyModal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.9);
+/* Verdict modal */
+#verdictModal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);
   align-items:center;justify-content:center}
-#verifyModal.show{display:flex}
-.verify-card{background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(0,255,170,.5);
-  border-radius:14px;padding:32px 28px;max-width:340px;width:90%;text-align:center;direction:rtl}
+#verdictModal.show{display:flex}
+.verdict-card{background:linear-gradient(160deg,#0a0620,#04081a);
+  border-radius:16px;padding:36px 28px;max-width:360px;width:92%;text-align:center;direction:rtl}
+.verdict-big{font-size:80px;line-height:1;margin-bottom:14px}
+.verdict-title{font-family:'Cinzel',serif;font-size:22px;letter-spacing:.15em;margin-bottom:8px}
+.verdict-stats{background:rgba(255,255,255,.04);border-radius:8px;padding:14px;margin:16px 0;font-size:12px;line-height:2.1;text-align:right}
+.verdict-row{display:flex;justify-content:space-between;align-items:center}
+.verdict-row .vk{color:var(--muted)}
+.verdict-row .vv{font-family:'Orbitron',monospace;font-size:13px;font-weight:700}
+.verdict-btns{display:flex;gap:8px;margin-top:4px}
 
 /* Loading */
-#loadingOverlay{position:fixed;inset:0;z-index:400;background:rgba(1,2,6,.97);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
-.loading-ring{width:60px;height:60px;border:3px solid rgba(0,255,213,.15);
+#loadingOv{position:fixed;inset:0;z-index:500;background:rgba(1,2,6,.97);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.loading-ring{width:56px;height:56px;border:3px solid rgba(0,255,213,.12);
   border-top:3px solid var(--cyan);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -148,9 +151,7 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
     <svg width="22" height="25" viewBox="0 0 64 72">
       <polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/>
       <g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none">
-        <line x1="25" y1="22" x2="25" y2="50"/>
-        <line x1="25" y1="36" x2="43" y2="22"/>
-        <line x1="25" y1="36" x2="43" y2="50"/>
+        <line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/>
       </g>
     </svg>
     KALOS · AI COACH
@@ -159,77 +160,77 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
 </header>
 
 <div class="main">
-  <!-- Camera -->
+
+  <!-- VIDEO AREA -->
   <div class="cam-wrap" id="camWrap">
-    <video id="inputVideo" playsinline muted></video>
-    <canvas id="outputCanvas"></canvas>
 
-    <div class="hud">
-      <div class="hud-corner tl"></div>
-      <div class="hud-corner tr"></div>
-      <div class="hud-corner bl"></div>
-      <div class="hud-corner br"></div>
-      <div class="hud-label" id="hudLabel">בחר תרגיל ←</div>
+    <!-- Drag flash -->
+    <div class="drag-flash" id="dragFlash">
+      <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+      </svg>
+      <div class="drag-flash-txt">שחרר לניתוח</div>
     </div>
 
-    <div class="status-bar" id="statusBar">ממתין לזיהוי...</div>
+    <!-- Media box — sized to match video AR -->
+    <div id="mediaBox">
+      <video id="inputVideo" playsinline muted style="display:none"></video>
+      <video id="videoFile" playsinline loop style="display:none"></video>
+      <canvas id="outputCanvas"></canvas>
+      <!-- HUD corners inside box -->
+      <div class="hud-corner tl"></div><div class="hud-corner tr"></div>
+      <div class="hud-corner bl"></div><div class="hud-corner br"></div>
+    </div>
 
-    <div class="rep-overlay">
+    <div class="status-bar" id="statusBar">בחר תרגיל</div>
+
+    <div class="rep-overlay" id="repOverlay" style="display:none">
       <div class="rep-num" id="repCount">0</div>
-      <div class="rep-label">חזרות</div>
+      <div class="rep-label" id="repLabel">חזרות</div>
     </div>
 
-    <div class="form-overlay">
-      <div class="form-score" id="formScore">—</div>
+    <div class="form-overlay" id="formOverlay" style="display:none">
+      <div class="form-score-val" id="formScore">—</div>
       <div class="form-label">FORM</div>
     </div>
 
-    <!-- Drag-over flash -->
-    <div class="drag-over-overlay" id="dragOverlay">
-      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5">
-        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
-      </svg>
-      <div style="font-family:'Orbitron',monospace;font-size:14px;letter-spacing:.2em;color:var(--cyan)">שחרר לניתוח</div>
-    </div>
-
-    <!-- Video file player (for uploaded videos) -->
-    <video id="videoFile" playsinline loop></video>
-
+    <!-- Placeholder -->
     <div class="cam-placeholder" id="camPlaceholder">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.2" opacity=".5">
-        <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
-      </svg>
-      <p style="font-size:13px;color:var(--muted);text-align:center;line-height:2;margin-top:12px">
-        גרור סרטון לכאן<br>
-        <span style="font-size:20px">🎬</span><br>
-        או לחץ להעלאת קובץ
-      </p>
-      <button onclick="document.getElementById('fileInput').click()" style="margin-top:8px;background:rgba(0,255,213,.1);border:1px solid rgba(0,255,213,.4);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;letter-spacing:.08em">📂 בחר קובץ וידאו</button>
-      <button onclick="startLive()" style="margin-top:6px;background:rgba(139,61,255,.12);border:1px solid rgba(139,61,255,.4);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 20px;border-radius:6px;cursor:pointer;letter-spacing:.08em">📷 מצלמה חיה</button>
+      <div class="drop-zone-hint">🎬</div>
+      <p>גרור סרטון לכאן<br>או בחר קובץ / מצלמה</p>
+      <button class="placeholder-btn" onclick="document.getElementById('fileInput').click()">📂 בחר קובץ וידאו</button>
+      <button class="placeholder-btn sec" onclick="startLive()">📷 מצלמה חיה</button>
       <input type="file" id="fileInput" accept="video/*" style="display:none" onchange="handleFileSelect(this.files[0])">
     </div>
+
   </div>
 
-  <!-- Side panel -->
+  <!-- PANEL -->
   <div class="panel">
 
-    <!-- Exercise selector -->
-    <div class="panel-section">
-      <div class="panel-title">בחר תרגיל לניתוח</div>
-      <div class="ex-grid" id="exGrid"></div>
+    <!-- Step 1: Category -->
+    <div class="panel-sec">
+      <div class="panel-title">① בחר קטגוריה</div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+
+    <!-- Step 2: Variant -->
+    <div id="variantSec" style="display:none">
+      <div style="padding:10px 14px 4px;font-size:9px;letter-spacing:.2em;color:var(--muted)">② בחר תרגיל ספציפי</div>
+      <div id="variantList"></div>
     </div>
 
     <!-- Camera angle guide -->
-    <div class="angle-guide" id="angleGuide" style="display:none">
-      <b style="color:var(--cyan)">📐 זווית מצלמה:</b><br>
-      <span id="angleGuideText"></span>
+    <div id="angleGuide" style="display:none;margin:0 14px 12px;padding:10px 12px;
+      background:rgba(139,61,255,.06);border:1px solid rgba(139,61,255,.25);border-radius:7px;
+      font-size:11px;line-height:1.7;color:#c8a4ff">
+      <b style="color:var(--cyan)">📐 זווית:</b> <span id="angleText"></span>
     </div>
 
     <!-- Metrics -->
-    <div class="panel-section">
-      <div class="panel-title">מדדים בזמן אמת</div>
+    <div class="panel-sec">
+      <div class="panel-title">מדדים</div>
       <div class="metric"><span class="metric-label">זווית מרפק</span><span class="metric-val" id="mElbow" style="color:var(--cyan)">—°</span></div>
-      <div class="metric"><span class="metric-label">זווית כתף</span><span class="metric-val" id="mShoulder" style="color:var(--violet)">—°</span></div>
       <div class="metric"><span class="metric-label">זווית ירך</span><span class="metric-val" id="mHip" style="color:var(--gold)">—°</span></div>
       <div class="metric"><span class="metric-label">יישור גוף</span><span class="metric-val" id="mBody">—</span></div>
       <div class="metric"><span class="metric-label">שלב תנועה</span><span class="metric-val" id="mPhase" style="color:var(--success)">—</span></div>
@@ -237,581 +238,647 @@ header{flex-shrink:0;display:flex;align-items:center;justify-content:space-betwe
     </div>
 
     <!-- Feedback -->
-    <div style="padding:10px 14px 4px;font-size:9px;letter-spacing:.2em;color:var(--muted)">משוב AI</div>
-    <div class="feedback-list" id="feedbackList">
-      <div class="feedback-item info">בחר תרגיל מהרשימה למעלה כדי להתחיל.</div>
+    <div style="padding:8px 14px 4px;font-size:9px;letter-spacing:.2em;color:var(--muted)">משוב AI</div>
+    <div style="padding:0 14px 8px;flex:1;overflow-y:auto" id="feedbackList">
+      <div class="fb-item info">בחר קטגוריה ותרגיל להתחלה.</div>
     </div>
 
     <!-- Controls -->
     <div class="ctrl-row">
-      <button class="btn-start" id="startBtn" onclick="toggleCamera()">▶ התחל</button>
-      <button class="btn-verify" id="verifyBtn" onclick="openVerify()" disabled>🏅 אמת</button>
+      <button class="btn-main" id="startBtn" onclick="toggleSource()">▶ התחל</button>
+      <button class="btn-verdict" id="verdictBtn" onclick="showVerdict()" disabled>🏅 תוצאה</button>
     </div>
+
   </div>
 </div>
 
-<!-- Loading overlay -->
-<div id="loadingOverlay" style="display:none">
+<!-- Loading -->
+<div id="loadingOv">
   <div class="loading-ring"></div>
-  <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.2em;color:var(--cyan)">טוען AI COACH</div>
-  <div style="font-size:11px;color:var(--muted)" id="loadingMsg">מאתחל זיהוי פוזה...</div>
+  <div style="font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.2em;color:var(--cyan)">AI COACH</div>
+  <div style="font-size:11px;color:var(--muted)" id="loadingMsg">טוען מודל...</div>
 </div>
 
-<!-- Verification modal -->
-<div id="verifyModal">
-  <div class="verify-card">
-    <div style="font-size:64px;margin-bottom:12px" id="verifyIcon">🏅</div>
-    <div style="font-family:'Cinzel',serif;font-size:20px;letter-spacing:.15em;color:var(--success);margin-bottom:8px">תרגיל אומת!</div>
-    <div id="verifyDetails" style="font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:20px"></div>
-    <div style="background:rgba(0,255,170,.06);border:1px solid rgba(0,255,170,.2);border-radius:8px;padding:12px;margin-bottom:20px">
-      <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:6px">קוד אימות</div>
-      <div id="verifyCode" style="font-family:'Orbitron',monospace;font-size:14px;color:var(--success);letter-spacing:.15em;word-break:break-all"></div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button onclick="copyVerifyCode()" style="flex:1;background:rgba(0,255,170,.15);border:1px solid rgba(0,255,170,.4);color:var(--success);font-family:'Share Tech Mono',monospace;font-size:12px;padding:10px;border-radius:6px;cursor:pointer">📋 העתק קוד</button>
-      <button onclick="closeVerify()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;padding:10px;border-radius:6px;cursor:pointer">סגור</button>
-    </div>
-  </div>
+<!-- Verdict modal -->
+<div id="verdictModal">
+  <div class="verdict-card" id="verdictCard"></div>
 </div>
 
-<!-- MediaPipe scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
-
 <script>
-/* ============================================================
-   EXERCISE DEFINITIONS
-   ============================================================ */
-const EXERCISES={
-  pullup:{
-    name:'מתח',icon:'🦅',nameEn:'Pull-up',
-    cameraAngle:'עמוד מהצד (פרופיל) · הגוף ימין/שמאל למצלמה · המתח גבוה בפריים',
-    minReps:1,
-    analyze(lm,conf){
-      if(conf<0.6)return null;
-      const elbowAngle=angle(lm[12],lm[14],lm[16]); // R shoulder-elbow-wrist
-      const shoulderY=lm[12].y, noseY=lm[0].y, wristY=lm[16].y;
-      const isHanging=wristY<shoulderY-0.05;
-      const isUp=elbowAngle<100&&noseY<shoulderY;
-      const isDown=elbowAngle>155;
-      const bodyAngle=angle(lm[12],lm[24],lm[28]); // shoulder-hip-ankle
-      const isBodyStraight=bodyAngle>155&&bodyAngle<200;
-      const feedback=[];
-      if(!isHanging)feedback.push({type:'warn',text:'ודא שהידיים אחוזות על המוט'});
-      if(elbowAngle>30&&elbowAngle<155&&!isBodyStraight)feedback.push({type:'warn',text:'שמור על גוף ישר — לא לנדנד'});
-      if(isDown&&!isBodyStraight)feedback.push({type:'bad',text:'נדנוד — השתמש בכוח, לא במומנטום'});
-      if(isUp)feedback.push({type:'good',text:'מצויין! סנטר מעל המוט'});
-      if(isDown&&isBodyStraight)feedback.push({type:'good',text:'ירידה מבוקרת — נהדר'});
-      return{elbowAngle,phase:isUp?'למעלה':isDown?'למטה (תלייה)':'בתנועה',isUp,isDown,feedback,bodyAngle,formScore:isBodyStraight?90:60};
+/* ================================================================
+   EXERCISE DEFINITIONS — categories + variants
+   ================================================================ */
+const CATS={
+  pullup:{name:'מתח',icon:'🦅',
+    variants:{
+      pu_basic:{name:'מתח רגיל',desc:'אחיזה על-יד',minReps:1,
+        angle:'פרופיל (צד) — הגוף ימין/שמאל למצלמה',
+        criteria:{reps:1,form:60},
+        analyze(lm,c){return analyzePullup(lm,c,'overhand');}},
+      pu_wide:{name:'מתח רחב',desc:'אחיזה רחבה מעל כתפיים',minReps:1,
+        angle:'פרופיל (צד)',
+        criteria:{reps:1,form:60},
+        analyze(lm,c){return analyzePullup(lm,c,'wide');}},
+      pu_archer:{name:'מתח קשת',desc:'יד אחת ישרה, יד אחת מושכת',minReps:1,
+        angle:'פרופיל (צד)',
+        criteria:{reps:1,form:55},
+        analyze(lm,c){return analyzePullup(lm,c,'archer');}},
+      pu_oa:{name:'מתח חד-יד',desc:'OA Pull-up',minReps:1,
+        angle:'פרופיל (צד)',
+        criteria:{reps:1,form:50},
+        analyze(lm,c){return analyzePullup(lm,c,'oa');}},
     }
   },
-  pushup:{
-    name:'שכיבות',icon:'💪',nameEn:'Push-up',
-    cameraAngle:'עמוד מהצד · הגוף מקביל למצלמה · כל הגוף בפריים',
-    minReps:5,
-    analyze(lm,conf){
-      if(conf<0.6)return null;
-      const elbowAngle=angle(lm[12],lm[14],lm[16]);
-      const bodyAngle=angle(lm[12],lm[24],lm[28]); // shoulder-hip-ankle (plank line)
-      const hipSag=Math.abs(bodyAngle-180);
-      const isUp=elbowAngle>155;
-      const isDown=elbowAngle<100;
-      const isPlanked=hipSag<20;
-      const feedback=[];
-      if(!isPlanked&&hipSag>25)feedback.push({type:'bad',text:'הירכיים יורדות/עולות — גוף ישר כמו קרש'});
-      if(isPlanked)feedback.push({type:'good',text:'פלאנק מושלם'});
-      if(isDown)feedback.push({type:'good',text:'טווח מלא — חזה כמעט בקרקע'});
-      if(isUp)feedback.push({type:'good',text:'דחיפה מלאה — מרפקים ישרים'});
-      return{elbowAngle,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,feedback,bodyAngle,formScore:isPlanked?85:50};
+  pushup:{name:'שכיבות',icon:'💪',
+    variants:{
+      pu_normal:{name:'שכיבות רגילות',desc:'ידיים רוחב כתפיים',minReps:5,
+        angle:'פרופיל (צד) — גוף שטוח',
+        criteria:{reps:5,form:65},
+        analyze:analyzePushup},
+      pu_diamond:{name:'שכיבות יהלום',desc:'אצבעות נוגעות — Triangle',minReps:5,
+        angle:'פרופיל (צד)',
+        criteria:{reps:5,form:65},
+        analyze:analyzePushup},
+      pu_pike:{name:'שכיבות פייק',desc:'ירכיים למעלה — V shape',minReps:5,
+        angle:'פרופיל (צד)',
+        criteria:{reps:5,form:60},
+        analyze:analyzePikePushup},
+      pu_pseudo:{name:'Pseudo Planche Push-up',desc:'ידיים לאחור, גוף קדימה',minReps:3,
+        angle:'פרופיל (צד)',
+        criteria:{reps:3,form:55},
+        analyze:analyzePushup},
+      pu_wall_hspu:{name:'HSPU לקיר',desc:'שכיבה בעמידת ידיים לקיר',minReps:1,
+        angle:'פרופיל (צד) — הקיר בצד',
+        criteria:{reps:1,form:55},
+        analyze:analyzeHSPU},
+      pu_free_hspu:{name:'HSPU חופשי',desc:'שכיבה בעמידת ידיים',minReps:1,
+        angle:'פרופיל (צד)',
+        criteria:{reps:1,form:60},
+        analyze:analyzeHSPU},
     }
   },
-  dip:{
-    name:'מקבילים',icon:'🔻',nameEn:'Dip',
-    cameraAngle:'עמוד מהצד · גוף ימין/שמאל למצלמה · המקבילים בפריים',
-    minReps:5,
-    analyze(lm,conf){
-      if(conf<0.6)return null;
-      const elbowAngle=angle(lm[12],lm[14],lm[16]);
-      const shoulderAngle=angle(lm[14],lm[12],lm[24]);
-      const isUp=elbowAngle>160;
-      const isDown=elbowAngle<100;
-      const feedback=[];
-      if(shoulderAngle>50)feedback.push({type:'warn',text:'אל תשפיל יותר מדי — כתפיים בסיכון'});
-      if(isDown&&shoulderAngle<45)feedback.push({type:'good',text:'עומק מצויין'});
-      if(isUp)feedback.push({type:'good',text:'דחיפה מלאה'});
-      return{elbowAngle,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,feedback,bodyAngle:shoulderAngle,formScore:isDown&&shoulderAngle<50?88:65};
+  dip:{name:'מקבילים',icon:'🔻',
+    variants:{
+      dip_std:{name:'מקבילים רגיל',desc:'גוף אנכי',minReps:5,
+        angle:'פרופיל (צד)',
+        criteria:{reps:5,form:65},
+        analyze:analyzeDip},
+      dip_lean:{name:'מקבילים הטיה',desc:'הטיה קדימה לחזה',minReps:5,
+        angle:'פרופיל (צד)',
+        criteria:{reps:5,form:60},
+        analyze:analyzeDip},
     }
   },
-  lsit:{
-    name:'L-Sit',icon:'🪑',nameEn:'L-Sit',
-    cameraAngle:'עמוד מהצד · הגוף ימין/שמאל למצלמה · כל הגוף בפריים',
-    minReps:0,holdSec:5,
-    analyze(lm,conf){
-      if(conf<0.6)return null;
-      const hipAngle=angle(lm[12],lm[24],lm[26]); // shoulder-hip-knee
-      const kneeAngle=angle(lm[24],lm[26],lm[28]);
-      const elbowAngle=angle(lm[12],lm[14],lm[16]);
-      const legsParallel=Math.abs(hipAngle-90)<25;
-      const armsLocked=elbowAngle>155;
-      const legsStr=kneeAngle>155;
-      const feedback=[];
-      if(!legsParallel)feedback.push({type:'warn',text:`הרם את הרגליים — זווית ירך: ${hipAngle}°`});
-      if(legsParallel)feedback.push({type:'good',text:'רגליים מקביל לרצפה'});
-      if(!armsLocked)feedback.push({type:'bad',text:'ישר את הידיים לגמרי'});
-      if(armsLocked)feedback.push({type:'good',text:'ידיים ישרות'});
-      if(!legsStr)feedback.push({type:'warn',text:'ישר את הברכיים'});
-      return{elbowAngle,phase:legsParallel&&armsLocked?'L-SIT ✓':'עבודה...',isUp:false,isDown:false,feedback,bodyAngle:hipAngle,formScore:legsParallel&&armsLocked&&legsStr?92:legsParallel?70:40};
+  handstand:{name:'עמידת ידיים',icon:'🤸',
+    variants:{
+      hs_wall:{name:'עמידת ידיים לקיר',desc:'חזה לקיר / גב לקיר',holdSec:10,
+        angle:'פרופיל (צד) — הקיר נראה, כל הגוף בפריים',
+        criteria:{hold:10,form:55},
+        analyze:analyzeHandstand},
+      hs_free:{name:'עמידת ידיים חופשית',desc:'ללא תמיכה',holdSec:5,
+        angle:'פרופיל (צד) — כל הגוף בפריים',
+        criteria:{hold:5,form:60},
+        analyze:analyzeHandstand},
+      hs_shape:{name:'Handstand Shape',desc:'בדיקת יישור — קו ישר מכף רגל לכף יד',holdSec:5,
+        angle:'מהצד — מרחק 3-4 מטר',
+        criteria:{hold:5,form:75},
+        analyze:analyzeHandstand},
     }
   },
-  squat:{
-    name:'סקוואט',icon:'🦵',nameEn:'Squat',
-    cameraAngle:'עמוד מהצד · הגוף ימין/שמאל למצלמה · כל הגוף בפריים',
-    minReps:10,
-    analyze(lm,conf){
-      if(conf<0.6)return null;
-      const kneeAngle=angle(lm[24],lm[26],lm[28]);
-      const hipAngle=angle(lm[12],lm[24],lm[26]);
-      const ankleAngle=angle(lm[26],lm[28],lm[32]);
-      const isUp=kneeAngle>160;
-      const isDown=kneeAngle<100;
-      const kneesOut=ankleAngle<80;
-      const feedback=[];
-      if(kneesOut)feedback.push({type:'bad',text:'ברכיים קורסות פנימה — דחף אותן החוצה'});
-      if(isDown&&hipAngle<70)feedback.push({type:'warn',text:'גב נוטה קדימה יותר מדי'});
-      if(isDown&&kneeAngle<90)feedback.push({type:'good',text:'עומק מצויין — מתחת למקבילה'});
-      if(isUp)feedback.push({type:'good',text:'עמידה מלאה'});
-      return{elbowAngle:kneeAngle,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,feedback,bodyAngle:hipAngle,formScore:!kneesOut&&isDown?88:60};
+  skill:{name:'כוח / סקיל',icon:'⚡',
+    variants:{
+      lsit:{name:'L-Sit',desc:'רגליים מקביל לרצפה',holdSec:5,
+        angle:'פרופיל (צד)',
+        criteria:{hold:5,form:65},
+        analyze:analyzeLSit},
+      planche_lean:{name:'Planche Lean',desc:'הישענות פלאנץ׳',holdSec:10,
+        angle:'פרופיל (צד)',
+        criteria:{hold:10,form:60},
+        analyze:analyzePlancheLean},
+      fl_tuck:{name:'Front Lever Tuck',desc:'תנוחת מינוף קדמי מגולגל',holdSec:5,
+        angle:'פרופיל (צד)',
+        criteria:{hold:5,form:55},
+        analyze:analyzeFrontLever},
     }
   },
-  planche_lean:{
-    name:'הישענות פלאנץ',icon:'↗️',nameEn:'Planche Lean',
-    cameraAngle:'עמוד מהצד · גוף ימין/שמאל למצלמה · ידיים על הקרקע',
-    minReps:0,holdSec:10,
-    analyze(lm,conf){
-      if(conf<0.6)return null;
-      const shoulderToHand=lm[16].x-lm[12].x; // how far forward hands are
-      const bodyAngle=angle(lm[16],lm[12],lm[24]); // wrist-shoulder-hip
-      const hipAngle=angle(lm[12],lm[24],lm[28]);
-      const leanFwd=bodyAngle<70;
-      const bodyStr=hipAngle>165;
-      const feedback=[];
-      if(!leanFwd)feedback.push({type:'warn',text:'הטה יותר קדימה — כתפיים לפני כפות הידיים'});
-      if(leanFwd)feedback.push({type:'good',text:'הטיה קדימה מצויינת'});
-      if(!bodyStr)feedback.push({type:'bad',text:'גוף לא ישר — הדק קאור'});
-      if(bodyStr&&leanFwd)feedback.push({type:'good',text:'פוזיציה מושלמת לפלאנץ לין'});
-      return{elbowAngle:bodyAngle,phase:leanFwd&&bodyStr?'פוזיציה ✓':'מתכוונן',isUp:false,isDown:false,feedback,bodyAngle:hipAngle,formScore:leanFwd&&bodyStr?90:55};
-    }
-  },
-  handstand:{
-    name:'עמידת ידיים',icon:'🤸',nameEn:'Handstand',
-    cameraAngle:'עמוד מהצד · הגוף ימין/שמאל למצלמה · כל הגוף בפריים (גם רגליים למעלה)',
-    minReps:0,holdSec:5,
-    analyze(lm,conf){
-      if(conf<0.55)return null;
-      // In handstand, feet (27,28) should be ABOVE nose (0) and wrists (15,16) should be on ground
-      const feetY=Math.min(lm[27].y,lm[28].y);
-      const wristY=Math.max(lm[15].y,lm[16].y);
-      const hipY=(lm[23].y+lm[24].y)/2;
-      const shoulderY=(lm[11].y+lm[12].y)/2;
-      const isInverted=feetY<shoulderY; // feet above shoulders in image = inverted
-      const bodyAlignment=Math.abs((lm[27].x+lm[28].x)/2-(lm[15].x+lm[16].x)/2);
-      const isAligned=bodyAlignment<0.08;
-      const feedback=[];
-      if(!isInverted)feedback.push({type:'info',text:'עמוד על הידיים — רגליים צריכות להיות למעלה'});
-      if(isInverted&&!isAligned)feedback.push({type:'warn',text:'יישר את הגוף — כפות רגליים מעל כפות ידיים'});
-      if(isInverted&&isAligned)feedback.push({type:'good',text:'עמידת ידיים מיושרת!'});
-      return{elbowAngle:0,phase:isInverted?isAligned?'מיושר ✓':'עמידת ידיים':'לא מזוהה',isUp:false,isDown:false,feedback,bodyAngle:bodyAlignment,formScore:isInverted&&isAligned?95:isInverted?65:0};
+  legs:{name:'רגליים',icon:'🦵',
+    variants:{
+      squat:{name:'סקוואט',desc:'מתחת למקבילה',minReps:10,
+        angle:'פרופיל (צד)',
+        criteria:{reps:10,form:65},
+        analyze:analyzeSquat},
+      pistol_neg:{name:'פיסטול שלילי',desc:'ירידה על רגל אחת',minReps:3,
+        angle:'פרופיל (צד)',
+        criteria:{reps:3,form:55},
+        analyze:analyzeSquat},
+      pistol:{name:'פיסטול',desc:'Pistol Squat מלא',minReps:1,
+        angle:'פרופיל (צד)',
+        criteria:{reps:1,form:60},
+        analyze:analyzeSquat},
     }
   },
 };
 
-/* ============================================================
-   ANGLE CALCULATOR
-   ============================================================ */
-function angle(a,b,c){
-  // angle at point b between segments ba and bc
+/* ================================================================
+   ANGLE HELPER
+   ================================================================ */
+function ang(a,b,c){
   if(!a||!b||!c)return 0;
-  const abx=a.x-b.x,aby=a.y-b.y;
-  const cbx=c.x-b.x,cby=c.y-b.y;
-  const dot=abx*cbx+aby*cby;
-  const mag=Math.sqrt(abx*abx+aby*aby)*Math.sqrt(cbx*cbx+cby*cby);
-  if(mag===0)return 0;
-  return Math.round(Math.acos(Math.min(1,Math.max(-1,dot/mag)))*180/Math.PI);
+  const ax=a.x-b.x,ay=a.y-b.y,cx=c.x-b.x,cy=c.y-b.y;
+  const dot=ax*cx+ay*cy;
+  const mag=Math.sqrt(ax*ax+ay*ay)*Math.sqrt(cx*cx+cy*cy);
+  return mag===0?0:Math.round(Math.acos(Math.min(1,Math.max(-1,dot/mag)))*180/Math.PI);
+}
+function vis(lm,...idxs){return idxs.every(i=>lm[i]&&(lm[i].visibility||0)>0.4);}
+
+/* ================================================================
+   ANALYZERS
+   ================================================================ */
+function analyzePullup(lm,conf){
+  if(!vis(lm,12,14,16,24))return null;
+  const elbow=ang(lm[12],lm[14],lm[16]);
+  const body=ang(lm[12],lm[24],lm[28]);
+  const isUp=elbow<100&&lm[0].y>lm[12].y-0.05; // nose above shoulders
+  const isDown=elbow>155;
+  const straight=body>155;
+  const fb=[];
+  if(!straight)fb.push({t:'warn',m:'גוף לא ישר — לא לנדנד'});
+  if(isUp)fb.push({t:'good',m:'מצויין — סנטר מעל המוט'});
+  if(isDown&&straight)fb.push({t:'good',m:'ירידה מבוקרת'});
+  return{elbow,hip:body,phase:isUp?'למעלה':isDown?'תלייה':'בתנועה',isUp,isDown,form:straight?88:58,fb};
+}
+function analyzePushup(lm,conf){
+  if(!vis(lm,12,14,16,24,28))return null;
+  const elbow=ang(lm[12],lm[14],lm[16]);
+  const body=ang(lm[12],lm[24],lm[28]);
+  const sag=Math.abs(body-180);
+  const isUp=elbow>155; const isDown=elbow<100;
+  const plank=sag<22;
+  const fb=[];
+  if(!plank)fb.push({t:'bad',m:'הירכיים שוקעות — גוף ישר כקרש'});
+  else fb.push({t:'good',m:'פלאנק מושלם'});
+  if(isDown)fb.push({t:'good',m:'טווח מלא'});
+  return{elbow,hip:body,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:plank?86:52,fb};
+}
+function analyzePikePushup(lm,conf){
+  if(!vis(lm,12,14,16,24))return null;
+  const elbow=ang(lm[12],lm[14],lm[16]);
+  const hip=ang(lm[12],lm[24],lm[28]);
+  const pikeOk=hip<100; // hips high
+  const isUp=elbow>150; const isDown=elbow<90;
+  const fb=[];
+  if(!pikeOk)fb.push({t:'warn',m:'הרם את הישבן — V כלפי מעלה'});
+  else fb.push({t:'good',m:'זווית Pike מצויינת'});
+  return{elbow,hip,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:pikeOk?82:55,fb};
+}
+function analyzeHSPU(lm,conf){
+  if(!vis(lm,15,16,12,14))return null;
+  // In HSPU: feet (27/28) are above head; wrists (15/16) on ground
+  const wristY=Math.max(lm[15].y,lm[16].y);
+  const feetY=Math.min(lm[27].y,lm[28].y);
+  const inverted=feetY<lm[12].y;
+  const elbow=ang(lm[12],lm[14],lm[16]);
+  const isUp=elbow>155; const isDown=elbow<90;
+  const fb=[];
+  if(!inverted)fb.push({t:'info',m:'עמוד על הידיים ← מחכה'});
+  else if(isDown)fb.push({t:'good',m:'ירידה מבוקרת'});
+  else if(isUp)fb.push({t:'good',m:'דחיפה מלאה'});
+  return{elbow,hip:0,phase:!inverted?'ממתין':isUp?'למעלה':isDown?'למטה':'בתנועה',isUp:inverted&&isUp,isDown:inverted&&isDown,form:inverted?80:30,fb};
+}
+function analyzeDip(lm,conf){
+  if(!vis(lm,12,14,16))return null;
+  const elbow=ang(lm[12],lm[14],lm[16]);
+  const shldr=ang(lm[14],lm[12],lm[24]);
+  const isUp=elbow>160; const isDown=elbow<100;
+  const fb=[];
+  if(shldr>55)fb.push({t:'warn',m:'אל תשפיל יותר מדי — סיכון לכתפיים'});
+  if(isDown)fb.push({t:'good',m:'עומק מצויין'});
+  return{elbow,hip:shldr,phase:isUp?'למעלה':isDown?'למטה':'בתנועה',isUp,isDown,form:isDown&&shldr<55?88:65,fb};
+}
+function analyzeHandstand(lm,conf){
+  if(conf<0.5)return null;
+  const feetY=Math.min(lm[27]?.y||1,lm[28]?.y||1);
+  const shoulderY=(lm[11].y+lm[12].y)/2;
+  const inverted=feetY<shoulderY-0.1;
+  const feetX=(lm[27].x+lm[28].x)/2;
+  const wristX=(lm[15].x+lm[16].x)/2;
+  const aligned=Math.abs(feetX-wristX)<0.1;
+  const fb=[];
+  if(!inverted)fb.push({t:'info',m:'עמוד על הידיים ← ממתין'});
+  else if(!aligned)fb.push({t:'warn',m:'יישר — כפות רגליים מעל ידיים'});
+  else fb.push({t:'good',m:'עמידת ידיים מיושרת! ✓'});
+  return{elbow:0,hip:0,phase:!inverted?'ממתין':aligned?'מיושר ✓':'לא מיושר',isUp:false,isDown:false,form:inverted&&aligned?92:inverted?62:20,fb};
+}
+function analyzeLSit(lm,conf){
+  if(!vis(lm,12,24,26,14,16))return null;
+  const hipA=ang(lm[12],lm[24],lm[26]);
+  const kneeA=ang(lm[24],lm[26],lm[28]);
+  const elbowA=ang(lm[12],lm[14],lm[16]);
+  const hipsUp=hipA<100;
+  const legsStr=kneeA>155;
+  const armsLock=elbowA>155;
+  const fb=[];
+  if(!hipsUp)fb.push({t:'warn',m:`הרם את הרגליים — ירך: ${hipA}°`});
+  if(hipsUp&&!legsStr)fb.push({t:'warn',m:'ישר את הברכיים'});
+  if(hipsUp&&legsStr&&armsLock)fb.push({t:'good',m:'L-Sit מושלם!'});
+  return{elbow:elbowA,hip:hipA,phase:hipsUp&&armsLock?'L-SIT ✓':'עבודה...',isUp:false,isDown:false,form:hipsUp&&legsStr&&armsLock?92:hipsUp?68:40,fb};
+}
+function analyzePlancheLean(lm,conf){
+  if(!vis(lm,12,16,24))return null;
+  const leanAngle=ang(lm[16],lm[12],lm[24]);
+  const bodyA=ang(lm[12],lm[24],lm[28]);
+  const leanOk=leanAngle<65;
+  const bodyStr=bodyA>165;
+  const fb=[];
+  if(!leanOk)fb.push({t:'warn',m:'הטה יותר קדימה — כתפיים לפני ידיים'});
+  else fb.push({t:'good',m:'הטיה מצויינת'});
+  if(!bodyStr)fb.push({t:'bad',m:'גוף לא ישר'});
+  return{elbow:leanAngle,hip:bodyA,phase:leanOk&&bodyStr?'פוזיציה ✓':'מתכוונן',isUp:false,isDown:false,form:leanOk&&bodyStr?88:55,fb};
+}
+function analyzeFrontLever(lm,conf){
+  if(!vis(lm,12,24,27))return null;
+  const hipA=ang(lm[12],lm[24],lm[27]);
+  const bodyHoriz=Math.abs(lm[12].y-lm[27].y)<0.08;
+  const fb=[];
+  if(!bodyHoriz)fb.push({t:'warn',m:'הגוף לא אופקי — הרם את הישבן והרגליים'});
+  else fb.push({t:'good',m:'גוף אופקי — Front Lever ✓'});
+  return{elbow:0,hip:hipA,phase:bodyHoriz?'אופקי ✓':'מתכוונן',isUp:false,isDown:false,form:bodyHoriz?85:45,fb};
+}
+function analyzeSquat(lm,conf){
+  if(!vis(lm,24,26,28))return null;
+  const kneeA=ang(lm[24],lm[26],lm[28]);
+  const hipA=ang(lm[12],lm[24],lm[26]);
+  const isUp=kneeA>160; const isDown=kneeA<100;
+  const fb=[];
+  if(isDown&&hipA>80)fb.push({t:'warn',m:'גב נוטה קדימה — שמור על עמוד שדרה ניטרלי'});
+  if(isDown&&kneeA<90)fb.push({t:'good',m:'עומק מתחת למקבילה ✓'});
+  if(isUp)fb.push({t:'good',m:'עמידה מלאה'});
+  return{elbow:kneeA,hip:hipA,phase:isUp?'למעלה':isDown?'עמוק':'בתנועה',isUp,isDown,form:isDown&&hipA<75?88:65,fb};
 }
 
-/* ============================================================
+/* ================================================================
    STATE
-   ============================================================ */
-let currentEx=null;
-let cameraRunning=false;
-let repCount=0;
-let lastPhase=null; // 'up'|'down'|null
-let sessionFeedback=[];
-let formScoreHistory=[];
-let holdStart=null;
-let holdTime=0;
-let verifyData=null;
-let pose=null;
-let cameraObj=null;
-let lmHistory=[]; // smoothing buffer
+   ================================================================ */
+let currentCat=null, currentVariant=null, currentEx=null;
+let cameraRunning=false, videoFileMode=false;
+let repCount=0, holdSec=0, holdStart=null, lastPhase=null;
+let formHistory=[], allFeedback=[];
+let pose=null, cameraObj=null, lmBuf=[], fileTimer=null;
+let analysisFrames=0;
 
-/* ============================================================
-   MEDIAPIPE SETUP
-   ============================================================ */
+/* ================================================================
+   MEDIAPIPE
+   ================================================================ */
 async function initPose(){
-  document.getElementById('loadingOverlay').style.display='flex';
+  document.getElementById('loadingOv').style.display='flex';
   document.getElementById('loadingMsg').textContent='טוען מודל AI...';
   try{
     pose=new Pose({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}`});
-    pose.setOptions({
-      modelComplexity:1,
-      smoothLandmarks:true,
-      enableSegmentation:false,
-      smoothSegmentation:false,
-      minDetectionConfidence:0.65,
-      minTrackingConfidence:0.55,
-    });
+    pose.setOptions({modelComplexity:1,smoothLandmarks:true,enableSegmentation:false,
+      minDetectionConfidence:0.65,minTrackingConfidence:0.55});
     pose.onResults(onPoseResults);
-    document.getElementById('loadingMsg').textContent='מודל AI נטען בהצלחה ✓';
-    await new Promise(r=>setTimeout(r,600));
-  }catch(e){
-    document.getElementById('loadingMsg').textContent='שגיאה: '+e.message;
-    await new Promise(r=>setTimeout(r,2000));
-  }
-  document.getElementById('loadingOverlay').style.display='none';
+    document.getElementById('loadingMsg').textContent='מוכן ✓';
+    await new Promise(r=>setTimeout(r,500));
+  }catch(e){addFb('bad','שגיאת טעינה: '+e.message);}
+  document.getElementById('loadingOv').style.display='none';
 }
 
-/* ============================================================
-   LANDMARK SMOOTHING
-   ============================================================ */
-function smoothLandmarks(lm){
-  lmHistory.push(lm);
-  if(lmHistory.length>4)lmHistory.shift();
-  if(lmHistory.length<2)return lm;
-  return lm.map((p,i)=>({
-    x:lmHistory.reduce((s,f)=>s+f[i].x,0)/lmHistory.length,
-    y:lmHistory.reduce((s,f)=>s+f[i].y,0)/lmHistory.length,
-    z:lmHistory.reduce((s,f)=>s+f[i].z,0)/lmHistory.length,
-    visibility:p.visibility,
+/* ================================================================
+   SMOOTH LANDMARKS
+   ================================================================ */
+function smoothLm(lm){
+  lmBuf.push(lm); if(lmBuf.length>4)lmBuf.shift();
+  if(lmBuf.length<2)return lm;
+  return lm.map((_,i)=>({
+    x:lmBuf.reduce((s,f)=>s+f[i].x,0)/lmBuf.length,
+    y:lmBuf.reduce((s,f)=>s+f[i].y,0)/lmBuf.length,
+    z:lmBuf.reduce((s,f)=>s+f[i].z,0)/lmBuf.length,
+    visibility:lm[i].visibility,
   }));
 }
 
-/* ============================================================
-   POSE RESULTS
-   ============================================================ */
+/* ================================================================
+   POSE RESULTS — draw ONLY inside #mediaBox
+   ================================================================ */
 function onPoseResults(results){
   const canvas=document.getElementById('outputCanvas');
   const ctx=canvas.getContext('2d');
-  canvas.width=results.image.width;
-  canvas.height=results.image.height;
 
-  // Draw frame
-  ctx.save();
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(results.image,0,0);
-
-  if(!results.poseLandmarks||!currentEx){
-    document.getElementById('statusBar').textContent='לא זוהה אדם בפריים...';
-    ctx.restore();
-    return;
+  // Size canvas to match the source image exactly
+  if(canvas.width!==results.image.width||canvas.height!==results.image.height){
+    canvas.width=results.image.width;
+    canvas.height=results.image.height;
+    // Resize mediaBox to match AR
+    sizeMediaBox(results.image.width,results.image.height);
   }
 
-  const lm=smoothLandmarks(results.poseLandmarks);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // Draw the video frame onto canvas (so skeleton overlays on top)
+  ctx.drawImage(results.image,0,0,canvas.width,canvas.height);
 
-  // Avg confidence
+  if(!results.poseLandmarks||!currentEx){
+    setStatus('לא זוהה אדם...');return;
+  }
+
+  const lm=smoothLm(results.poseLandmarks);
   const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
   document.getElementById('mConf').textContent=Math.round(conf*100)+'%';
 
-  // Draw skeleton
-  drawConnectors(ctx,lm,POSE_CONNECTIONS,{color:'rgba(0,255,213,.45)',lineWidth:2});
-  drawLandmarks(ctx,lm,{color:'rgba(139,61,255,.8)',fillColor:'rgba(0,168,255,.5)',lineWidth:1,radius:4});
+  // Draw skeleton — custom colors
+  drawConnectors(ctx,lm,POSE_CONNECTIONS,{color:'rgba(0,168,255,.5)',lineWidth:3});
+  // Key joints highlighted
+  [12,14,16,11,13,15,24,26,28,23,25,27].forEach(i=>{
+    if(!lm[i]||lm[i].visibility<0.4)return;
+    ctx.beginPath();
+    ctx.arc(lm[i].x*canvas.width,lm[i].y*canvas.height,6,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,255,213,.9)';ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.5;ctx.stroke();
+  });
 
   // Analyze
-  const ex=EXERCISES[currentEx];
-  if(!ex)return;
-  const result=ex.analyze(lm,conf);
-  if(!result){
-    document.getElementById('statusBar').textContent='מנסה לזהות...';
-    ctx.restore();
-    return;
-  }
+  const result=currentEx.analyze(lm,conf);
+  if(!result){setStatus('מנסה לזהות...');return;}
+  analysisFrames++;
 
   // Update metrics
-  document.getElementById('mElbow').textContent=result.elbowAngle+'°';
-  document.getElementById('mShoulder').textContent='—°';
-  document.getElementById('mHip').textContent=result.bodyAngle?Math.round(result.bodyAngle)+'°':'—°';
-  document.getElementById('mBody').textContent=result.bodyAngle>155?'✓ ישר':'⚠ לא ישר';
+  document.getElementById('mElbow').textContent=result.elbow+'°';
+  document.getElementById('mHip').textContent=result.hip?Math.round(result.hip)+'°':'—°';
+  document.getElementById('mBody').textContent=result.form>=75?'✓ טוב':'⚠ שיפור';
   document.getElementById('mPhase').textContent=result.phase;
 
   // Form score
-  const fs=result.formScore||0;
+  const fs=result.form||0;
+  formHistory.push(fs);if(formHistory.length>120)formHistory.shift();
   const fsEl=document.getElementById('formScore');
   fsEl.textContent=fs;
-  fsEl.style.color=fs>=85?'var(--success)':fs>=65?'var(--gold)':'var(--danger)';
-  formScoreHistory.push(fs);
-  if(formScoreHistory.length>60)formScoreHistory.shift();
+  fsEl.style.color=fs>=80?'var(--success)':fs>=60?'var(--gold)':'var(--danger)';
 
-  // Rep counting
+  // Rep / hold counting
+  const ex=currentEx;
   if(ex.holdSec){
-    // Hold-based exercise
-    if(result.formScore>=60){
+    if(fs>=50){
       if(!holdStart)holdStart=Date.now();
-      holdTime=Math.floor((Date.now()-holdStart)/1000);
-      document.getElementById('repCount').textContent=holdTime+'s';
-      document.getElementById('statusBar').textContent=`החזקה: ${holdTime}/${ex.holdSec} שניות`;
-      if(holdTime>=ex.holdSec){
-        document.getElementById('verifyBtn').disabled=false;
-        setVerifyData(result);
-        document.getElementById('statusBar').textContent='✅ זמן החזקה הושלם!';
-      }
-    }else{
-      holdStart=null;holdTime=0;
-      document.getElementById('statusBar').textContent='שפר את הפוזיציה כדי להתחיל ספירה';
-    }
+      holdSec=Math.floor((Date.now()-holdStart)/1000);
+      document.getElementById('repCount').textContent=holdSec+'s';
+      setStatus(`החזקה ${holdSec}/${ex.holdSec}s`);
+      if(holdSec>=ex.holdSec){document.getElementById('verdictBtn').disabled=false;setStatus('✅ הצלחה!');}
+    }else{holdStart=null;holdSec=0;setStatus('שפר פוזיציה להתחלת ספירה');}
   }else{
-    // Rep-based exercise
     if(result.isUp&&lastPhase==='down'){
       repCount++;
-      document.getElementById('repCount').textContent=repCount;
-      document.getElementById('repCount').style.color='var(--success)';
-      setTimeout(()=>document.getElementById('repCount').style.color='var(--cyan)',300);
-      if(repCount>=ex.minReps){document.getElementById('verifyBtn').disabled=false;setVerifyData(result);}
+      const el=document.getElementById('repCount');
+      el.textContent=repCount;
+      el.style.color='var(--success)';setTimeout(()=>el.style.color='var(--cyan)',250);
+      if(repCount>=ex.minReps){document.getElementById('verdictBtn').disabled=false;}
     }
     lastPhase=result.isUp?'up':result.isDown?'down':lastPhase;
-    document.getElementById('statusBar').textContent=result.isUp?'⬆ למעלה':result.isDown?'⬇ תלייה/נמוך':'• בתנועה';
+    setStatus(result.phase);
   }
 
-  // Feedback
-  if(result.feedback?.length){
-    const newFb=result.feedback.filter(f=>!sessionFeedback.find(sf=>sf.text===f.text&&Date.now()-sf.time<3000));
-    newFb.forEach(f=>{
-      sessionFeedback.push({...f,time:Date.now()});
-      addFeedback(f.type,f.text);
+  // Angle labels on canvas
+  drawAngLabel(ctx,lm[14],result.elbow+'°','#00ffd5',canvas);
+  if(result.hip)drawAngLabel(ctx,lm[24],Math.round(result.hip)+'°','#ffc14d',canvas);
+
+  // Throttled feedback
+  if(result.fb?.length&&analysisFrames%15===0){
+    result.fb.forEach(f=>{
+      if(!allFeedback.find(af=>af.m===f.m&&Date.now()-af.t<4000)){
+        allFeedback.push({...f,t:Date.now()});
+        addFb(f.t,f.m);
+      }
     });
-    if(sessionFeedback.length>20)sessionFeedback=sessionFeedback.slice(-20);
   }
-
-  // Draw angle overlays on skeleton
-  drawAngleLabel(ctx,lm[14],result.elbowAngle+'°','rgba(0,255,213,.9)',canvas);
-  if(result.bodyAngle)drawAngleLabel(ctx,lm[24],Math.round(result.bodyAngle)+'°','rgba(255,193,77,.8)',canvas);
-
-  ctx.restore();
 }
 
-function drawAngleLabel(ctx,lm,text,color,canvas){
+function drawAngLabel(ctx,lm,txt,color,canvas){
   if(!lm||lm.visibility<0.4)return;
-  const x=lm.x*canvas.width, y=lm.y*canvas.height;
+  const x=lm.x*canvas.width+8,y=lm.y*canvas.height-8;
+  ctx.font='bold 14px Share Tech Mono';
+  ctx.fillStyle='rgba(0,0,0,.6)';
+  ctx.fillRect(x-2,y-14,ctx.measureText(txt).width+6,18);
   ctx.fillStyle=color;
-  ctx.font='bold 13px Share Tech Mono';
-  ctx.fillText(text,x+6,y-6);
+  ctx.fillText(txt,x+1,y);
 }
 
-/* ============================================================
-   DRAG & DROP + FILE HANDLING
-   ============================================================ */
-const camWrap=document.getElementById('camWrap');
-camWrap.addEventListener('dragover',e=>{e.preventDefault();document.getElementById('dragOverlay').classList.add('active');});
-camWrap.addEventListener('dragleave',e=>{if(!camWrap.contains(e.relatedTarget))document.getElementById('dragOverlay').classList.remove('active');});
-camWrap.addEventListener('drop',e=>{
-  e.preventDefault();
-  document.getElementById('dragOverlay').classList.remove('active');
-  const file=e.dataTransfer.files[0];
-  if(file&&file.type.startsWith('video/'))handleFileSelect(file);
-  else addFeedback('bad','יש לגרור קובץ וידאו בלבד');
+/* ================================================================
+   SIZE MEDIA BOX — keeps video AR, no canvas overflow
+   ================================================================ */
+function sizeMediaBox(w,h){
+  const wrap=document.getElementById('camWrap');
+  const box=document.getElementById('mediaBox');
+  const ww=wrap.clientWidth,wh=wrap.clientHeight;
+  const ar=w/h;
+  let bw=ww,bh=wh;
+  if(ww/wh>ar){bw=wh*ar;}else{bh=ww/ar;}
+  box.style.width=bw+'px';
+  box.style.height=bh+'px';
+  document.getElementById('outputCanvas').style.width=bw+'px';
+  document.getElementById('outputCanvas').style.height=bh+'px';
+}
+window.addEventListener('resize',()=>{
+  const c=document.getElementById('outputCanvas');
+  if(c.width&&c.height)sizeMediaBox(c.width,c.height);
 });
 
-let videoFileMode=false;
-let fileAnalysisInterval=null;
-
-async function handleFileSelect(file){
-  if(!file)return;
-  if(!currentEx){addFeedback('warn','בחר תרגיל קודם');return;}
-  if(!pose)await initPose();
-  stopCamera();
-  videoFileMode=true;
-  const url=URL.createObjectURL(file);
-  const vid=document.getElementById('videoFile');
-  vid.src=url;
-  vid.style.display='block';
-  document.getElementById('inputVideo').style.display='none';
-  document.getElementById('camPlaceholder').style.display='none';
-  document.getElementById('outputCanvas').style.transform='none'; // no mirror for file
-  document.getElementById('startBtn').textContent='⏹ עצור';
-  document.getElementById('startBtn').classList.add('danger');
-  document.getElementById('statusBar').textContent='מנתח וידאו...';
-  addFeedback('info','🎬 קובץ נטען: '+file.name);
-  vid.onloadeddata=async()=>{
-    vid.play();
-    fileAnalysisInterval=setInterval(async()=>{
-      if(!videoFileMode||vid.paused||vid.ended){
-        if(vid.ended){document.getElementById('statusBar').textContent='✅ ניתוח הסתיים';}
-        return;
-      }
-      if(pose)await pose.send({image:vid});
-    },80); // ~12fps analysis
-  };
+/* ================================================================
+   CAMERA / FILE
+   ================================================================ */
+function toggleSource(){
+  if(cameraRunning||videoFileMode){stopAll();return;}
+  if(!currentEx){addFb('warn','בחר תרגיל קודם');return;}
+  document.getElementById('fileInput').click();
 }
-
-/* ============================================================
-   CAMERA (LIVE)
-   ============================================================ */
-function toggleCamera(){
-  if(cameraRunning||videoFileMode){stopCamera();return;}
-  startLive();
-}
-
 async function startLive(){
-  if(!currentEx){addFeedback('warn','בחר תרגיל קודם');return;}
+  if(!currentEx){addFb('warn','בחר תרגיל קודם');return;}
   if(!pose)await initPose();
-  stopCamera();
-  document.getElementById('loadingOverlay').style.display='flex';
+  stopAll();
+  document.getElementById('loadingOv').style.display='flex';
   document.getElementById('loadingMsg').textContent='מפעיל מצלמה...';
   try{
-    const video=document.getElementById('inputVideo');
-    video.style.display='block';
-    document.getElementById('videoFile').style.display='none';
-    document.getElementById('outputCanvas').style.transform='scaleX(-1)';
-    cameraObj=new Camera(video,{
-      onFrame:async()=>{if(pose&&cameraRunning)await pose.send({image:video});},
-      width:1280,height:720,
-    });
+    const vid=document.getElementById('inputVideo');
+    vid.style.display='block';
+    cameraObj=new Camera(vid,{
+      onFrame:async()=>{if(pose&&cameraRunning)await pose.send({image:vid});},
+      width:1280,height:720});
     await cameraObj.start();
     cameraRunning=true;
     document.getElementById('camPlaceholder').style.display='none';
+    document.getElementById('repOverlay').style.display='block';
+    document.getElementById('formOverlay').style.display='block';
     document.getElementById('startBtn').textContent='⏹ עצור';
-    document.getElementById('startBtn').classList.add('danger');
-    document.getElementById('loadingMsg').textContent='מצלמה פעילה ✓';
+    document.getElementById('startBtn').classList.add('stop');
+    setStatus('מצלמה פעילה...');
     await new Promise(r=>setTimeout(r,400));
-  }catch(e){
-    addFeedback('bad','שגיאת מצלמה: '+e.message);
-  }
-  document.getElementById('loadingOverlay').style.display='none';
+  }catch(e){addFb('bad','שגיאת מצלמה: '+e.message);}
+  document.getElementById('loadingOv').style.display='none';
 }
-
-function stopCamera(){
-  if(cameraObj)cameraObj.stop();
-  if(fileAnalysisInterval){clearInterval(fileAnalysisInterval);fileAnalysisInterval=null;}
-  cameraRunning=false;videoFileMode=false;
-  lmHistory=[];
+async function handleFileSelect(file){
+  if(!file||!file.type.startsWith('video/'))return;
+  if(!currentEx){addFb('warn','בחר תרגיל קודם');return;}
+  if(!pose)await initPose();
+  stopAll();
+  videoFileMode=true;
   const vid=document.getElementById('videoFile');
-  vid.pause();vid.src='';vid.style.display='none';
-  document.getElementById('inputVideo').style.display='block';
-  document.getElementById('startBtn').textContent='▶ התחל';
-  document.getElementById('startBtn').classList.remove('danger');
+  vid.src=URL.createObjectURL(file);
+  vid.style.display='block';
+  document.getElementById('camPlaceholder').style.display='none';
+  document.getElementById('repOverlay').style.display='block';
+  document.getElementById('formOverlay').style.display='block';
+  document.getElementById('startBtn').textContent='⏹ עצור';
+  document.getElementById('startBtn').classList.add('stop');
+  addFb('info','🎬 '+file.name);
+  vid.onloadeddata=()=>{
+    vid.play();
+    fileTimer=setInterval(async()=>{
+      if(!videoFileMode||vid.paused)return;
+      if(vid.ended){setStatus('✅ ניתוח הסתיים');return;}
+      if(pose)await pose.send({image:vid});
+    },80);
+  };
+}
+function stopAll(){
+  if(cameraObj){cameraObj.stop();cameraObj=null;}
+  if(fileTimer){clearInterval(fileTimer);fileTimer=null;}
+  cameraRunning=false;videoFileMode=false;lmBuf=[];
+  const vf=document.getElementById('videoFile');
+  vf.pause();vf.src='';vf.style.display='none';
+  document.getElementById('inputVideo').style.display='none';
   document.getElementById('camPlaceholder').style.display='flex';
+  document.getElementById('repOverlay').style.display='none';
+  document.getElementById('formOverlay').style.display='none';
+  document.getElementById('startBtn').textContent='▶ התחל';
+  document.getElementById('startBtn').classList.remove('stop');
   const ctx=document.getElementById('outputCanvas').getContext('2d');
-  ctx.clearRect(0,0,ctx.canvas.width||9999,ctx.canvas.height||9999);
-  document.getElementById('statusBar').textContent='ממתין...';
+  ctx.clearRect(0,0,99999,99999);
+  setStatus('ממתין...');
 }
 
-/* ============================================================
-   EXERCISE SELECTOR
-   ============================================================ */
-function selectExercise(id){
-  currentEx=id;
-  repCount=0;lastPhase=null;holdStart=null;holdTime=0;
-  formScoreHistory=[];sessionFeedback=[];lmHistory=[];
-  document.getElementById('repCount').textContent='0';
-  document.getElementById('verifyBtn').disabled=true;
-  verifyData=null;
-  document.querySelectorAll('.ex-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelector(`[data-ex="${id}"]`)?.classList.add('active');
-  const ex=EXERCISES[id];
-  document.getElementById('hudLabel').textContent=`${ex.icon} ${ex.name} · ${ex.nameEn}`;
-  document.getElementById('angleGuide').style.display='block';
-  document.getElementById('angleGuideText').textContent=ex.cameraAngle;
-  const goalText=ex.holdSec?`מטרה: ${ex.holdSec} שניות החזקה`:`מטרה: ${ex.minReps||1} חזרות`;
-  document.getElementById('statusBar').textContent=goalText;
-  clearFeedback();
-  addFeedback('info',`${ex.icon} נבחר: ${ex.name} — ${goalText}`);
-  addFeedback('info',`📐 ${ex.cameraAngle}`);
-}
+/* ================================================================
+   DRAG & DROP
+   ================================================================ */
+const cw=document.getElementById('camWrap');
+cw.addEventListener('dragover',e=>{e.preventDefault();document.getElementById('dragFlash').classList.add('on');});
+cw.addEventListener('dragleave',e=>{if(!cw.contains(e.relatedTarget))document.getElementById('dragFlash').classList.remove('on');});
+cw.addEventListener('drop',e=>{
+  e.preventDefault();document.getElementById('dragFlash').classList.remove('on');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('video/'))handleFileSelect(f);
+  else addFb('bad','גרור קובץ וידאו בלבד');
+});
 
-function buildExGrid(){
-  const grid=document.getElementById('exGrid');
-  grid.innerHTML=Object.entries(EXERCISES).map(([id,ex])=>
-    `<button class="ex-btn" data-ex="${id}" onclick="selectExercise('${id}')">
-      <span class="ex-icon">${ex.icon}</span>
-      <span class="ex-name">${ex.name}<br>${ex.nameEn}</span>
+/* ================================================================
+   EXERCISE SELECTOR — two-level
+   ================================================================ */
+function buildCatGrid(){
+  const g=document.getElementById('catGrid');
+  g.innerHTML=Object.entries(CATS).map(([id,c])=>
+    `<button class="cat-btn" data-cat="${id}" onclick="selectCat('${id}')">
+      <span class="ci">${c.icon}</span>
+      <span class="cn">${c.name}</span>
     </button>`
   ).join('');
 }
+function selectCat(id){
+  currentCat=id;currentVariant=null;currentEx=null;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===id));
+  const cat=CATS[id];
+  const varSec=document.getElementById('variantSec');
+  const varList=document.getElementById('variantList');
+  varSec.style.display='block';
+  varList.innerHTML=Object.entries(cat.variants).map(([vid,v])=>
+    `<button class="var-btn" data-var="${vid}" onclick="selectVariant('${id}','${vid}')">
+      <span class="vi">${cat.icon}</span>
+      <div class="vn">${v.name}<div class="vd">${v.desc}</div></div>
+    </button>`
+  ).join('');
+  document.getElementById('angleGuide').style.display='none';
+  resetCounts();
+}
+function selectVariant(catId,varId){
+  currentCat=catId;currentVariant=varId;
+  currentEx=CATS[catId].variants[varId];
+  document.querySelectorAll('.var-btn').forEach(b=>b.classList.toggle('active',b.dataset.var===varId));
+  document.getElementById('angleGuide').style.display='block';
+  document.getElementById('angleText').textContent=currentEx.angle;
+  resetCounts();
+  addFb('info',`✓ נבחר: ${currentEx.name}`);
+  const g=currentEx.holdSec?`מטרה: ${currentEx.holdSec}s החזקה`:`מטרה: ${currentEx.minReps} חזרות`;
+  addFb('info',g);
+}
+function resetCounts(){
+  repCount=0;holdSec=0;holdStart=null;lastPhase=null;
+  formHistory=[];allFeedback=[];analysisFrames=0;
+  document.getElementById('repCount').textContent='0';
+  document.getElementById('repLabel').textContent=currentEx?.holdSec?'שניות':'חזרות';
+  document.getElementById('verdictBtn').disabled=true;
+  clearFb();
+}
 
-/* ============================================================
+/* ================================================================
    FEEDBACK
-   ============================================================ */
-function addFeedback(type,text){
+   ================================================================ */
+function addFb(type,msg){
   const list=document.getElementById('feedbackList');
-  const item=document.createElement('div');
-  item.className=`feedback-item ${type}`;
-  item.textContent=text;
-  list.insertBefore(item,list.firstChild);
-  while(list.children.length>8)list.removeChild(list.lastChild);
+  const d=document.createElement('div');
+  d.className='fb-item '+type;d.textContent=msg;
+  list.insertBefore(d,list.firstChild);
+  while(list.children.length>10)list.removeChild(list.lastChild);
 }
-function clearFeedback(){document.getElementById('feedbackList').innerHTML='';}
+function clearFb(){document.getElementById('feedbackList').innerHTML='';}
+function setStatus(t){document.getElementById('statusBar').textContent=t;}
 
-/* ============================================================
-   VERIFICATION
-   ============================================================ */
-function setVerifyData(result){
-  const ex=EXERCISES[currentEx];
-  const avgForm=formScoreHistory.length?Math.round(formScoreHistory.reduce((a,b)=>a+b)/formScoreHistory.length):0;
-  verifyData={
-    exercise:currentEx,
-    exerciseName:ex.name,
-    reps:repCount,
-    holdTime,
-    avgFormScore:avgForm,
-    timestamp:Date.now(),
-    token:generateToken(),
-  };
-}
+/* ================================================================
+   VERDICT
+   ================================================================ */
+function showVerdict(){
+  const ex=currentEx;
+  const avgForm=formHistory.length?Math.round(formHistory.reduce((a,b)=>a+b)/formHistory.length):0;
+  const c=ex.criteria||{};
+  const repsOk=ex.holdSec?holdSec>=ex.holdSec:repCount>=ex.minReps;
+  const formOk=avgForm>=(c.form||60);
+  const pass=repsOk&&formOk;
+  const token=`KALOS-${currentVariant?.slice(0,4).toUpperCase()}-${Date.now().toString(36).slice(-4).toUpperCase()}`;
 
-function generateToken(){
-  const ex=currentEx?.slice(0,3).toUpperCase()||'EX';
-  const ts=Date.now().toString(36).toUpperCase().slice(-4);
-  const rand=Math.random().toString(36).slice(2,6).toUpperCase();
-  return `KALOS-${ex}-${ts}-${rand}`;
-}
-
-function openVerify(){
-  if(!verifyData)return;
-  const ex=EXERCISES[currentEx];
-  document.getElementById('verifyIcon').textContent=ex.icon;
-  const detail=ex.holdSec
-    ?`תרגיל: ${ex.name}\nזמן החזקה: ${verifyData.holdTime} שניות\nציון צורה: ${verifyData.avgFormScore}/100`
-    :`תרגיל: ${ex.name}\nחזרות: ${verifyData.reps}\nציון צורה: ${verifyData.avgFormScore}/100`;
-  document.getElementById('verifyDetails').innerHTML=detail.replace(/\n/g,'<br>');
-  document.getElementById('verifyCode').textContent=verifyData.token;
-  document.getElementById('verifyModal').classList.add('show');
-  // Save to localStorage for KALOS app to read
+  // Save
+  const v={ex:currentVariant,name:ex.name,reps:repCount,hold:holdSec,avgForm,pass,token,ts:Date.now()};
   const saved=JSON.parse(localStorage.getItem('kalos_verifications')||'[]');
-  saved.push(verifyData);
-  localStorage.setItem('kalos_verifications',JSON.stringify(saved.slice(-50)));
-}
-function closeVerify(){document.getElementById('verifyModal').classList.remove('show');}
-function copyVerifyCode(){
-  navigator.clipboard?.writeText(verifyData?.token||'').catch(()=>{});
-  addFeedback('good','קוד הועתק לזיכרון!');
+  saved.push(v);localStorage.setItem('kalos_verifications',JSON.stringify(saved.slice(-50)));
+
+  const card=document.getElementById('verdictCard');
+  card.innerHTML=`
+    <div class="verdict-big">${pass?'🏆':'💪'}</div>
+    <div class="verdict-title" style="color:${pass?'var(--success)':'var(--gold)'}">
+      ${pass?'הצלחת!':'המשך לאמן'}
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">${ex.name}</div>
+    <div class="verdict-stats">
+      <div class="verdict-row"><span class="vk">${ex.holdSec?'זמן החזקה':'חזרות'}</span>
+        <span class="vv" style="color:var(--cyan)">${ex.holdSec?holdSec+'s':repCount}</span></div>
+      <div class="verdict-row"><span class="vk">ציון צורה ממוצע</span>
+        <span class="vv" style="color:${avgForm>=75?'var(--success)':avgForm>=55?'var(--gold)':'var(--danger)'}">${avgForm}/100</span></div>
+      <div class="verdict-row"><span class="vk">קריטריון עבר</span>
+        <span class="vv" style="color:${repsOk?'var(--success)':'var(--danger)'}">${repsOk?'✓':'✗'} ${ex.holdSec?`${c.hold||ex.holdSec}s`:c.reps||ex.minReps+' חזרות'}</span></div>
+      <div class="verdict-row"><span class="vk">קריטריון צורה</span>
+        <span class="vv" style="color:${formOk?'var(--success)':'var(--danger)'}">${formOk?'✓':'✗'} מינימום ${c.form||60}</span></div>
+    </div>
+    ${pass?`<div style="background:rgba(0,255,170,.06);border:1px solid rgba(0,255,170,.2);border-radius:7px;padding:10px;margin-bottom:14px;font-size:11px">
+      <div style="color:var(--muted);font-size:9px;letter-spacing:.1em;margin-bottom:5px">קוד אימות</div>
+      <div style="font-family:'Orbitron',monospace;color:var(--success);letter-spacing:.12em" id="vToken">${token}</div>
+    </div>`:''}
+    <div class="verdict-btns">
+      ${pass?`<button onclick="navigator.clipboard?.writeText('${token}');addFb('good','קוד הועתק')" style="flex:1;background:rgba(0,255,170,.12);border:1px solid rgba(0,255,170,.35);color:var(--success);font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px;border-radius:5px;cursor:pointer">📋 העתק קוד</button>`:''}
+      <button onclick="document.getElementById('verdictModal').classList.remove('show')" style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px;border-radius:5px;cursor:pointer">סגור</button>
+    </div>`;
+  document.getElementById('verdictModal').classList.add('show');
 }
 
-/* ============================================================
+/* ================================================================
    INIT
-   ============================================================ */
-buildExGrid();
-// Lazy init pose on first use (don't load until needed)
-document.getElementById('loadingOverlay').style.display='none';
-
-// Resize canvas to match camera wrap
-function resizeCanvas(){
-  const wrap=document.getElementById('camWrap');
-  const canvas=document.getElementById('outputCanvas');
-  canvas.style.width=wrap.offsetWidth+'px';
-  canvas.style.height=wrap.offsetHeight+'px';
-}
-window.addEventListener('resize',resizeCanvas);
-resizeCanvas();
+   ================================================================ */
+buildCatGrid();
 </script>
 </body>
 </html>
