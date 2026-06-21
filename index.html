@@ -588,6 +588,18 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="runner-reps" id="runnerReps"></div>
     </div>
     <div class="runner-desc" id="runnerDesc"></div>
+    <!-- rep logging (shown after each set) -->
+    <div id="repInputScreen" style="display:none;text-align:center;padding:8px 0">
+      <div style="font-family:'Orbitron',monospace;font-size:12px;color:var(--cyan);letter-spacing:.12em;margin-bottom:12px">כמה חזרות עשית?</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px" id="repQuickBtns"></div>
+      <div style="display:flex;gap:8px;justify-content:center;align-items:center">
+        <input id="repFreeInput" type="number" min="0" max="200" placeholder="מספר חופשי"
+          style="width:110px;background:rgba(255,255,255,.06);border:1px solid rgba(0,168,255,.4);border-radius:5px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:14px;color:#eaf6ff;outline:none;text-align:center">
+        <button onclick="confirmReps(parseInt(document.getElementById('repFreeInput').value)||0)"
+          style="background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:12px;padding:9px 16px;border-radius:5px;cursor:pointer">אישור ›</button>
+      </div>
+    </div>
+
     <!-- rest timer (hidden during exercise) -->
     <div id="restScreen" style="display:none;text-align:center">
       <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--muted);letter-spacing:.12em;margin-bottom:12px">מנוחה</div>
@@ -1035,24 +1047,36 @@ function tierFromLevel(lvl){
   return'advanced';
 }
 
+// 4-week periodization phases
+const WEEK_PHASES=[
+  {label:'FOUNDATION',desc:'בניית בסיס',setsOff:0,intensity:'נורמלי'},
+  {label:'PROGRESSIVE',desc:'עליית נפח',setsOff:0,intensity:'מוגבר'},
+  {label:'OVERLOAD',desc:'עומס שיא',setsOff:1,intensity:'מקסימלי'},
+  {label:'DELOAD',desc:'ריקוברי פעיל',setsOff:-1,intensity:'70% עצימות'},
+];
+
 function generateWeeklyPlan(){
   const p=state.profile;
   const days=p.daysPerWeek||3;
   const sessionLen=p.sessionLen||60;
   const goal=p.goalType||'skills';
   const globalTier=tierFromLevel(state.level);
-  // Per-category tiers (computed at onboarding; fallback to global)
   const tiers=p.tiers||{};
   function ct(cat){return tiers[cat]||globalTier;}
-  // Map muscle day index to the relevant category
   const MUSCLE_CAT={0:'pull',1:'push',2:'core',3:'legs',4:'pull',6:'push'};
+
+  // Weekly progression cycle (4-week loop)
+  p.weekNumber=(p.weekNumber||0)+1;
+  const phaseIdx=(p.weekNumber-1)%4;
+  const phase=p.recoveryWeek?{label:'RECOVERY',desc:'שבוע ריקוברי',setsOff:-1,intensity:'קל'}:WEEK_PHASES[phaseIdx];
 
   const cardioOptions=p.cardio||[];
   const wantsCardio=['body','both','weightloss'].includes(goal)&&cardioOptions.length>0&&!cardioOptions.includes('none');
 
   const trainDays=TRAIN_DAY_MAP[days]||TRAIN_DAY_MAP[3];
   const isRecovery=!!p.recoveryWeek;
-  const strengthSets=isRecovery?2:sessionLen<=30?2:sessionLen<=45?3:4;
+  const baseSets=sessionLen<=30?2:sessionLen<=45?3:4;
+  const strengthSets=Math.max(2,baseSets+(isRecovery?-1:0));
   const coreSets=isRecovery?1:sessionLen<=30?1:2;
 
   const weekPlan=DAYS_HE.map((dayName,idx)=>{
@@ -1130,7 +1154,7 @@ function generateWeeklyPlan(){
   });
 
   const weekStart=getWeekStart();
-  state.weeklyPlan={weekStart,days:weekPlan,generated:new Date().toISOString(),tiers,v:PLAN_VERSION};
+  state.weeklyPlan={weekStart,days:weekPlan,generated:new Date().toISOString(),tiers,phase,weekNum:p.weekNumber,v:PLAN_VERSION};
   save();
   return weekPlan;
 }
@@ -1467,6 +1491,19 @@ function renderWorkout(){
   const skillMin=Math.ceil(sLen*40/90);
   const ppMin=Math.ceil(sLen*20/90);
   const muscleMin=Math.ceil(sLen*30/90);
+
+  // Week phase badge
+  const wPlan=state.weeklyPlan||{};
+  const ph=wPlan.phase||{label:'FOUNDATION',desc:'בניית בסיס',intensity:'נורמלי'};
+  const phColor={FOUNDATION:'var(--cyan)',PROGRESSIVE:'var(--gold)',OVERLOAD:'var(--push)',DELOAD:'var(--success)',RECOVERY:'var(--blue)'}[ph.label]||'var(--muted)';
+  html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px">
+    <span style="color:${phColor};letter-spacing:.12em;font-weight:700">${ph.label}</span>
+    <span style="color:var(--muted)">·</span>
+    <span style="color:var(--muted)">${ph.desc}</span>
+    <span style="margin-right:auto;color:${phColor};font-size:9px;letter-spacing:.08em">עצימות: ${ph.intensity}</span>
+    <span style="color:var(--muted);font-size:9px">שבוע ${wPlan.weekNum||1}</span>
+  </div>`;
+
   html+=`<div class="wk-block"><div class="wk-h">🎯 מיומנות · ${skillMin} דקות (המטרות שלך)</div>`;
   if(!state.goals.length){
     html+=`<div class="wk-empty">עדיין לא בחרת מטרות.<br>לך לאחד העצים, פתח תרגיל-חלום ולחץ <b style="color:var(--gold)">🎯 הגדר כמטרה</b>. אפשר עד 2 מטרות.</div>`;
@@ -1560,13 +1597,42 @@ function buildWorkoutQueue(){
     queue.push({name:'בחר מטרה מהעצים',nameEn:'',muscle:'',sets:1,reps:'לחץ על אחד מהטאבים',restType:'base',desc:'לך לעץ PULL/PUSH/BALANCE ובחר תרגיל-חלום כמטרה.',video:null,tag:'🎯'});
   }
 
-  // Strength exercises from library matching today's focus
+  // Phase-based sets offset
+  const phaseIdx=((state.profile.weekNumber||1)-1)%4;
+  const setsOff=state.profile.recoveryWeek?-1:[0,0,1,-1][phaseIdx];
+
+  // Goal-driven exercise selection
+  // Find which tree categories the user's goals belong to
+  const goalCats=new Set();
+  state.goals.forEach(gid=>{
+    for(const t in TREES){if(TREES[t].nodes.find(n=>n.id===gid)){goalCats.add(t);break;}}
+  });
+  // Find exercises needed for the NEXT step of each goal (prerequisite chain)
+  const goalExIds=new Set();
+  state.goals.forEach(gid=>{
+    const step=currentStep(gid);
+    if(!step)return;
+    // The step itself + its requirements that aren't done yet
+    goalExIds.add(step.id);
+    (step.req||[]).forEach(r=>{if(!isDone(r))goalExIds.add(r);});
+  });
+
   const catMap={push:'push',pull:'pull',legs:'balance',cardio:'push'};
-  const cat=catMap[today.focus]||'push';
+  const cat=catMap[today.ppType]||catMap[today.focus]||'push';
   const maxLvl={beginner:4,intermediate:7,advanced:10}[tier];
-  const pool=exByCategory(cat,maxLvl).filter(e=>!['pl_lean','tuck_pl','adv_tuck_pl','full_pl','pl_push','adv_pl_push','fl_tuck','fl_adv','fl_full','fl_pull','adv_fl_pull'].includes(e.id));
-  const picked=pool.sort(()=>Math.random()-.5).slice(0,today.strengthBlock?.length||3);
-  picked.forEach(e=>queue.push({...e,tag:'⚡ כוח'}));
+  const STATIC_SKILLS=['pl_lean','tuck_pl','adv_tuck_pl','full_pl','pl_push','adv_pl_push','fl_tuck','fl_adv','fl_full','fl_pull','adv_fl_pull'];
+  const pool=exByCategory(cat,maxLvl).filter(e=>!STATIC_SKILLS.includes(e.id));
+
+  // Sort: goal-related exercises first, then by level (closest to user's tier), then random
+  const tierLvl={beginner:2,intermediate:5,advanced:9}[tier]||5;
+  pool.sort((a,b)=>{
+    const aGoal=goalExIds.has(a.id)?2:(goalCats.has(a.cat)?1:0);
+    const bGoal=goalExIds.has(b.id)?2:(goalCats.has(b.cat)?1:0);
+    if(bGoal!==aGoal)return bGoal-aGoal;
+    return Math.abs(a.lvl-tierLvl)-Math.abs(b.lvl-tierLvl);
+  });
+  const picked=pool.slice(0,today.strengthBlock?.length||3);
+  picked.forEach(e=>queue.push({...e,sets:Math.max(2,e.sets+setsOff),tag:'⚡ כוח'}));
 
   // Core
   if(today.coreBlock?.length){
@@ -1619,21 +1685,99 @@ function showRunnerExercise(){
 }
 
 function runnerAction(){
+  // Show rep input before proceeding to rest
+  showRepInput();
+}
+
+function parseRepsTarget(repsStr){
+  if(!repsStr)return 0;
+  const m=String(repsStr).match(/(\d+)/);
+  return m?parseInt(m[1]):0;
+}
+
+function showRepInput(){
   const ex=_runner.queue[_runner.exIdx];
+  document.getElementById('runnerBtns').style.display='none';
+  document.getElementById('repInputScreen').style.display='block';
+  document.getElementById('repFreeInput').value='';
+  const target=parseRepsTarget(ex.reps);
+  const opts=target>0
+    ?[Math.max(1,target-3),Math.max(1,target-1),target,target+2,target+5]
+    :[3,5,8,10,15];
+  document.getElementById('repQuickBtns').innerHTML=opts.map(n=>
+    `<button onclick="confirmReps(${n})" style="background:rgba(0,168,255,.15);border:1px solid rgba(0,168,255,.4);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:13px;padding:8px 14px;border-radius:5px;cursor:pointer;min-width:44px">${n}</button>`
+  ).join('')+`<button onclick="confirmReps(999)" style="background:rgba(255,51,85,.12);border:1px solid rgba(255,51,85,.4);color:#ff8099;font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 10px;border-radius:5px;cursor:pointer">מקס 💀</button>`;
+}
+
+function confirmReps(reps){
+  document.getElementById('repInputScreen').style.display='none';
+  document.getElementById('runnerBtns').style.display='flex';
+
+  const ex=_runner.queue[_runner.exIdx];
+  const target=parseRepsTarget(ex.reps);
+  _runner.setLog=_runner.setLog||[];
+  _runner.setLog.push({exId:ex.id||ex.name,exName:ex.name,set:_runner.setIdx,reps:reps===999?target+10:reps,target,beatBy:reps===999?10:reps-target});
+
   const isLastSet=_runner.setIdx+1>=ex.sets;
   const isLastEx=_runner.exIdx+1>=_runner.queue.length;
-
-  if(isLastSet&&isLastEx){
-    finishRunner();return;
-  }
-
-  // Advance set/exercise
+  if(isLastSet&&isLastEx){finishRunner();return;}
   if(isLastSet){_runner.exIdx++;_runner.setIdx=0;}
   else{_runner.setIdx++;}
+  showRest(REST[ex.restType]||90,isLastSet);
+}
 
-  // Show rest
-  const restSec=REST[ex.restType]||90;
-  showRest(restSec,isLastSet);
+function analyzeSetLog(){
+  const log=_runner.setLog||[];
+  if(!log.length)return;
+  // Group by exercise
+  const byEx={};
+  log.forEach(s=>{(byEx[s.exName]=byEx[s.exName]||[]).push(s);});
+  // Track progress: if user beat target on all sets of an exercise, increment counter
+  const prog=state.profile.progressions=state.profile.progressions||{};
+  const msgs=[];
+  Object.entries(byEx).forEach(([name,sets])=>{
+    if(!sets[0].target)return; // no numeric target
+    const allBeat=sets.every(s=>s.beatBy>=2);
+    const avgBeat=sets.reduce((a,s)=>a+s.beatBy,0)/sets.length;
+    if(allBeat){
+      prog[name]=(prog[name]||0)+1;
+      if(prog[name]>=3){
+        msgs.push(`🚀 <b>${name}</b> — עלית על המטרה 3 פעמים ברציפות! הרמה תעלה בשבוע הבא.`);
+        prog[name]=0;
+        // Mark for auto-bump next plan generate
+        state.profile.autoBumps=state.profile.autoBumps||{};
+        state.profile.autoBumps[name]=(state.profile.autoBumps[name]||0)+1;
+      } else {
+        msgs.push(`💪 <b>${name}</b> — כל הסטים מעל המטרה (×${prog[name]}/3 לעלייה)`);
+      }
+    } else if(avgBeat<-1){
+      prog[name]=Math.max(0,(prog[name]||0)-1);
+    }
+  });
+  // Save workout log with set data
+  const todayLog=state.workoutLog&&state.workoutLog.find(l=>l.date===todayStr());
+  if(todayLog)todayLog.setLog=log;
+  save();
+  return msgs;
+}
+
+function finishRunner(){
+  clearInterval(_runner.restTimer);
+  document.getElementById('runnerBackdrop').classList.remove('show');
+  const msgs=analyzeSetLog();
+  logTodayWorkout();
+  if(msgs&&msgs.length){
+    const html=`<div style="position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75)" onclick="this.remove()">
+      <div style="background:#080e22;border:1px solid rgba(0,255,170,.4);border-radius:10px;padding:24px;max-width:340px;width:90%;direction:rtl" onclick="event.stopPropagation()">
+        <div style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:.15em;color:var(--success);margin-bottom:12px">📊 ניתוח ביצועים</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:12px;line-height:2;color:#eaf6ff">${msgs.map(m=>`<div>${m}</div>`).join('')}</div>
+        <button onclick="this.closest('[style*=fixed]').remove()" style="margin-top:16px;width:100%;background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:11px;border-radius:5px;cursor:pointer">מעולה 🔥</button>
+      </div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend',html);
+  } else {
+    flash('אימון הושלם! 🔥');
+  }
 }
 
 function showRest(sec,isLastSet){
@@ -1662,13 +1806,6 @@ function skipRest(){
   clearInterval(_runner.restTimer);
   document.getElementById('runnerMainBtn').style.display='';
   showRunnerExercise();
-}
-
-function finishRunner(){
-  clearInterval(_runner.restTimer);
-  document.getElementById('runnerBackdrop').classList.remove('show');
-  logTodayWorkout();
-  flash('אימון הושלם! 🔥');
 }
 
 function stopRunner(){
