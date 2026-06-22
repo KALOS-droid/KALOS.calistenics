@@ -1366,16 +1366,30 @@ function _buildCardioDistSection(){
   sec.classList.remove('hidden');
   const labels={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'};
   const total=profile1b.cardioDays||2;
-  rows.innerHTML=types.map(t=>`
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+  rows.innerHTML=types.map(t=>{
+    const otherSum=types.filter(x=>x!==t).reduce((s,x)=>s+(profile1b.cardioPerType[x]||0),0);
+    const maxForThis=total-otherSum;
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
       <span style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;min-width:90px">${labels[t]||t}</span>
-      <div class="row" style="flex-wrap:wrap;gap:4px">${[...Array(total+1).keys()].map(n=>`<div class="opt${(profile1b.cardioPerType[t]||0)===n?' sel':''}" onclick="setCardioPerType('${t}',${n},this)" style="padding:4px 10px;font-size:12px"><span class="dot"></span>${n}</div>`).join('')}</div>
-    </div>`).join('');
+      <div class="row" style="flex-wrap:wrap;gap:4px">${[...Array(total+1).keys()].map(n=>{
+        const disabled=n>maxForThis;
+        const sel=(profile1b.cardioPerType[t]||0)===n;
+        return `<div class="opt${sel?' sel':''}" onclick="${disabled?'':'setCardioPerType(\''+t+'\','+n+',this)'}" style="padding:4px 10px;font-size:12px;${disabled?'opacity:.3;cursor:not-allowed;pointer-events:none':''}"><span class="dot"></span>${n}</div>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
 }
 function setCardioPerType(type,n,el){
-  profile1b.cardioPerType[type]=n;
-  el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
-  el.classList.add('sel');
+  const total=profile1b.cardioDays||2;
+  const types=profile1b.cardio.filter(c=>c!=='none');
+  // Sum of all other types
+  const otherSum=types.filter(t=>t!==type).reduce((s,t)=>s+(profile1b.cardioPerType[t]||0),0);
+  // Clamp n so total doesn't exceed cardioDays
+  const allowed=Math.min(n,total-otherSum);
+  if(allowed<0){return;} // can't add more
+  profile1b.cardioPerType[type]=allowed;
+  // Re-render to reflect clamped value and disable impossible options
+  _buildCardioDistSection();
 }
 function setSessionLen(n,el){profile1b.sessionLen=n;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 
