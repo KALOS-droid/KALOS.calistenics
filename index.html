@@ -420,13 +420,53 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       </div>
 
       <div class="qblock">
-        <h3>כמה ימי אימון בשבוע?</h3>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">מתחילים — ממולץ 3 ימים. ניתן להגדיל לפי ההתקדמות.</div>
+        <h3>כמה אימונים בשבוע?</h3>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">מתחילים — מומלץ 3. אפשר עד 10 (כוח + קרדיו ביחד).</div>
+        <div class="row" style="flex-wrap:wrap;gap:6px">
+          <div class="opt" onclick="setDays(2,this)"><span class="dot"></span>2</div>
+          <div class="opt" onclick="setDays(3,this)"><span class="dot"></span>3 ✓</div>
+          <div class="opt" onclick="setDays(4,this)"><span class="dot"></span>4</div>
+          <div class="opt" onclick="setDays(5,this)"><span class="dot"></span>5</div>
+          <div class="opt" onclick="setDays(6,this)"><span class="dot"></span>6</div>
+          <div class="opt" onclick="setDays(7,this)"><span class="dot"></span>7</div>
+          <div class="opt" onclick="setDays(8,this)"><span class="dot"></span>8</div>
+          <div class="opt" onclick="setDays(9,this)"><span class="dot"></span>9</div>
+          <div class="opt" onclick="setDays(10,this)"><span class="dot"></span>10</div>
+        </div>
+      </div>
+
+      <!-- shown when >5 sessions AND cardio goal -->
+      <div id="splitSection" class="hidden">
+        <div style="padding:10px 14px;margin-bottom:8px;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.3);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;line-height:1.6">
+          ⚠️ <b>מעל 6 אימונים בשבוע</b> — חשוב להקשיב לגוף. אם אתה מרגיש עייפות חריגה, קח יום מנוחה. הסיכון לפציעה עולה. KALOS אינה אחראית לפציעות.
+        </div>
+        <div class="qblock">
+          <h3>כמה מתוכם אימוני <span style="color:var(--pull)">כוח</span>?</h3>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">מקסימום 5 אימוני כוח בשבוע.</div>
+          <div class="row" style="flex-wrap:wrap;gap:6px" id="strengthDaysRow"></div>
+        </div>
+        <div class="qblock">
+          <h3>כמה מתוכם אימוני <span style="color:#ff6b35">קרדיו</span>?</h3>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px" id="cardioDaysNote">לפחות 2 קרדיו.</div>
+          <div class="row" style="flex-wrap:wrap;gap:6px" id="cardioDaysRow"></div>
+        </div>
+      </div>
+
+      <!-- cardio per-type distribution (shown when multiple cardio types chosen) -->
+      <div id="cardioDistSection" class="hidden">
+        <div class="qblock">
+          <h3>כמה אימונים לכל סוג קרדיו?</h3>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">חלק את אימוני הקרדיו שבחרת</div>
+          <div id="cardioDistRows"></div>
+        </div>
+      </div>
+
+      <div class="qblock">
+        <h3>מה אתה מעדיף בבוקר?</h3>
         <div class="row">
-          <div class="opt" onclick="setDays(2,this)"><span class="dot"></span>2 ימים</div>
-          <div class="opt" onclick="setDays(3,this)"><span class="dot"></span>3 ימים ✓</div>
-          <div class="opt" onclick="setDays(4,this)"><span class="dot"></span>4 ימים</div>
-          <div class="opt" onclick="setDays(5,this)"><span class="dot"></span>5 ימים</div>
+          <div class="opt" onclick="setMorningType('strength',this)"><span class="dot"></span>💪 כוח בבוקר</div>
+          <div class="opt" onclick="setMorningType('cardio',this)"><span class="dot"></span>🏃 קרדיו בבוקר</div>
+          <div class="opt" onclick="setMorningType('evening',this)"><span class="dot"></span>🌙 הכל בערב</div>
         </div>
       </div>
 
@@ -526,6 +566,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="xp-wrap"><div class="xp-track"><div class="xp-fill" id="xpFill" style="width:0%"></div></div></div>
       <span id="streakBadge" style="display:none;font-family:'Share Tech Mono',monospace;font-size:12px;color:#ff6b35;letter-spacing:.06em;cursor:pointer" onclick="openShare()" title="שתף את ה-streak שלך">🔥 <span id="streakNum">0</span></span>
       <span id="coinsBadge" style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#ffd700;cursor:pointer;letter-spacing:.06em" onclick="openStore();setTimeout(()=>switchStoreTab('rewards'),100)">🪙 0</span>
+      <button onclick="openProfile()" style="background:rgba(0,255,213,.08);border:1px solid rgba(0,255,213,.35);color:#00ffd5;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">👤 פרופיל</button>
       <button onclick="openCheckin()" style="background:rgba(0,168,255,.12);border:1px solid rgba(0,168,255,.5);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">📊 דוח שבועי</button>
       <button class="admin-btn" id="adminBtn" onclick="openAdmin()">🔒 קוד</button>
     </div>
@@ -628,6 +669,25 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
     <div id="treeHelpTitle" style="font-family:'Cinzel',serif;font-size:18px;font-weight:900;color:#eaf6ff;letter-spacing:.1em;margin-bottom:16px"></div>
     <div id="treeHelpBody" style="text-align:right;font-size:14px;color:rgba(255,255,255,.85);line-height:1.75;margin-bottom:22px"></div>
     <button onclick="closeTreeHelp()" style="width:100%;background:linear-gradient(135deg,rgba(139,61,255,.25),rgba(0,168,255,.15));border:1px solid rgba(139,61,255,.5);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:12px;border-radius:8px;cursor:pointer">הבנתי ✔</button>
+  </div>
+</div>
+
+<!-- ============ PROFILE MODAL ============ -->
+<div id="profileBackdrop" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.9);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto" onclick="if(event.target===this)closeProfile()">
+  <div style="width:min(480px,96vw);background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(0,255,213,.3);border-radius:16px;padding:28px 24px;direction:rtl;margin:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:900;color:#eaf6ff;letter-spacing:.1em">👤 פרופיל אישי</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#8b3dff;letter-spacing:.15em;margin-top:2px">PLAYER PROFILE</div>
+      </div>
+      <button onclick="closeProfile()" style="background:none;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer">✕ סגור</button>
+    </div>
+    <div id="profileContent"></div>
+    <!-- Admin: all users list -->
+    <div id="profileAdminSection" style="display:none;margin-top:20px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:.12em;margin-bottom:10px">🗝️ תיקי כל המשתמשים</div>
+      <div id="profileAllUsers"></div>
+    </div>
   </div>
 </div>
 
@@ -1230,7 +1290,7 @@ function exByCategory(cat,maxLvl){return EX.filter(e=>e.cat===cat&&e.lvl<=(maxLv
 /* ============================================================
    STEP 1B — Goals & Schedule helpers
    ============================================================ */
-const profile1b={goal:null,cardio:[],days:3,sessionLen:60,morningCardio:false,femFocus:null};
+const profile1b={goal:null,cardio:[],days:3,sessionLen:60,morningCardio:false,morningType:'evening',femFocus:null,strengthDays:null,cardioDays:null,cardioPerType:{}};
 function setFemFocus(v,el){profile1b.femFocus=v;document.querySelectorAll('[data-femfocus]').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function setGoalType(g,el){
   profile1b.goal=g;
@@ -1238,16 +1298,85 @@ function setGoalType(g,el){
   document.getElementById('cardioSection').classList.toggle('hidden',!needsCardio);
   document.querySelectorAll('[data-goal]').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
+  // refresh split section
+  const n=profile1b.days;
+  const needsSplit=n>5&&needsCardio&&profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
+  document.getElementById('splitSection').classList.toggle('hidden',!needsSplit);
+  if(needsSplit)_buildSplitRows(n);
 }
 function toggleCardio(type,el){
-  if(type==='none'){profile1b.cardio=[];document.querySelectorAll('[data-cardio]').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');return;}
-  const i=profile1b.cardio.indexOf(type);
-  if(i>=0)profile1b.cardio.splice(i,1);else profile1b.cardio.push(type);
-  el.classList.toggle('sel',profile1b.cardio.includes(type));
-  document.querySelector('[data-cardio=none]')?.classList.remove('sel');
+  if(type==='none'){profile1b.cardio=[];document.querySelectorAll('[data-cardio]').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+  else{
+    const i=profile1b.cardio.indexOf(type);
+    if(i>=0)profile1b.cardio.splice(i,1);else profile1b.cardio.push(type);
+    el.classList.toggle('sel',profile1b.cardio.includes(type));
+    document.querySelector('[data-cardio=none]')?.classList.remove('sel');
+  }
+  // refresh split + dist sections
+  const n=profile1b.days;
+  const needsSplit=n>5&&['body','both'].includes(profile1b.goal)&&profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
+  document.getElementById('splitSection').classList.toggle('hidden',!needsSplit);
+  if(needsSplit)_buildSplitRows(n);
+  _buildCardioDistSection();
 }
 function setMorning(v,el){profile1b.morningCardio=v;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
-function setDays(n,el){profile1b.days=n;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function setMorningType(v,el){profile1b.morningType=v;profile1b.morningCardio=(v==='cardio');el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function setDays(n,el){
+  profile1b.days=n;
+  el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  // Show split section only if >5 days AND cardio-capable goal
+  const needsSplit=n>5&&['body','both'].includes(profile1b.goal)&&profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
+  const splitEl=document.getElementById('splitSection');
+  splitEl.classList.toggle('hidden',!needsSplit);
+  if(needsSplit)_buildSplitRows(n);
+  // Also refresh cardio dist section
+  _buildCardioDistSection();
+}
+function _buildSplitRows(total){
+  const maxStr=Math.min(5,total-2); // at least 2 cardio
+  const minStr=Math.max(1,total-7); // at most 7 cardio (one per day)
+  // Strength row
+  const sr=document.getElementById('strengthDaysRow');
+  sr.innerHTML='';
+  for(let i=minStr;i<=maxStr;i++){
+    const d=document.createElement('div');
+    d.className='opt'+(profile1b.strengthDays===i?' sel':'');
+    d.innerHTML=`<span class="dot"></span>${i}`;
+    d.onclick=(function(n,el){return()=>{profile1b.strengthDays=n;profile1b.cardioDays=profile1b.days-n;sr.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');_updateCardioDaysRow(profile1b.days);_buildCardioDistSection();};})(i,d);
+    sr.appendChild(d);
+  }
+  _updateCardioDaysRow(total);
+}
+function _updateCardioDaysRow(total){
+  const cr=document.getElementById('cardioDaysRow');
+  const note=document.getElementById('cardioDaysNote');
+  if(!cr)return;
+  const sdays=profile1b.strengthDays||Math.min(5,total-2);
+  const cdays=total-sdays;
+  profile1b.cardioDays=cdays;
+  note.textContent=`קרדיו: ${cdays} אימונים (סה"כ ${total})`;
+  cr.innerHTML=`<div class="opt sel" style="pointer-events:none"><span class="dot"></span>${cdays} קרדיו</div>`;
+}
+function _buildCardioDistSection(){
+  const sec=document.getElementById('cardioDistSection');
+  const rows=document.getElementById('cardioDistRows');
+  const types=profile1b.cardio.filter(c=>c!=='none');
+  if(types.length<2||profile1b.cardioDays<1){sec.classList.add('hidden');return;}
+  sec.classList.remove('hidden');
+  const labels={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'};
+  const total=profile1b.cardioDays||2;
+  rows.innerHTML=types.map(t=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;min-width:90px">${labels[t]||t}</span>
+      <div class="row" style="flex-wrap:wrap;gap:4px">${[...Array(total+1).keys()].map(n=>`<div class="opt${(profile1b.cardioPerType[t]||0)===n?' sel':''}" onclick="setCardioPerType('${t}',${n},this)" style="padding:4px 10px;font-size:12px"><span class="dot"></span>${n}</div>`).join('')}</div>
+    </div>`).join('');
+}
+function setCardioPerType(type,n,el){
+  profile1b.cardioPerType[type]=n;
+  el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+}
 function setSessionLen(n,el){profile1b.sessionLen=n;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 
 const TREES={
@@ -1421,87 +1550,146 @@ const WEEK_PHASES=[
 
 function generateWeeklyPlan(){
   const p=state.profile;
-  const days=p.daysPerWeek||3;
   const sessionLen=p.sessionLen||60;
   const goal=p.goalType||'skills';
-  const femFocus=p.femFocus||null; // 'lower' | 'upper' | 'full' | null
+  const femFocus=p.femFocus||null;
   const globalTier=tierFromLevel(state.level);
   const tiers=p.tiers||{};
   function ct(cat){return tiers[cat]||globalTier;}
-  // femFocus adjusts muscle day mapping: lower→more legs, upper→more push/pull
+
+  // Weekly progression cycle
+  p.weekNumber=(p.weekNumber||0)+1;
+  const phaseIdx=(p.weekNumber-1)%4;
+  const phase=p.recoveryWeek?{label:'RECOVERY',desc:'שבוע ריקוברי',setsOff:-1,intensity:'קל'}:WEEK_PHASES[phaseIdx];
+  const isRecovery=!!p.recoveryWeek;
+
+  const cardioOptions=(p.cardio||[]).filter(c=>c!=='none');
+  const wantsCardio=['body','both'].includes(goal)&&cardioOptions.length>0;
+
+  // ---------- Determine strength / cardio day counts ----------
+  const totalSessions=p.daysPerWeek||3;
+  let strengthDayCount,cardioDayCount;
+  if(!wantsCardio){
+    strengthDayCount=Math.min(totalSessions,5);
+    cardioDayCount=0;
+  } else if(p.strengthDays!=null){
+    strengthDayCount=Math.min(p.strengthDays,5);
+    cardioDayCount=p.cardioDays!=null?p.cardioDays:totalSessions-strengthDayCount;
+  } else {
+    // auto-split by total
+    if(totalSessions<=3){strengthDayCount=totalSessions;cardioDayCount=0;}
+    else if(totalSessions===4){strengthDayCount=3;cardioDayCount=1;}
+    else{strengthDayCount=3;cardioDayCount=Math.min(totalSessions-3,4);}
+  }
+  strengthDayCount=Math.max(1,Math.min(strengthDayCount,5));
+  cardioDayCount=Math.max(0,cardioDayCount);
+  const injuryWarning=(strengthDayCount+cardioDayCount)>6;
+
+  // ---------- Build day schedule ----------
+  // Map each unique-session slot to a weekday index
+  const ALL_DAY_MAP={1:[0],2:[0,3],3:[0,2,4],4:[0,1,3,4],5:[0,1,2,3,6],6:[0,1,2,3,4,6],7:[0,1,2,3,4,5,6]};
+  const uniqueDays=Math.min(strengthDayCount+cardioDayCount,7);
+  const trainDays=ALL_DAY_MAP[uniqueDays]||ALL_DAY_MAP[7];
+
+  // Assign each slot as 'strength' or 'cardio'
+  // Strategy: interleave so rest is distributed. Strength days take priority (first 2, then alternate)
+  const assignment=[];
+  let sc=0,cc=0;
+  for(let i=0;i<trainDays.length;i++){
+    if(sc<strengthDayCount&&(cc>=cardioDayCount||sc<=cc)){
+      assignment.push('strength');sc++;
+    } else if(cc<cardioDayCount){
+      assignment.push('cardio');cc++;
+    } else{
+      assignment.push('strength');sc++;
+    }
+  }
+
+  // Sets per session (based on time)
+  const baseSets=sessionLen<=30?2:sessionLen<=45?3:4;
+  const strengthSets=Math.max(2,baseSets+(isRecovery?-1:0));
+
+  // femFocus muscle rotation
   const MUSCLE_CAT=femFocus==='lower'
     ?{0:'legs',1:'push',2:'core',3:'legs',4:'pull',6:'legs'}
     :femFocus==='upper'
     ?{0:'pull',1:'push',2:'core',3:'push',4:'pull',6:'core'}
     :{0:'pull',1:'push',2:'core',3:'legs',4:'pull',6:'push'};
 
-  // Weekly progression cycle (4-week loop)
-  p.weekNumber=(p.weekNumber||0)+1;
-  const phaseIdx=(p.weekNumber-1)%4;
-  const phase=p.recoveryWeek?{label:'RECOVERY',desc:'שבוע ריקוברי',setsOff:-1,intensity:'קל'}:WEEK_PHASES[phaseIdx];
+  // Track which cardio type to use (cycle through user's list, respecting cardioPerType counts)
+  const cardioPerType=p.cardioPerType||{};
+  // Build ordered cardio queue respecting per-type counts
+  let cardioQueue=[];
+  if(cardioOptions.length>0){
+    const hasPerType=Object.values(cardioPerType).some(v=>v>0);
+    if(hasPerType){
+      cardioOptions.forEach(t=>{const n=cardioPerType[t]||0;for(let i=0;i<n;i++)cardioQueue.push(t);});
+      // fill remaining slots
+      while(cardioQueue.length<cardioDayCount){cardioQueue.push(cardioOptions[cardioQueue.length%cardioOptions.length]);}
+    } else {
+      // distribute evenly
+      for(let i=0;i<cardioDayCount;i++)cardioQueue.push(cardioOptions[i%cardioOptions.length]);
+    }
+  }
+  let cardioQueueIdx=0;
 
-  const cardioOptions=p.cardio||[];
-  const wantsCardio=['body','both'].includes(goal)&&cardioOptions.length>0&&!cardioOptions.includes('none');
+  // Track push/pull cycle across strength days
+  let strengthSessionIdx=0;
 
-  const trainDays=TRAIN_DAY_MAP[days]||TRAIN_DAY_MAP[3];
-  const isRecovery=!!p.recoveryWeek;
-  const baseSets=sessionLen<=30?2:sessionLen<=45?3:4;
-  const strengthSets=Math.max(2,baseSets+(isRecovery?-1:0));
-  const coreSets=isRecovery?1:sessionLen<=30?1:2;
+  const CARDIO_LABELS={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'};
 
   const weekPlan=DAYS_HE.map((dayName,idx)=>{
     const trainIdx=trainDays.indexOf(idx);
     if(trainIdx===-1)return{type:'rest',day:dayName,label:'מנוחה — ריקוברי 💤'};
 
-    const isCardioDay=wantsCardio&&trainIdx%2===1&&cardioOptions.length>0;
-    if(isCardioDay){
-      const cardioType=cardioOptions[trainIdx%cardioOptions.length];
+    const slotType=assignment[trainIdx];
+
+    // ===== CARDIO DAY — pure cardio, no strength =====
+    if(slotType==='cardio'){
+      const cardioType=cardioQueue[cardioQueueIdx++]||cardioOptions[0]||'running';
       const cardioExercises=CARDIO_OPTIONS[cardioType]||[];
       return{
         type:'cardio',day:dayName,focus:'cardio',
-        label:`קרדיו · ${{running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'}[cardioType]||cardioType}`,
-        cardioBlock:cardioExercises.slice(0,2),
-        strengthBlock:(MUSCLE_POOL_BW[3][ct('legs')]||MUSCLE_POOL_BW[3].beginner).slice(0,strengthSets-1),
-        coreBlock:(MUSCLE_POOL_BW[2][ct('core')]||MUSCLE_POOL_BW[2].beginner).slice(0,coreSets),
+        label:`🏃 קרדיו · ${CARDIO_LABELS[cardioType]||cardioType}`,
+        cardioType,
+        cardioBlock:cardioExercises,
+        ppBlock:[],strengthBlock:[],coreBlock:[],
       };
     }
 
-    const muscle=MUSCLE_SCHEDULE[idx];
+    // ===== STRENGTH DAY — 3 phases =====
+    const sIdx=strengthSessionIdx++;
+    const muscle=MUSCLE_SCHEDULE[idx]||{name:'כוח',emoji:'💪'};
     const muscleCat=MUSCLE_CAT[idx]||'push';
     const muscleTier=ct(muscleCat);
     const wantsWeights=['body','both'].includes(goal);
     const musclePool=(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[idx]?.[muscleTier]
       ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[idx]?.[globalTier]
-      ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[1][globalTier];
+      ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[1]?.[globalTier]
+      ||[];
 
-    const ppType=trainIdx%2===0?'push':'pull';
+    // Phase 2: push/pull alternation
+    const ppType=sIdx%2===0?'push':'pull';
     const ppTier=ct(ppType);
-
-    // Detect "maxed out" — user hit ceiling of bodyweight, needs weighted progression
-    const pullMaxed=(tiers.pullRaw||0)>=4;  // answered "10+ pullups"
-    const pushMaxed=(tiers.pushRaw||0)>=4;  // answered "30+ pushups"
-    const dipsMaxed=(tiers.dipsRaw||0)>=4;  // answered "15+ dips"
+    const pullMaxed=(tiers.pullRaw||0)>=4;
+    const pushMaxed=(tiers.pushRaw||0)>=4;
+    const dipsMaxed=(tiers.dipsRaw||0)>=4;
     const isMaxed=(ppType==='pull'&&pullMaxed)||(ppType==='push'&&(pushMaxed||dipsMaxed));
 
-    let ppBlock, needsWeight=false;
+    let ppBlock,needsWeight=false;
     if(isMaxed){
-      // Hybrid: 2 weighted sets (strength) + 2 BW max sets (volume)
       needsWeight=true;
-      if(ppType==='pull'){
-        ppBlock=[
-          ['מתח עם חגורת משקל 🏋️','2×3-5 (בחר משקל שקשה ב-5)'],
-          ['מתח עם חגורת משקל 🏋️','2×3-5'],
-          ['מתח — מקס חזרות','מקס (ללא מנוחה באמצע)'],
-          ['מתח — מקס חזרות','מקס (זה הסט האחרון, תמות)'],
-        ];
-      } else {
-        ppBlock=[
-          ['מקבילים עם חגורת משקל 🏋️','2×4-6'],
-          ['מקבילים עם חגורת משקל 🏋️','2×4-6'],
-          ['שכיבות — מקס חזרות','מקס ללא הפסקה'],
-          ['שכיבות — מקס חזרות','מקס (אחרון — שבור אותו)'],
-        ];
-      }
+      ppBlock=ppType==='pull'?[
+        ['מתח עם חגורת משקל 🏋️','2×3-5'],
+        ['מתח עם חגורת משקל 🏋️','2×3-5'],
+        ['מתח — מקס חזרות','מקס'],
+        ['מתח — מקס חזרות','מקס (סט אחרון)'],
+      ]:[
+        ['מקבילים עם חגורת משקל 🏋️','2×4-6'],
+        ['מקבילים עם חגורת משקל 🏋️','2×4-6'],
+        ['שכיבות — מקס חזרות','מקס'],
+        ['שכיבות — מקס חזרות','מקס (אחרון)'],
+      ];
     } else {
       const ppPool=PUSH_PULL_POOL[ppType][ppTier]||PUSH_PULL_POOL[ppType].beginner;
       ppBlock=ppPool.slice(0,Math.min(3,strengthSets));
@@ -1509,22 +1697,24 @@ function generateWeeklyPlan(){
 
     return{
       type:'train',day:dayName,focus:idx,
-      label:`מיומנות + ${ppType==='push'?'PUSH':'PULL'} + ${muscle.name}`,
+      label:`💪 כוח · ${ppType==='push'?'PUSH':'PULL'} + ${muscle.name}`,
       muscleName:muscle.name,
       muscleEmoji:muscle.emoji,
-      ppType,
-      ppTier,
-      muscleTier,
-      needsWeight,
+      ppType,ppTier,muscleTier,needsWeight,
       ppBlock,
       strengthBlock:musclePool.slice(0,strengthSets),
-      coreBlock:[],
-      cardioBlock:[],
+      coreBlock:[],cardioBlock:[],
     };
   });
 
   const weekStart=getWeekStart();
-  state.weeklyPlan={weekStart,days:weekPlan,generated:new Date().toISOString(),tiers,phase,weekNum:p.weekNumber,v:PLAN_VERSION};
+  state.weeklyPlan={
+    weekStart,days:weekPlan,
+    generated:new Date().toISOString(),
+    tiers,phase,weekNum:p.weekNumber,
+    v:PLAN_VERSION,
+    injuryWarning,strengthDayCount,cardioDayCount,
+  };
   save();
   return weekPlan;
 }
@@ -1539,7 +1729,7 @@ function getWeekStart(){
 function formatDate(d){return d instanceof Date?d.toISOString().slice(0,10):d;}
 function todayStr(){return formatDate(new Date());}
 
-const PLAN_VERSION=5;
+const PLAN_VERSION=6;
 
 /* ============================================================
    ACHIEVEMENTS + COINS
@@ -1888,6 +2078,10 @@ function _finishQuiz(){
     daysPerWeek:profile1b.days,
     sessionLen:profile1b.sessionLen,
     morningCardio:profile1b.morningCardio,
+    morningType:profile1b.morningType||'evening',
+    strengthDays:profile1b.strengthDays,
+    cardioDays:profile1b.cardioDays,
+    cardioPerType:profile1b.cardioPerType||{},
     tiers:_computedTiers,
   };
   generateWeeklyPlan();
@@ -1899,6 +2093,81 @@ function _finishQuiz(){
   goStep(3);chime();
 }
 function titleFor(l){if(l<=10)return'Beginner 🟢';if(l<=20)return'Foundation 🔵';if(l<=30)return'Advanced 🟡';if(l<=40)return'Elite 🟠';return'Legendary 🔴';}
+
+/* ---- Profile modal ---- */
+function openProfile(){
+  const el=document.getElementById('profileBackdrop');
+  el.style.display='flex';
+  _renderProfileContent();
+}
+function closeProfile(){document.getElementById('profileBackdrop').style.display='none';}
+
+function _renderProfileContent(){
+  const p=state.profile;
+  const GOAL_LABELS={skills:'🏆 תרגילים מגניבים',body:'💪 גוף חטוב + ירידה בשומן',both:'⚡ גם וגם'};
+  const CARDIO_LABELS={running:'ריצה 🏃',walking:'הליכה מהירה 🚶',stairs:'מדרגות 🪜',bike:'אופניים 🚴',pool:'שחייה 🏊',jump:'קפיצה בחבל 🪢',tennis:'טניס 🎾'};
+  const MORNING_LABELS={strength:'כוח בבוקר 💪',cardio:'קרדיו בבוקר 🏃',evening:'הכל בערב 🌙'};
+  const FEM_LABELS={lower:'פלג תחתון 🍑',full:'כל הגוף 💪',upper:'פלג עליון + ליבה 👙'};
+
+  const wPlan=state.weeklyPlan||{};
+  const goals=state.goals||[];
+
+  function row(label,val){return val?`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)"><span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted)">${label}</span><span style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;text-align:left">${val}</span></div>`:''; }
+
+  const cardioList=(p.cardio||[]).filter(c=>c!=='none').map(c=>CARDIO_LABELS[c]||c).join(', ')||'—';
+  const goalNames=goals.map(gid=>{const n=nodeById(gid);return n?n.name:'';}).filter(Boolean).join(' + ')||'לא נבחרו עדיין';
+  const tierObj=p.tiers||{};
+  const tierLine=[['PULL',tierObj.pull],['PUSH',tierObj.push],['CORE',tierObj.core],['LEGS',tierObj.legs]].filter(([,v])=>v).map(([k,v])=>`${k}: ${v}`).join(' · ')||'—';
+
+  document.getElementById('profileContent').innerHTML=`
+    <div style="background:rgba(0,255,213,.05);border:1px solid rgba(0,255,213,.2);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ffd5;letter-spacing:.15em;margin-bottom:10px">פרטים אישיים</div>
+      ${row('שם',`${p.first||''} ${p.last||''}`.trim()||'—')}
+      ${row('גיל',p.age?`${p.age} שנים`:'')}
+      ${row('גובה',p.height?`${p.height} ס"מ`:'')}
+      ${row('משקל',p.weight?`${p.weight} ק"ג`:'')}
+      ${row('מגדר',p.gender||'—')}
+    </div>
+    <div style="background:rgba(139,61,255,.05);border:1px solid rgba(139,61,255,.2);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#8b3dff;letter-spacing:.15em;margin-bottom:10px">תוכנית אימונים</div>
+      ${row('מטרה',GOAL_LABELS[p.goalType]||p.goalType||'—')}
+      ${p.femFocus?row('פוקוס',FEM_LABELS[p.femFocus]||p.femFocus):''}
+      ${row('ימי אימון',p.daysPerWeek?`${p.daysPerWeek} בשבוע`:'')}
+      ${row('כוח / קרדיו',wPlan.strengthDayCount!=null?`${wPlan.strengthDayCount} כוח + ${wPlan.cardioDayCount||0} קרדיו`:'אוטומטי')}
+      ${row('זמן לאימון',p.sessionLen?`${p.sessionLen} דקות`:'')}
+      ${row('העדפת בוקר',MORNING_LABELS[p.morningType]||'—')}
+      ${row('קרדיו',cardioList)}
+    </div>
+    <div style="background:rgba(0,168,255,.05);border:1px solid rgba(0,168,255,.2);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#00a8ff;letter-spacing:.15em;margin-bottom:10px">רמה וכישורים</div>
+      ${row('רמה',`LV.${state.level} · ${titleFor(state.level)}`)}
+      ${row('XP',`${state.xp} XP`)}
+      ${row('רמות שריר',tierLine)}
+      ${row('מטרות עץ',goalNames)}
+      ${row('אימונים שהושלמו',`${(state.workoutLog||[]).length}`)}
+      ${row('סטריק',`${state.streak?.current||0} ימים 🔥`)}
+    </div>
+    ${wPlan.injuryWarning?`<div style="padding:10px 14px;background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.4);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;line-height:1.6;margin-bottom:12px">⚠️ אתה מתאמן/ת ${(wPlan.strengthDayCount||0)+(wPlan.cardioDayCount||0)} פעמים בשבוע — זה הרבה. הקשב/י לגוף ואם אתה/ה זקוק/ה ליום מנוחה — קח/י אחד. KALOS אינה אחראית לפציעות.</div>`:''}
+    <button onclick="closeProfile()" style="width:100%;background:rgba(0,255,213,.1);border:1px solid rgba(0,255,213,.3);color:#00ffd5;font-family:'Share Tech Mono',monospace;font-size:13px;padding:11px;border-radius:8px;cursor:pointer">סגור ✔</button>
+  `;
+
+  // Admin: load all users and show their profiles
+  const adminSec=document.getElementById('profileAdminSection');
+  if(state.admin){
+    adminSec.style.display='block';
+    getUsers().then(users=>{
+      document.getElementById('profileAllUsers').innerHTML=users.map(u=>`
+        <div style="background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.15);border-radius:8px;padding:10px 14px;margin-bottom:8px">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);margin-bottom:6px">${u.name||u.email}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8">
+            ${u.email} · נרשם ${u.joinDate?new Date(u.joinDate).toLocaleDateString('he-IL'):'—'}
+          </div>
+        </div>`).join('');
+    });
+  } else {
+    adminSec.style.display='none';
+  }
+}
 
 /* ---- Tutorial popup ---- */
 function maybeShowTutorial(){
@@ -2045,53 +2314,58 @@ function renderWorkout(){
     <span style="color:var(--muted);font-size:9px">שבוע ${wPlan.weekNum||1}</span>
   </div>`;
 
-  html+=`<div class="wk-block"><div class="wk-h">🎯 מיומנות · ${skillMin} דקות (המטרות שלך)</div>`;
-  if(!state.goals.length){
-    html+=`<div class="wk-empty">עדיין לא בחרת מטרות.<br>לך לאחד העצים, פתח תרגיל-חלום ולחץ <b style="color:var(--gold)">🎯 הגדר כמטרה</b>. אפשר עד 2 מטרות.</div>`;
-  }else{
-    state.goals.forEach(gid=>{
-      const goal=nodeById(gid),step=currentStep(gid);
-      if(!step){html+=`<div class="wk-ex done">✓ ${goal.name} — הושג! בחר מטרה חדשה.</div>`;}
-      else{const vid=content.videos[step.id];
-        html+=`<div class="wk-ex skill" onclick="openNode(nodeById('${step.id}'))">
-          <div><div class="wk-ex-name">${step.icon} ${step.name} ${vid?'🎬':''}</div><div class="wk-ex-sub">לקראת: ${goal.name}</div></div>
-          <span class="wk-sets">${step.pre||step.cond}</span></div>`;}
-    });
-  }
-  html+=`</div>`;
-
-  // Cardio block (if cardio day)
-  if(today.type==='cardio'&&today.cardioBlock?.length){
-    html+=`<div class="wk-block"><div class="wk-h">🏃 קרדיו · ${today.label.split('·')[1]?.trim()||'קרדיו'}</div>`;
-    today.cardioBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
-    html+=`</div>`;
+  // Injury warning for high-frequency plans
+  if(wPlan.injuryWarning){
+    html+=`<div style="margin:0 14px 10px;padding:9px 12px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.35);border-radius:7px;font-family:'Share Tech Mono',monospace;font-size:10px;color:#ff6b35;line-height:1.6">⚠️ ${(wPlan.strengthDayCount||0)+(wPlan.cardioDayCount||0)} אימונים בשבוע — הקשב/י לגוף. יום מנוחה בחינם תמיד.</div>`;
   }
 
-  // Push/Pull calisthenics block (20 min)
-  if(today.ppBlock?.length){
-    const ppLabel=today.ppType==='push'?'PUSH · דחיפה 💪':'PULL · משיכה 🔗';
-    html+=`<div class="wk-block"><div class="wk-h" style="color:${today.ppType==='push'?'var(--push)':'var(--pull)'}">⚡ ${ppLabel} · ${ppMin} דקות`;
-    if(today.needsWeight)html+=` <span style="font-size:10px;background:rgba(139,61,255,.25);color:#c8a4ff;padding:2px 7px;border-radius:3px;margin-right:6px;letter-spacing:.05em">HYBRID MODE</span>`;
+  if(today.type==='cardio'){
+    // ===== CARDIO DAY: pure cardio only =====
+    html+=`<div class="wk-block"><div class="wk-h" style="color:#ff6b35">🏃 ${today.label}</div>`;
+    (today.cardioBlock||[]).forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
     html+=`</div>`;
-    today.ppBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
-    if(today.needsWeight){
-      html+=`<div style="margin:10px 0 4px;padding:10px 12px;background:linear-gradient(135deg,rgba(139,61,255,.15),rgba(0,168,255,.1));border:1px solid rgba(139,61,255,.4);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#c8a4ff;line-height:1.6">
-          🏋️ <b>הגעת לתקרת משקל הגוף</b><br>
-          <span style="color:var(--muted);font-size:10px">כדי להמשיך להתקדם — אתה צריך חגורת משקל / בגד עם כיסים / קטלבל</span>
-        </div>
-        <a href="#store" style="flex-shrink:0;background:var(--violet2);color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px 12px;border-radius:4px;text-decoration:none;letter-spacing:.08em;white-space:nowrap">🛒 חנות KALOS</a>
-      </div>`;
+  } else {
+    // ===== STRENGTH DAY: 3 phases =====
+
+    // Phase 1 — Skills (from user's goal nodes)
+    html+=`<div class="wk-block"><div class="wk-h">🎯 שלב 1 · מיומנות · ${skillMin} דקות</div>`;
+    if(!state.goals.length){
+      html+=`<div class="wk-empty">עדיין לא בחרת מטרות.<br>לך לעץ PULL/PUSH/BALANCE ולחץ <b style="color:var(--gold)">🎯 הגדר כמטרה</b>.</div>`;
+    } else {
+      state.goals.forEach(gid=>{
+        const goal=nodeById(gid),step=currentStep(gid);
+        if(!step){html+=`<div class="wk-ex done">✓ ${goal.name} — הושג! בחר מטרה חדשה.</div>`;}
+        else{const vid=content.videos[step.id];
+          html+=`<div class="wk-ex skill" onclick="openNode(nodeById('${step.id}'))">
+            <div><div class="wk-ex-name">${step.icon} ${step.name} ${vid?'🎬':''}</div><div class="wk-ex-sub">לקראת: ${goal.name}</div></div>
+            <span class="wk-sets">${step.pre||step.cond}</span></div>`;}
+      });
     }
     html+=`</div>`;
-  }
 
-  // Muscle-specific block (30 min)
-  if(today.strengthBlock?.length){
-    html+=`<div class="wk-block"><div class="wk-h">🎯 שריר · ${today.muscleName||'כוח'} · ${muscleMin} דקות</div>`;
-    today.strengthBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
-    html+=`</div>`;
-  }
+    // Phase 2 — Main strength (Push/Pull)
+    if(today.ppBlock?.length){
+      const ppLabel=today.ppType==='push'?'PUSH · דחיפה 💪':'PULL · משיכה 🔗';
+      html+=`<div class="wk-block"><div class="wk-h" style="color:${today.ppType==='push'?'var(--push)':'var(--pull)'}">⚡ שלב 2 · ${ppLabel} · ${ppMin} דקות`;
+      if(today.needsWeight)html+=` <span style="font-size:10px;background:rgba(139,61,255,.25);color:#c8a4ff;padding:2px 7px;border-radius:3px;margin-right:6px;letter-spacing:.05em">HYBRID MODE</span>`;
+      html+=`</div>`;
+      today.ppBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+      if(today.needsWeight){
+        html+=`<div style="margin:10px 0 4px;padding:10px 12px;background:linear-gradient(135deg,rgba(139,61,255,.15),rgba(0,168,255,.1));border:1px solid rgba(139,61,255,.4);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#c8a4ff;line-height:1.6">🏋️ <b>הגעת לתקרת משקל הגוף</b><br><span style="color:var(--muted);font-size:10px">כדי להמשיך — צריך חגורת משקל / קטלבל</span></div>
+          <a href="#store" style="flex-shrink:0;background:var(--violet2);color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px 12px;border-radius:4px;text-decoration:none;letter-spacing:.08em;white-space:nowrap">🛒 חנות KALOS</a>
+        </div>`;
+      }
+      html+=`</div>`;
+    }
+
+    // Phase 3 — Muscle-specific volume
+    if(today.strengthBlock?.length){
+      html+=`<div class="wk-block"><div class="wk-h">🏋️ שלב 3 · שריר · ${today.muscleName||'כוח'} · ${muscleMin} דקות</div>`;
+      today.strengthBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+      html+=`</div>`;
+    }
+  } // end strength day
 
   // Protein tip for body/weightloss goals
   if(['body','both','weightloss'].includes(state.profile.goalType)&&state.profile.weight){
