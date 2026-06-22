@@ -379,6 +379,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       </div>
       <div class="field"><label>מין</label>
         <select id="r_gender"><option value="">בחר…</option><option>זכר</option><option>נקבה</option></select></div>
+      <div id="step1Err" style="display:none;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger);margin:6px 0 4px;text-align:center"></div>
       <button class="btn" onclick="goStep('1b')">המשך ›</button>
     </div>
   </div>
@@ -1680,7 +1681,25 @@ function goStep(n){
   if(n==='D'){document.getElementById('stepD').classList.add('active');return;}
   if(n==='1b'){
     const first=document.getElementById('r_first').value.trim();
-    if(!first){alert('נא להכניס שם פרטי');goStep(1);return;}
+    const age=parseInt(document.getElementById('r_age').value)||0;
+    const weight=parseFloat(document.getElementById('r_weight').value)||0;
+    const height=parseInt(document.getElementById('r_height').value)||0;
+    const gender=document.getElementById('r_gender').value;
+    const err=document.getElementById('step1Err');
+    const show=msg=>{err.textContent=msg;err.style.display='block';goStep(1);};
+    if(!first){show('נא להכניס שם פרטי');return;}
+    if(!gender){show('נא לבחור מין');return;}
+    if(!age){show('נא להכניס גיל');return;}
+    if(age<8||age>100){show('גיל חייב להיות בין 8 ל-100');return;}
+    if(!weight){show('נא להכניס משקל');return;}
+    if(weight<20||weight>300){show('משקל חייב להיות בין 20 ל-300 ק"ג');return;}
+    if(!height){show('נא להכניס גובה');return;}
+    if(height<100||height>230){show('גובה חייב להיות בין 100 ל-230 ס"מ');return;}
+    // Logic cross-checks
+    if(age<10&&height>150){show('גיל וגובה לא תואמים — בדוק שוב');return;}
+    if(age<14&&weight>90){show('גיל ומשקל לא תואמים — בדוק שוב');return;}
+    if(height<130&&weight>100){show('גובה ומשקל לא הגיוניים יחד — בדוק שוב');return;}
+    err.style.display='none';
     document.getElementById('step1b').classList.add('active');
     document.getElementById('intro').scrollTo({top:0,behavior:'smooth'});
     return;
