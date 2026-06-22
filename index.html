@@ -393,9 +393,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="qblock">
         <h3>מה המטרה העיקרית שלך?</h3>
         <div class="opt" data-goal="skills" onclick="setGoalType('skills',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">🏆 תרגילים מגניבים</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">פלאנץ, מתח יד אחת, עמידת ידיים — הדברים שגורמים לאנשים לצלם אותך</div></div></div>
-        <div class="opt" data-goal="body" onclick="setGoalType('body',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">💪 גוף חטוב ושרירי</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">אסתטיקה, שרירים, אחוזי שומן נמוכים — מראה שמדבר בעד עצמו</div></div></div>
-        <div class="opt" data-goal="both" onclick="setGoalType('both',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">⚡ גם וגם</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">תרגילים מגניבים + גוף חטוב — הכל</div></div></div>
-        <div class="opt" data-goal="weightloss" onclick="setGoalType('weightloss',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">🔥 ירידה במשקל</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">לשרוף שומן ולהיכנס לכושר — קרדיו + קליסטניקס</div></div></div>
+        <div class="opt" data-goal="body" onclick="setGoalType('body',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">💪 גוף חטוב + ירידה בשומן</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">אסתטיקה, שרירים, אחוזי שומן נמוכים — מראה שמדבר בעד עצמו</div></div></div>
+        <div class="opt" data-goal="both" onclick="setGoalType('both',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">⚡ גם וגם</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">תרגילים מגניבים + גוף חטוב + ירידה בשומן — הכל</div></div></div>
       </div>
 
       <div id="cardioSection" class="hidden">
@@ -438,6 +437,26 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 
       <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
         <button class="btn ghost" onclick="goStep(1)" style="flex-shrink:0">‹ חזור</button>
+        <button class="btn" onclick="goStep('1c')">המשך למבחן הרמה ›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- step 1c: female body focus (only shown for נקבה + body/both goal) -->
+  <div class="step" id="step1c">
+    <div class="sys-card">
+      <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
+      <div class="sys-diamonds"><span class="diamond"></span><span class="sys-title">TRAINING PROFILE</span><span class="diamond"></span></div>
+      <div class="sys-divider"></div>
+      <div class="qblock">
+        <h3>מה האזור שהכי חשוב לך?</h3>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:12px">האימון יותאם לך בהתאם לבחירה</div>
+        <div class="opt" data-femfocus="lower" onclick="setFemFocus('lower',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">🍑 פלג תחתון בעיקר</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">ישבן, ירכיים, רגליים — עם חיזוק ליבה ופלג עליון תומך</div></div></div>
+        <div class="opt" data-femfocus="full" onclick="setFemFocus('full',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">💪 כל הגוף באיזון</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">חלוקה שווה — פלג עליון, ליבה ופלג תחתון</div></div></div>
+        <div class="opt" data-femfocus="upper" onclick="setFemFocus('upper',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">👙 פלג עליון + ליבה</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">זרועות, כתפיים, גב וליבה — עם רגליים תומכות</div></div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+        <button class="btn ghost" onclick="goStep('1b')" style="flex-shrink:0">‹ חזור</button>
         <button class="btn" onclick="goStep(2)">המשך למבחן הרמה ›</button>
       </div>
     </div>
@@ -1176,7 +1195,8 @@ function exByCategory(cat,maxLvl){return EX.filter(e=>e.cat===cat&&e.lvl<=(maxLv
 /* ============================================================
    STEP 1B — Goals & Schedule helpers
    ============================================================ */
-const profile1b={goal:null,cardio:[],days:3,sessionLen:60,morningCardio:false};
+const profile1b={goal:null,cardio:[],days:3,sessionLen:60,morningCardio:false,femFocus:null};
+function setFemFocus(v,el){profile1b.femFocus=v;document.querySelectorAll('[data-femfocus]').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function setGoalType(g,el){
   profile1b.goal=g;
   const needsCardio=['body','both','weightloss'].includes(g);
@@ -1365,10 +1385,16 @@ function generateWeeklyPlan(){
   const days=p.daysPerWeek||3;
   const sessionLen=p.sessionLen||60;
   const goal=p.goalType||'skills';
+  const femFocus=p.femFocus||null; // 'lower' | 'upper' | 'full' | null
   const globalTier=tierFromLevel(state.level);
   const tiers=p.tiers||{};
   function ct(cat){return tiers[cat]||globalTier;}
-  const MUSCLE_CAT={0:'pull',1:'push',2:'core',3:'legs',4:'pull',6:'push'};
+  // femFocus adjusts muscle day mapping: lower→more legs, upper→more push/pull
+  const MUSCLE_CAT=femFocus==='lower'
+    ?{0:'legs',1:'push',2:'core',3:'legs',4:'pull',6:'legs'}
+    :femFocus==='upper'
+    ?{0:'pull',1:'push',2:'core',3:'push',4:'pull',6:'core'}
+    :{0:'pull',1:'push',2:'core',3:'legs',4:'pull',6:'push'};
 
   // Weekly progression cycle (4-week loop)
   p.weekNumber=(p.weekNumber||0)+1;
@@ -1376,7 +1402,7 @@ function generateWeeklyPlan(){
   const phase=p.recoveryWeek?{label:'RECOVERY',desc:'שבוע ריקוברי',setsOff:-1,intensity:'קל'}:WEEK_PHASES[phaseIdx];
 
   const cardioOptions=p.cardio||[];
-  const wantsCardio=['body','both','weightloss'].includes(goal)&&cardioOptions.length>0&&!cardioOptions.includes('none');
+  const wantsCardio=['body','both'].includes(goal)&&cardioOptions.length>0&&!cardioOptions.includes('none');
 
   const trainDays=TRAIN_DAY_MAP[days]||TRAIN_DAY_MAP[3];
   const isRecovery=!!p.recoveryWeek;
@@ -1404,7 +1430,7 @@ function generateWeeklyPlan(){
     const muscle=MUSCLE_SCHEDULE[idx];
     const muscleCat=MUSCLE_CAT[idx]||'push';
     const muscleTier=ct(muscleCat);
-    const wantsWeights=['body','both','weightloss'].includes(goal);
+    const wantsWeights=['body','both'].includes(goal);
     const musclePool=(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[idx]?.[muscleTier]
       ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[idx]?.[globalTier]
       ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[1][globalTier];
@@ -1653,10 +1679,18 @@ function goStep(n){
   if(n===-1){enterApp();return;}
   if(n==='D'){document.getElementById('stepD').classList.add('active');return;}
   if(n==='1b'){
-    // validate step1
     const first=document.getElementById('r_first').value.trim();
     if(!first){alert('נא להכניס שם פרטי');goStep(1);return;}
     document.getElementById('step1b').classList.add('active');
+    document.getElementById('intro').scrollTo({top:0,behavior:'smooth'});
+    return;
+  }
+  if(n==='1c'){
+    if(!profile1b.goal){alert('נא לבחור מטרה');goStep('1b');return;}
+    const gender=document.getElementById('r_gender').value;
+    const needsFemQ=gender==='נקבה'&&['body','both'].includes(profile1b.goal);
+    if(!needsFemQ){goStep(2);return;}
+    document.getElementById('step1c').classList.add('active');
     document.getElementById('intro').scrollTo({top:0,behavior:'smooth'});
     return;
   }
@@ -1789,6 +1823,7 @@ function finishQuiz(){
     height:parseInt(document.getElementById('r_height').value)||0,
     selfLevel:quiz.level,
     goalType:profile1b.goal||'skills',
+    femFocus:profile1b.femFocus||null,
     cardio:profile1b.cardio,
     daysPerWeek:profile1b.days,
     sessionLen:profile1b.sessionLen,
