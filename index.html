@@ -269,11 +269,29 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       </div>
       <!-- name (register only) -->
       <div id="authNameWrap" class="field hidden"><label>שם פרטי</label><input id="authName" type="text" placeholder="שם פרטי"></div>
-      <!-- phone (register only) -->
-      <div id="authPhoneWrap" class="field hidden"><label>מספר טלפון</label><input id="authPhone" type="tel" placeholder="05X-XXXXXXX" dir="ltr"></div>
       <!-- email + password -->
-      <div class="field"><label>אימייל</label><input id="authEmail" type="email" placeholder="you@email.com" dir="ltr"></div>
-      <div class="field"><label>סיסמא</label><input id="authPass" type="password" placeholder="לפחות 6 תווים" dir="ltr" onkeydown="if(event.key==='Enter')submitAuth()"></div>
+      <div id="authFormFields">
+        <div class="field"><label>אימייל</label><input id="authEmail" type="email" placeholder="you@email.com" dir="ltr"></div>
+        <div class="field"><label>סיסמא</label><input id="authPass" type="password" placeholder="לפחות 6 תווים" dir="ltr" onkeydown="if(event.key==='Enter')authAction()"></div>
+      </div>
+      <!-- OTP step (register only, shown after sending code) -->
+      <div id="otpStep" class="hidden">
+        <div style="text-align:center;margin-bottom:14px;font-size:12px;color:#b0c8e4;line-height:1.8">
+          שלחנו קוד אימות 6 ספרות אל<br>
+          <span id="otpTarget" style="color:var(--cyan);font-weight:700"></span>
+        </div>
+        <div class="field" style="margin-bottom:6px">
+          <label>קוד אימות</label>
+          <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+            dir="ltr" style="text-align:center;font-size:22px;letter-spacing:.35em;font-family:'Orbitron',monospace"
+            onkeydown="if(event.key==='Enter')verifyAndRegister()">
+        </div>
+        <div id="otpTimer" style="text-align:center;font-size:10px;color:var(--muted);margin-bottom:10px"></div>
+        <button class="btn" onclick="verifyAndRegister()" id="otpVerifyBtn">✓ אמת וצור חשבון</button>
+        <div style="text-align:center;margin-top:10px">
+          <span onclick="resendOTP()" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline">לא קיבלת? שלח שוב</span>
+        </div>
+      </div>
       <div id="authErr" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger);text-align:center;min-height:18px;margin:4px 0 10px"></div>
       <div id="forgotLink" style="text-align:center;margin:-4px 0 10px">
         <span onclick="showForgotMsg()" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;letter-spacing:.05em;text-decoration:underline">שכחתי סיסמא</span>
@@ -283,7 +301,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         📧 <span style="color:var(--cyan)">eladgo55@gmail.com</span><br>
         💬 וואטסאפ: <span style="color:var(--cyan)">נשלח לך קישור איפוס תוך 24 שעות</span>
       </div>
-      <button class="btn" onclick="submitAuth()" id="authSubmitBtn" style="margin-top:4px">כניסה ›</button>
+      <button class="btn" onclick="authAction()" id="authSubmitBtn" style="margin-top:4px">כניסה ›</button>
     </div>
     <div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:14px;letter-spacing:.1em">המידע נשמר באופן מקומי · KALOS © ELAD GOLDSHTEIN</div>
   </div>
@@ -791,8 +809,9 @@ function authTab(mode){
   document.getElementById('tabLogin').style.cssText=!isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-left:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
   document.getElementById('tabReg').style.cssText=isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-right:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
   document.getElementById('authNameWrap').classList.toggle('hidden',!isReg);
-  document.getElementById('authPhoneWrap').classList.toggle('hidden',!isReg);
-  document.getElementById('authSubmitBtn').textContent=isReg?'הרשמה ›':'כניסה ›';
+  document.getElementById('authSubmitBtn').textContent=isReg?'שלח קוד אימות →':'כניסה ›';
+  document.getElementById('otpStep').classList.add('hidden');
+  document.getElementById('authFormFields').classList.remove('hidden');
   document.getElementById('authErr').textContent='';
 }
 
@@ -812,45 +831,124 @@ function showForgotMsg(){
   document.getElementById("forgotLink").style.display="none";
 }
 
-function normalizePhone(p){return p.replace(/[\s\-\(\)]/g,'').replace(/^0/,'+972');}
-async function submitAuth(){
+/* ── EmailJS config (fill in after setup at emailjs.com) ── */
+const EJS_SERVICE  = 'YOUR_SERVICE_ID';
+const EJS_TEMPLATE = 'YOUR_TEMPLATE_ID';
+const EJS_KEY      = 'YOUR_PUBLIC_KEY';
+
+let _otpCode=null, _otpExpiry=0, _otpTimerInt=null, _pendingReg=null;
+
+function genOTP(){return String(Math.floor(100000+Math.random()*900000));}
+
+async function sendOTPEmail(toEmail,toName,code){
+  if(EJS_KEY==='YOUR_PUBLIC_KEY'){
+    // Dev mode — show code in console & alert (remove after EmailJS setup)
+    console.log('OTP:',code);
+    alert(`[מצב פיתוח] קוד האימות שלך: ${code}\n(אחרי הגדרת EmailJS זה יישלח למייל)`);
+    return true;
+  }
+  try{
+    await emailjs.send(EJS_SERVICE, EJS_TEMPLATE,
+      {to_email:toEmail, to_name:toName, otp_code:code, app_name:'KALOS'},
+      EJS_KEY);
+    return true;
+  }catch(e){console.error('EmailJS:',e);return false;}
+}
+
+function startOTPTimer(sec=300){
+  clearInterval(_otpTimerInt);
+  const end=Date.now()+sec*1000;
+  const el=document.getElementById('otpTimer');
+  _otpTimerInt=setInterval(()=>{
+    const left=Math.max(0,Math.round((end-Date.now())/1000));
+    const m=Math.floor(left/60), s=left%60;
+    el.textContent=`הקוד תקף עוד ${m}:${String(s).padStart(2,'0')}`;
+    if(left===0){clearInterval(_otpTimerInt);el.textContent='הקוד פג תוקף — שלח שוב';}
+  },1000);
+}
+
+function authAction(){
+  if(authMode==='register') initiateRegistration();
+  else submitLogin();
+}
+
+async function initiateRegistration(){
   const email=document.getElementById('authEmail').value.trim().toLowerCase();
   const pass=document.getElementById('authPass').value;
   const name=document.getElementById('authName').value.trim();
-  const phoneRaw=document.getElementById('authPhone')?.value.trim()||'';
+  const err=t=>{document.getElementById('authErr').textContent=t;};
+  if(!name){err('הכנס שם פרטי');return;}
+  if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
+  if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
+  const users=await getUsers();
+  if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
+  // Generate & send OTP
+  const btn=document.getElementById('authSubmitBtn');
+  btn.textContent='שולח...';btn.disabled=true;
+  _otpCode=genOTP();
+  _otpExpiry=Date.now()+300000;
+  _pendingReg={email,name,pass};
+  const ok=await sendOTPEmail(email,name,_otpCode);
+  btn.textContent='שלח קוד אימות →';btn.disabled=false;
+  if(!ok){err('שגיאה בשליחת מייל — נסה שוב');return;}
+  // Show OTP step
+  document.getElementById('authFormFields').classList.add('hidden');
+  document.getElementById('authNameWrap').classList.add('hidden');
+  document.getElementById('otpStep').classList.remove('hidden');
+  document.getElementById('otpTarget').textContent=email;
+  document.getElementById('authSubmitBtn').style.display='none';
+  document.getElementById('otpInput').focus();
+  err('');
+  startOTPTimer();
+}
+
+async function verifyAndRegister(){
+  const err=t=>{document.getElementById('authErr').textContent=t;};
+  const entered=document.getElementById('otpInput').value.trim();
+  if(!entered||entered.length<6){err('הכנס קוד 6 ספרות');return;}
+  if(Date.now()>_otpExpiry){err('הקוד פג תוקף — לחץ "שלח שוב"');return;}
+  if(entered!==_otpCode){err('קוד שגוי — נסה שוב');return;}
+  // Code correct — complete registration
+  clearInterval(_otpTimerInt);
+  const btn=document.getElementById('otpVerifyBtn');
+  btn.textContent='נרשם...';btn.disabled=true;
+  const {email,name,pass}=_pendingReg;
+  const hash=await hashPass(pass);
+  const newUser={email,name,hash,verified:true,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
+  await saveUser(newUser);
+  currentUser={email,name};
+  sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
+  document.getElementById('authScreen').style.display='none';
+  startApp(email);
+}
+
+async function resendOTP(){
+  if(!_pendingReg)return;
+  _otpCode=genOTP();_otpExpiry=Date.now()+300000;
+  document.getElementById('authErr').textContent='שולח...';
+  const ok=await sendOTPEmail(_pendingReg.email,_pendingReg.name,_otpCode);
+  document.getElementById('authErr').textContent=ok?'קוד חדש נשלח ✓':'שגיאה — נסה שוב';
+  if(ok)startOTPTimer();
+}
+
+async function submitLogin(){
+  const email=document.getElementById('authEmail').value.trim().toLowerCase();
+  const pass=document.getElementById('authPass').value;
   const err=t=>{document.getElementById('authErr').textContent=t;};
   if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
-
-  if(authMode==='login'){const rl=checkRateLimit(email);if(rl){err(rl);return;}}
+  const rl=checkRateLimit(email);if(rl){err(rl);return;}
   const users=await getUsers();
   const hash=await hashPass(pass);
-  if(authMode==='register'){
-    if(!name){err('הכנס שם פרטי');return;}
-    // Phone validation
-    if(!phoneRaw){err('הכנס מספר טלפון');return;}
-    const phone=normalizePhone(phoneRaw);
-    if(!/^\+?\d{9,15}$/.test(phone)){err('מספר טלפון לא תקין');return;}
-    if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
-    // Block duplicate phone
-    if(users.find(u=>u.phone&&normalizePhone(u.phone)===phone)){err('מספר הטלפון כבר רשום במערכת');return;}
-    const newUser={email,name,phone,hash,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
-    await saveUser(newUser);
-    currentUser={email,name};
-    sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
-    document.getElementById('authScreen').style.display='none';
-    startApp(email);
-  }else{
-    const u=users.find(u=>u.email===email);
-    if(!u){err('אימייל לא נמצא — הרשם קודם');return;}
-    if(u.hash!==hash){err('סיסמא שגויה');return;}
-    u.lastActive=new Date().toISOString();
-    await saveUser(u);
-    currentUser={email,name:u.name};
-    sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
-    document.getElementById('authScreen').style.display='none';
-    startApp(email);
-  }
+  const u=users.find(u=>u.email===email);
+  if(!u){err('אימייל לא נמצא — הרשם קודם');return;}
+  if(u.hash!==hash){err('סיסמא שגויה');return;}
+  u.lastActive=new Date().toISOString();
+  await saveUser(u);
+  currentUser={email,name:u.name};
+  sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
+  document.getElementById('authScreen').style.display='none';
+  startApp(email);
 }
 
 function startApp(email){
@@ -2713,6 +2811,7 @@ function chime(){try{const a=new(AudioContext||webkitAudioContext)();[880,1320].
 initAuth();
 </script>
 <!-- MediaPipe for proof video analysis -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 <script>
