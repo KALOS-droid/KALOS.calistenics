@@ -12,6 +12,7 @@
 <title>KALOS · CALISTHENICS</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
 const _fbConfig={apiKey:"AIzaSyDVSuWYTq7ZREIA2ldlaXAsJqiByyKQE5w",authDomain:"kalos-db.firebaseapp.com",projectId:"kalos-db",storageBucket:"kalos-db.firebasestorage.app",messagingSenderId:"280774484505",appId:"1:280774484505:web:a693fb4466b6fc75e0c088"};
 firebase.initializeApp(_fbConfig);
@@ -269,6 +270,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       </div>
       <!-- name (register only) -->
       <div id="authNameWrap" class="field hidden"><label>שם פרטי</label><input id="authName" type="text" placeholder="שם פרטי"></div>
+      <!-- phone (register only) -->
+      <div id="authPhoneWrap" class="field hidden"><label>מספר טלפון</label><input id="authPhone" type="tel" placeholder="05X-XXXXXXX" dir="ltr"></div>
       <!-- email + password -->
       <div id="authFormFields">
         <div class="field"><label>אימייל</label><input id="authEmail" type="email" placeholder="you@email.com" dir="ltr"></div>
@@ -304,6 +307,27 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <button class="btn" onclick="authAction()" id="authSubmitBtn" style="margin-top:4px">כניסה ›</button>
     </div>
     <div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:14px;letter-spacing:.1em">המידע נשמר באופן מקומי · KALOS © ELAD GOLDSHTEIN</div>
+  </div>
+</div>
+
+<!-- ============ VERIFY METHOD MODAL ============ -->
+<div id="verifyMethodModal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:24px">
+  <div style="width:min(380px,96vw);background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(0,255,213,.3);border-radius:14px;padding:28px 24px;direction:rtl;text-align:center">
+    <div style="font-family:'Orbitron',monospace;font-size:13px;letter-spacing:.15em;color:var(--cyan);margin-bottom:6px">אימות זהות</div>
+    <div style="font-size:12px;color:#8aa8cc;margin-bottom:22px">איך תרצה לקבל את קוד האימות?</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+      <button onclick="chooseVerify('email')" style="background:rgba(0,168,255,.1);border:1px solid rgba(0,168,255,.4);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:13px;padding:14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">
+        <span style="font-size:20px">📧</span>
+        <div style="text-align:right"><div>אימות דרך אימייל</div><div style="font-size:10px;color:#4a7a9a;margin-top:2px" id="verifyEmailHint"></div></div>
+      </button>
+      <button onclick="chooseVerify('sms')" style="background:rgba(0,255,213,.08);border:1px solid rgba(0,255,213,.3);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:13px;padding:14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">
+        <span style="font-size:20px">📱</span>
+        <div style="text-align:right"><div>אימות דרך SMS</div><div style="font-size:10px;color:#3a7a6a;margin-top:2px" id="verifyPhoneHint"></div></div>
+      </button>
+    </div>
+    <div id="verifyErr" style="font-size:11px;color:var(--danger);min-height:16px;margin-bottom:8px"></div>
+    <button onclick="document.getElementById('verifyMethodModal').style.display='none'" style="background:none;border:none;color:#4a5a7a;font-family:'Share Tech Mono',monospace;font-size:10px;cursor:pointer">ביטול</button>
+    <div id="recaptcha-container"></div>
   </div>
 </div>
 
@@ -830,7 +854,8 @@ function authTab(mode){
   document.getElementById('tabLogin').style.cssText=!isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-left:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
   document.getElementById('tabReg').style.cssText=isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-right:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
   document.getElementById('authNameWrap').classList.toggle('hidden',!isReg);
-  document.getElementById('authSubmitBtn').textContent=isReg?'שלח קוד אימות →':'כניסה ›';
+  document.getElementById('authPhoneWrap').classList.toggle('hidden',!isReg);
+  document.getElementById('authSubmitBtn').textContent=isReg?'המשך →':'כניסה ›';
   document.getElementById('otpStep').classList.add('hidden');
   document.getElementById('authFormFields').classList.remove('hidden');
   document.getElementById('authErr').textContent='';
@@ -888,6 +913,8 @@ function startOTPTimer(sec=300){
   },1000);
 }
 
+function normalizePhone(p){return p.replace(/[\s\-\(\)]/g,'').replace(/^0/,'+972');}
+
 function authAction(){
   if(authMode==='register') initiateRegistration();
   else submitLogin();
@@ -897,29 +924,65 @@ async function initiateRegistration(){
   const email=document.getElementById('authEmail').value.trim().toLowerCase();
   const pass=document.getElementById('authPass').value;
   const name=document.getElementById('authName').value.trim();
+  const phoneRaw=document.getElementById('authPhone').value.trim();
   const err=t=>{document.getElementById('authErr').textContent=t;};
   if(!name){err('הכנס שם פרטי');return;}
   if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
+  if(!phoneRaw){err('הכנס מספר טלפון');return;}
+  const phone=normalizePhone(phoneRaw);
+  if(!/^\+\d{10,14}$/.test(phone)){err('מספר טלפון לא תקין (לדוגמה: 050-1234567)');return;}
   const users=await getUsers();
   if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
-  // Generate & send OTP
-  const btn=document.getElementById('authSubmitBtn');
-  btn.textContent='שולח...';btn.disabled=true;
-  _otpCode=genOTP();
-  _otpExpiry=Date.now()+300000;
-  _pendingReg={email,name,pass};
-  const ok=await sendOTPEmail(email,name,_otpCode);
-  btn.textContent='שלח קוד אימות →';btn.disabled=false;
-  if(!ok){err('שגיאה בשליחת מייל — נסה שוב');return;}
-  // Show OTP step
+  if(users.find(u=>u.phone&&normalizePhone(u.phone)===phone)){err('מספר הטלפון כבר רשום במערכת');return;}
+  // Save pending + show choice modal
+  _pendingReg={email,name,pass,phone};
+  document.getElementById('verifyEmailHint').textContent=email;
+  document.getElementById('verifyPhoneHint').textContent=phoneRaw;
+  document.getElementById('verifyErr').textContent='';
+  document.getElementById('verifyMethodModal').style.display='flex';
+}
+
+async function chooseVerify(method){
+  const verr=t=>{document.getElementById('verifyErr').textContent=t;};
+  const {email,name,phone}=_pendingReg;
+  if(method==='email'){
+    document.getElementById('verifyMethodModal').style.display='none';
+    const btn=document.getElementById('authSubmitBtn');
+    btn.textContent='שולח...';btn.disabled=true;
+    _otpCode=genOTP();_otpExpiry=Date.now()+300000;_otpMethod='email';
+    const ok=await sendOTPEmail(email,name,_otpCode);
+    btn.textContent='המשך →';btn.disabled=false;
+    if(!ok){document.getElementById('authErr').textContent='שגיאה בשליחת מייל — נסה שוב';return;}
+    showOTPInput(`📧 ${email}`);
+  } else {
+    // SMS via Firebase Phone Auth
+    verr('שולח קוד SMS...');
+    try{
+      if(!window._rcVerifier){
+        window._rcVerifier=new firebase.auth.RecaptchaVerifier('recaptcha-container',{size:'invisible'});
+      }
+      const result=await firebase.auth().signInWithPhoneNumber(phone,window._rcVerifier);
+      window._smsConfirm=result;
+      _otpMethod='sms';_otpExpiry=Date.now()+300000;
+      document.getElementById('verifyMethodModal').style.display='none';
+      showOTPInput(`📱 ${phone}`);
+    }catch(e){
+      window._rcVerifier=null;
+      verr('שגיאת SMS: '+((e.code==='auth/operation-not-allowed')?'SMS לא מופעל ב-Firebase — ראה הוראות':e.message));
+    }
+  }
+}
+
+function showOTPInput(target){
   document.getElementById('authFormFields').classList.add('hidden');
   document.getElementById('authNameWrap').classList.add('hidden');
+  document.getElementById('authPhoneWrap').classList.add('hidden');
   document.getElementById('otpStep').classList.remove('hidden');
-  document.getElementById('otpTarget').textContent=email;
+  document.getElementById('otpTarget').textContent=target;
   document.getElementById('authSubmitBtn').style.display='none';
+  document.getElementById('authErr').textContent='';
   document.getElementById('otpInput').focus();
-  err('');
   startOTPTimer();
 }
 
@@ -928,16 +991,20 @@ async function verifyAndRegister(){
   const entered=document.getElementById('otpInput').value.trim();
   if(!entered||entered.length<6){err('הכנס קוד 6 ספרות');return;}
   if(Date.now()>_otpExpiry){err('הקוד פג תוקף — לחץ "שלח שוב"');return;}
-  if(entered!==_otpCode){err('קוד שגוי — נסה שוב');return;}
-  // Code correct — complete registration
-  clearInterval(_otpTimerInt);
   const btn=document.getElementById('otpVerifyBtn');
-  btn.textContent='נרשם...';btn.disabled=true;
-  const {email,name,pass}=_pendingReg;
+  btn.textContent='מאמת...';btn.disabled=true;
+  if(_otpMethod==='sms'){
+    try{await window._smsConfirm.confirm(entered);}
+    catch(e){err('קוד SMS שגוי — נסה שוב');btn.textContent='✓ אמת וצור חשבון';btn.disabled=false;return;}
+  } else {
+    if(entered!==_otpCode){err('קוד שגוי — נסה שוב');btn.textContent='✓ אמת וצור חשבון';btn.disabled=false;return;}
+  }
+  clearInterval(_otpTimerInt);
+  btn.textContent='נרשם...';
+  const {email,name,pass,phone}=_pendingReg;
   const hash=await hashPass(pass);
-  const newUser={email,name,hash,verified:true,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
+  const newUser={email,name,hash,phone:phone||'',verified:true,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
   await saveUser(newUser);
-  // Clear old state so onboarding always runs for new registrations
   localStorage.removeItem(userKey(email));
   localStorage.removeItem(contentKey(email));
   currentUser={email,name};
@@ -948,11 +1015,21 @@ async function verifyAndRegister(){
 
 async function resendOTP(){
   if(!_pendingReg)return;
-  _otpCode=genOTP();_otpExpiry=Date.now()+300000;
-  document.getElementById('authErr').textContent='שולח...';
-  const ok=await sendOTPEmail(_pendingReg.email,_pendingReg.name,_otpCode);
-  document.getElementById('authErr').textContent=ok?'קוד חדש נשלח ✓':'שגיאה — נסה שוב';
-  if(ok)startOTPTimer();
+  if(_otpMethod==='sms'){
+    document.getElementById('authErr').textContent='שולח SMS...';
+    try{
+      if(!window._rcVerifier)window._rcVerifier=new firebase.auth.RecaptchaVerifier('recaptcha-container',{size:'invisible'});
+      const result=await firebase.auth().signInWithPhoneNumber(_pendingReg.phone,window._rcVerifier);
+      window._smsConfirm=result;_otpExpiry=Date.now()+300000;
+      document.getElementById('authErr').textContent='קוד SMS חדש נשלח ✓';startOTPTimer();
+    }catch(e){window._rcVerifier=null;document.getElementById('authErr').textContent='שגיאת SMS — נסה שוב';}
+  } else {
+    _otpCode=genOTP();_otpExpiry=Date.now()+300000;
+    document.getElementById('authErr').textContent='שולח...';
+    const ok=await sendOTPEmail(_pendingReg.email,_pendingReg.name,_otpCode);
+    document.getElementById('authErr').textContent=ok?'קוד חדש נשלח ✓':'שגיאה — נסה שוב';
+    if(ok)startOTPTimer();
+  }
 }
 
 async function submitLogin(){
