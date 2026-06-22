@@ -916,6 +916,9 @@ async function verifyAndRegister(){
   const hash=await hashPass(pass);
   const newUser={email,name,hash,verified:true,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
   await saveUser(newUser);
+  // Clear old state so onboarding always runs for new registrations
+  localStorage.removeItem(userKey(email));
+  localStorage.removeItem(contentKey(email));
   currentUser={email,name};
   sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
   document.getElementById('authScreen').style.display='none';
