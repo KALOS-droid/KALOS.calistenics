@@ -409,7 +409,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         <div class="qblock">
           <h3>האם אתה פנוי להתאמן בבוקר? (קרדיו בוקר)</h3>
           <div class="row">
-            <div class="opt" onclick="setMorning(true,this)"><span class="dot"></span>✅ כן, אני מתאמן בבוקר</div>
+            <div class="opt" onclick="setMorning(true,this)"><span class="dot"></span>✅ כן, אני מתאמן/ת בבוקר</div>
             <div class="opt" onclick="setMorning(false,this)"><span class="dot"></span>❌ לא, רק בערב</div>
           </div>
         </div>
@@ -1778,6 +1778,7 @@ function setStage(k,v,el){quiz.answers[k]=v;el.parentNode.querySelectorAll('.opt
 
 /* score -> level/xp (Elad's logic, cleaned) + auto-unlock tree nodes */
 function finishQuiz(){
+  alert('DEBUG: finishQuiz נקרא. quiz.level='+quiz.level);
   try{_finishQuiz();}catch(e){alert('שגיאה: '+e.message);console.error(e);}
 }
 function _finishQuiz(){
