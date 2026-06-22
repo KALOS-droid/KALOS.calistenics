@@ -936,43 +936,15 @@ async function initiateRegistration(){
   const users=await getUsers();
   if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
   if(users.find(u=>u.phone&&normalizePhone(u.phone)===phone)){err('מספר הטלפון כבר רשום במערכת');return;}
-  // Save pending + show choice modal
+  // Save pending + send email OTP directly
   _pendingReg={email,name,pass,phone};
-  document.getElementById('verifyEmailHint').textContent=email;
-  document.getElementById('verifyPhoneHint').textContent=phoneRaw;
-  document.getElementById('verifyErr').textContent='';
-  document.getElementById('verifyMethodModal').style.display='flex';
-}
-
-async function chooseVerify(method){
-  const verr=t=>{document.getElementById('verifyErr').textContent=t;};
-  const {email,name,phone}=_pendingReg;
-  if(method==='email'){
-    document.getElementById('verifyMethodModal').style.display='none';
-    const btn=document.getElementById('authSubmitBtn');
-    btn.textContent='שולח...';btn.disabled=true;
-    _otpCode=genOTP();_otpExpiry=Date.now()+300000;_otpMethod='email';
-    const ok=await sendOTPEmail(email,name,_otpCode);
-    btn.textContent='המשך →';btn.disabled=false;
-    if(!ok){document.getElementById('authErr').textContent='שגיאה בשליחת מייל — נסה שוב';return;}
-    showOTPInput(`📧 ${email}`);
-  } else {
-    // SMS via Firebase Phone Auth
-    verr('שולח קוד SMS...');
-    try{
-      if(!window._rcVerifier){
-        window._rcVerifier=new firebase.auth.RecaptchaVerifier('recaptcha-container',{size:'invisible'});
-      }
-      const result=await firebase.auth().signInWithPhoneNumber(phone,window._rcVerifier);
-      window._smsConfirm=result;
-      _otpMethod='sms';_otpExpiry=Date.now()+300000;
-      document.getElementById('verifyMethodModal').style.display='none';
-      showOTPInput(`📱 ${phone}`);
-    }catch(e){
-      window._rcVerifier=null;
-      verr('שגיאת SMS ['+e.code+']: '+e.message);
-    }
-  }
+  const btn=document.getElementById('authSubmitBtn');
+  btn.textContent='שולח...';btn.disabled=true;
+  _otpCode=genOTP();_otpExpiry=Date.now()+300000;_otpMethod='email';
+  const ok=await sendOTPEmail(email,name,_otpCode);
+  btn.textContent='המשך →';btn.disabled=false;
+  if(!ok){err('שגיאה בשליחת מייל — נסה שוב');return;}
+  showOTPInput(`📧 ${email}`);
 }
 
 function showOTPInput(target){
