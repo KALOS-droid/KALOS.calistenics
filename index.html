@@ -970,7 +970,7 @@ async function chooseVerify(method){
       showOTPInput(`📱 ${phone}`);
     }catch(e){
       window._rcVerifier=null;
-      verr('שגיאת SMS: '+((e.code==='auth/operation-not-allowed')?'SMS לא מופעל ב-Firebase — ראה הוראות':e.message));
+      verr('שגיאת SMS ['+e.code+']: '+e.message);
     }
   }
 }
