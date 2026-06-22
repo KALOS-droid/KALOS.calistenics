@@ -291,8 +291,9 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         </div>
         <div id="otpTimer" style="text-align:center;font-size:10px;color:var(--muted);margin-bottom:10px"></div>
         <button class="btn" onclick="verifyAndRegister()" id="otpVerifyBtn">✓ אמת וצור חשבון</button>
-        <div style="text-align:center;margin-top:10px">
+        <div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:20px">
           <span onclick="resendOTP()" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline">לא קיבלת? שלח שוב</span>
+          <span onclick="backToVerifyChoice()" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline">← חזרה</span>
         </div>
       </div>
       <div id="authErr" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger);text-align:center;min-height:18px;margin:4px 0 10px"></div>
@@ -936,15 +937,41 @@ async function initiateRegistration(){
   const users=await getUsers();
   if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
   if(users.find(u=>u.phone&&normalizePhone(u.phone)===phone)){err('מספר הטלפון כבר רשום במערכת');return;}
-  // Save pending + send email OTP directly
+  // Save pending + show choice modal
   _pendingReg={email,name,pass,phone};
+  document.getElementById('verifyEmailHint').textContent=email;
+  document.getElementById('verifyPhoneHint').textContent=phoneRaw;
+  document.getElementById('verifyErr').textContent='';
+  document.getElementById('verifyMethodModal').style.display='flex';
+}
+
+async function chooseVerify(method){
+  if(method==='sms'){
+    document.getElementById('verifyErr').textContent='⚠️ SMS אינו זמין כרגע — אנו מתנצלים. אנא אמת דרך האימייל.';
+    return;
+  }
+  const {email,name}=_pendingReg;
+  document.getElementById('verifyMethodModal').style.display='none';
   const btn=document.getElementById('authSubmitBtn');
   btn.textContent='שולח...';btn.disabled=true;
   _otpCode=genOTP();_otpExpiry=Date.now()+300000;_otpMethod='email';
   const ok=await sendOTPEmail(email,name,_otpCode);
   btn.textContent='המשך →';btn.disabled=false;
-  if(!ok){err('שגיאה בשליחת מייל — נסה שוב');return;}
+  if(!ok){document.getElementById('authErr').textContent='שגיאה בשליחת מייל — נסה שוב';return;}
   showOTPInput(`📧 ${email}`);
+}
+
+function backToVerifyChoice(){
+  clearInterval(_otpTimerInt);
+  document.getElementById('otpStep').classList.add('hidden');
+  document.getElementById('authFormFields').classList.remove('hidden');
+  document.getElementById('authNameWrap').classList.remove('hidden');
+  document.getElementById('authPhoneWrap').classList.remove('hidden');
+  document.getElementById('authSubmitBtn').style.display='';
+  document.getElementById('authErr').textContent='';
+  document.getElementById('otpInput').value='';
+  document.getElementById('verifyErr').textContent='';
+  document.getElementById('verifyMethodModal').style.display='flex';
 }
 
 function showOTPInput(target){
