@@ -585,7 +585,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
     <div class="tab" data-tree="balance" onclick="switchTree('balance')">BALANCE · שיווי <span class="cnt" id="cnt-balance"></span></div>
     <div class="tab" data-tree="library" id="libraryTab" onclick="switchTree('library')" style="display:none;border-color:var(--gold);color:var(--gold)">📚 מאגר תרגילים</div>
   </div>
-  <div class="tree-head" id="treeHead"><div class="tree-name" id="treeName">PULL</div><div class="tree-sub" id="treeSub"></div></div>
+  <div class="tree-head" id="treeHead" style="position:relative"><div class="tree-name" id="treeName">PULL</div><div class="tree-sub" id="treeSub"></div><button onclick="openTreeHelp()" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(139,61,255,.2);border:1px solid rgba(139,61,255,.5);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer">? הדרכה</button></div>
   <div id="treeBanner"></div>
   <div class="path" id="path" data-tree="pull"></div>
   <div id="workout" class="hidden"></div>
@@ -601,6 +601,35 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
   </div>
 </div>
 <div id="flash"><div class="t" id="flashText">LEVEL UP</div></div>
+
+<!-- ============ TUTORIAL WELCOME POPUP ============ -->
+<div id="tutorialBackdrop" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:20px">
+  <div style="width:min(420px,96vw);background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(0,255,213,.35);border-radius:16px;padding:28px 24px;direction:rtl;text-align:center">
+    <div style="font-size:36px;margin-bottom:8px">🌳</div>
+    <div style="font-family:'Cinzel',serif;font-size:18px;font-weight:900;color:#eaf6ff;letter-spacing:.1em;margin-bottom:6px">ברוך הבא ל-KALOS</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#8b3dff;letter-spacing:.2em;margin-bottom:18px">כיצד עובד עץ הכישורים</div>
+    <div style="text-align:right;font-size:14px;color:rgba(255,255,255,.85);line-height:1.75;margin-bottom:20px">
+      <div style="margin-bottom:10px">🎯 <b style="color:#00ffd5">בחר מטרה בעץ</b> — לחץ על כל צומת בעץ כדי לראות את התרגיל ולהגדיר אותו כמטרה שלך.</div>
+      <div style="margin-bottom:10px">🔓 <b style="color:#00ffd5">פתח רמות</b> — כל תרגיל שמסמן כ"הושלם" פותח את הרמה הבאה בעץ.</div>
+      <div style="margin-bottom:10px">🏋️ <b style="color:#00ffd5">עצי PULL / PUSH / BALANCE</b> — כל עץ מייצג קבוצת שרירים. עבור ביניהם בטאבים למעלה.</div>
+      <div>📅 <b style="color:#00ffd5">אימון היום</b> — הטאב הראשון מייצר לך תוכנית שבועית לפי הרמה הנוכחית שלך.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button onclick="closeTutorial(false)" style="background:linear-gradient(135deg,rgba(0,255,213,.2),rgba(0,168,255,.15));border:1px solid rgba(0,255,213,.5);color:#00ffd5;font-family:'Share Tech Mono',monospace;font-size:13px;padding:12px;border-radius:8px;cursor:pointer">✅ אישור — הבנתי!</button>
+      <button onclick="closeTutorial(true)" style="background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px;border-radius:8px;cursor:pointer">אל תראה שוב</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TREE HELP MODAL ============ -->
+<div id="treeHelpBackdrop" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)closeTreeHelp()">
+  <div style="width:min(420px,96vw);background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(139,61,255,.45);border-radius:16px;padding:28px 24px;direction:rtl;text-align:center">
+    <div id="treeHelpIcon" style="font-size:36px;margin-bottom:8px"></div>
+    <div id="treeHelpTitle" style="font-family:'Cinzel',serif;font-size:18px;font-weight:900;color:#eaf6ff;letter-spacing:.1em;margin-bottom:16px"></div>
+    <div id="treeHelpBody" style="text-align:right;font-size:14px;color:rgba(255,255,255,.85);line-height:1.75;margin-bottom:22px"></div>
+    <button onclick="closeTreeHelp()" style="width:100%;background:linear-gradient(135deg,rgba(139,61,255,.25),rgba(0,168,255,.15));border:1px solid rgba(139,61,255,.5);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:12px;border-radius:8px;cursor:pointer">הבנתי ✔</button>
+  </div>
+</div>
 
 <!-- ============ SHARE MODAL ============ -->
 <div id="shareModal" style="display:none;position:fixed;inset:0;z-index:350;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:20px">
@@ -1870,6 +1899,34 @@ function _finishQuiz(){
 }
 function titleFor(l){if(l<=10)return'Beginner 🟢';if(l<=20)return'Foundation 🔵';if(l<=30)return'Advanced 🟡';if(l<=40)return'Elite 🟠';return'Legendary 🔴';}
 
+/* ---- Tutorial popup ---- */
+function maybeShowTutorial(){
+  if(localStorage.getItem('kalos_tutorial_hide')==='1')return;
+  const el=document.getElementById('tutorialBackdrop');
+  el.style.display='flex';
+}
+function closeTutorial(neverAgain){
+  if(neverAgain)localStorage.setItem('kalos_tutorial_hide','1');
+  document.getElementById('tutorialBackdrop').style.display='none';
+}
+
+/* ---- Tree help modal ---- */
+const TREE_HELP={
+  pull:{icon:'🏋️',title:'עץ PULL · משיכה',body:'<div style="margin-bottom:10px">עץ ה-PULL מאמן את שרירי <b style="color:#00ffd5">הגב, הביצפס והכתפיים האחוריות</b>.</div><div style="margin-bottom:10px">🔹 התחל מהצומת הראשון — <b>מתח בשלב</b> — ובצע אותו עד שתשיג 3 סטים של 8 חזרות נקיות.</div><div style="margin-bottom:10px">🔹 סמן הושלם → העץ נפתח לשלב הבא אוטומטית.</div><div>🏆 המטרה הסופית: מתח חד-ידי / muscle-up.</div>'},
+  push:{icon:'💪',title:'עץ PUSH · דחיפה',body:'<div style="margin-bottom:10px">עץ ה-PUSH מאמן את <b style="color:#00ffd5">החזה, הטריצפס והכתפיים הקדמיות</b>.</div><div style="margin-bottom:10px">🔹 התחל מפוש-אפ ועלה בהדרגה לשכיבות-שמיכה קשות יותר.</div><div style="margin-bottom:10px">🔹 כל שלב דורש יציבות מלאה לפני שממשיכים.</div><div>🏆 המטרה הסופית: פוש-אפ חד-ידי / פלנצ׳ה.</div>'},
+  balance:{icon:'⚖️',title:'עץ BALANCE · שיווי משקל',body:'<div style="margin-bottom:10px">עץ ה-BALANCE מאמן <b style="color:#00ffd5">שיווי משקל, יציבה ושרירי ליבה</b>.</div><div style="margin-bottom:10px">🔹 זהו העץ הקשה ביותר — דורש סבלנות ותרגול יומיומי.</div><div style="margin-bottom:10px">🔹 התחל מ-L-Sit ועלה בהדרגה לפוזות שיווי משקל מתקדמות.</div><div>🏆 המטרה הסופית: handstand / human flag.</div>'}
+};
+function openTreeHelp(){
+  const t=TREE_HELP[activeTree]||TREE_HELP['pull'];
+  document.getElementById('treeHelpIcon').textContent=t.icon;
+  document.getElementById('treeHelpTitle').textContent=t.title;
+  document.getElementById('treeHelpBody').innerHTML=t.body;
+  document.getElementById('treeHelpBackdrop').style.display='flex';
+}
+function closeTreeHelp(){
+  document.getElementById('treeHelpBackdrop').style.display='none';
+}
+
 function enterApp(){
   // Save join date on first entry
   if(!state.profile.joinDate){state.profile.joinDate=new Date().toISOString();save();}
@@ -1882,6 +1939,8 @@ function enterApp(){
     checkPunishment();
     if(shouldShowCheckin())openCheckin();
   },400);
+  // Tutorial popup — after other modals settle
+  setTimeout(maybeShowTutorial, 1200);
   // Promo — show after 6s so it doesn't clash with other modals
   setTimeout(maybeShowPromo, 6000);
   updateProTag();
