@@ -585,7 +585,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
     <div class="tab" data-tree="balance" onclick="switchTree('balance')">BALANCE · שיווי <span class="cnt" id="cnt-balance"></span></div>
     <div class="tab" data-tree="library" id="libraryTab" onclick="switchTree('library')" style="display:none;border-color:var(--gold);color:var(--gold)">📚 מאגר תרגילים</div>
   </div>
-  <div class="tree-head" id="treeHead" style="position:relative"><div class="tree-name" id="treeName">PULL</div><div class="tree-sub" id="treeSub"></div><button onclick="openTreeHelp()" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);background:rgba(139,61,255,.2);border:1px solid rgba(139,61,255,.5);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer">? הדרכה</button></div>
+  <div class="tree-head" id="treeHead" style="position:relative"><div class="tree-name" id="treeName">PULL</div><div class="tree-sub" id="treeSub"></div><button onclick="openTreeHelp()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(139,61,255,.25);border:1px solid rgba(139,61,255,.6);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;letter-spacing:.05em">❓ הדרכה</button></div>
   <div id="treeBanner"></div>
   <div class="path" id="path" data-tree="pull"></div>
   <div id="workout" class="hidden"></div>
@@ -1126,6 +1126,7 @@ function startApp(email){
     if(fromJarvis){setTimeout(()=>renderXP(),100);}
     loadGlobalContent().then(()=>switchTree(currentTree||'workout'));
     setTimeout(()=>{checkPunishment();if(shouldShowCheckin())openCheckin();},600);
+    setTimeout(maybeShowTutorial, 1400);
   }else{loadGlobalContent();runBoot();}
 }
 
