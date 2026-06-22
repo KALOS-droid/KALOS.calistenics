@@ -407,6 +407,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
           <div class="opt" data-cardio="bike" onclick="toggleCardio('bike',this)"><span class="dot"></span>🚴 אופניים</div>
           <div class="opt" data-cardio="pool" onclick="toggleCardio('pool',this)"><span class="dot"></span>🏊 בריכת שחייה</div>
           <div class="opt" data-cardio="jump" onclick="toggleCardio('jump',this)"><span class="dot"></span>🪢 קפיצה בחבל</div>
+          <div class="opt" data-cardio="tennis" onclick="toggleCardio('tennis',this)"><span class="dot"></span>🎾 טניס</div>
           <div class="opt" data-cardio="none" onclick="toggleCardio('none',this)"><span class="dot"></span>❌ אין קרדיו זמין</div>
         </div>
         <div class="qblock">
@@ -1371,6 +1372,7 @@ const CARDIO_OPTIONS={
   bike:[['רכיבה קלה','25-35 דק׳ דופק נמוך'],['אינטרוולי רכיבה','10×40ש׳ עצים / 90ש׳ מנוחה'],['עליות','20 דק׳ עם שינויי הילוכים'],['אנדורנס רכיבה','40 דק׳ קצב קבוע']],
   pool:[['שחייה חופשית','20 דק׳ רצוף'],['אינטרוולי בריכה','8×50 מטר + 30ש׳ מנוחה'],['סטייל מגוון','300מ חופשי+200מ גב+100מ חזה'],['שחייה מרחק','400 מטר רצוף']],
   jump:[['קפיצה בחבל רצוף','3×3 דק׳ + 1 דק׳ מנוחה'],['אינטרוולי חבל','10×30ש׳ מהיר + 30ש׳ מנוחה'],['Double Unders','5×30 חזרות'],['קפיצה בוקס','4×2 דק׳ קצב מהיר']],
+  tennis:[['משחק חופשי','45-60 דק׳ משחק'],['אימון ריצות לכדור','20 דק׳ תנועות מהירות'],['כדורים ברצף','15 דק׳ החלפות ארוכות'],['מחזורי ספרינט כמו טניס','8×10ש׳ ספרינט לצדדים']],
 };
 
 function tierFromLevel(lvl){
@@ -1427,10 +1429,10 @@ function generateWeeklyPlan(){
       const cardioExercises=CARDIO_OPTIONS[cardioType]||[];
       return{
         type:'cardio',day:dayName,focus:'cardio',
-        label:`קרדיו · ${cardioType==='running'?'ריצה':cardioType==='bike'?'אופניים':'שחייה'}`,
+        label:`קרדיו · ${{running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'}[cardioType]||cardioType}`,
         cardioBlock:cardioExercises.slice(0,2),
-        strengthBlock:STRENGTH_POOL.legs[ct('legs')].slice(0,strengthSets-1),
-        coreBlock:CORE_POOL[ct('core')].slice(0,coreSets),
+        strengthBlock:(MUSCLE_POOL_BW[3][ct('legs')]||MUSCLE_POOL_BW[3].beginner).slice(0,strengthSets-1),
+        coreBlock:(MUSCLE_POOL_BW[2][ct('core')]||MUSCLE_POOL_BW[2].beginner).slice(0,coreSets),
       };
     }
 
@@ -1784,7 +1786,6 @@ function setStage(k,v,el){quiz.answers[k]=v;el.parentNode.querySelectorAll('.opt
 
 /* score -> level/xp (Elad's logic, cleaned) + auto-unlock tree nodes */
 function finishQuiz(){
-  alert('DEBUG: finishQuiz נקרא. quiz.level='+quiz.level);
   try{_finishQuiz();}catch(e){alert('שגיאה: '+e.message);console.error(e);}
 }
 function _finishQuiz(){
