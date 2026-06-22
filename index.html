@@ -360,7 +360,10 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         <input type="checkbox" id="disclaimerCheck" style="width:18px;height:18px;accent-color:var(--cyan);flex-shrink:0">
         <span style="font-size:12px;color:#c8dff5;line-height:1.6">קראתי והבנתי — אענה בצורה מדויקת ואמיתית כדי לקבל את האימון הטוב ביותר עבורי</span>
       </label>
-      <button class="btn" onclick="acceptDisclaimer()">אני מוכן — בוא נתחיל ›</button>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
+        <button class="btn ghost" onclick="document.getElementById('authScreen').style.display='flex';document.getElementById('intro').querySelectorAll('.step').forEach(s=>s.classList.remove('active'));" style="flex-shrink:0">‹ חזור להתחברות</button>
+        <button class="btn" onclick="acceptDisclaimer()">אני מוכן — בוא נתחיל ›</button>
+      </div>
     </div>
   </div>
 
@@ -380,7 +383,10 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="field"><label>מין</label>
         <select id="r_gender"><option value="">בחר…</option><option>זכר</option><option>נקבה</option></select></div>
       <div id="step1Err" style="display:none;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger);margin:6px 0 4px;text-align:center"></div>
-      <button class="btn" onclick="goStep('1b')">המשך ›</button>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
+        <button class="btn ghost" onclick="goStep('D')" style="flex-shrink:0">‹ חזור</button>
+        <button class="btn" onclick="goStep('1b')">המשך ›</button>
+      </div>
     </div>
   </div>
 
@@ -515,6 +521,9 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="sys-divider"></div>
       <div style="font-size:15px;color:#dcecff;text-align:center;margin-bottom:18px;line-height:1.7">המערכת תסרוק את היכולות שלך.<br><span style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted)">בחר/י את הרמה הכי קרובה אליך:</span></div>
       <div id="q_level"></div>
+      <div style="margin-top:12px">
+        <button class="btn ghost" onclick="goStep('1b')" style="flex-shrink:0">‹ חזור</button>
+      </div>
     </div>
   </div>
 
@@ -544,6 +553,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="reveal-num" id="rv_level">1</div>
       <div class="reveal-title" id="rv_title">Beginner</div>
       <div class="sys-line" style="font-size:13px;color:var(--muted);margin-top:10px">פתחנו לך אוטומטית את התרגילים שכבר כבשת. עכשיו — תעלה.</div>
+      <button class="btn ghost" onclick="goStep('2b')" style="margin-top:8px;font-size:12px">‹ חזור ותשנה תשובות</button>
       <div class="sys-divider"></div>
       <button class="btn" onclick="enterApp()">⚔ היכנס למסע ›</button>
     </div>
