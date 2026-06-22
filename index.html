@@ -1778,6 +1778,9 @@ function setStage(k,v,el){quiz.answers[k]=v;el.parentNode.querySelectorAll('.opt
 
 /* score -> level/xp (Elad's logic, cleaned) + auto-unlock tree nodes */
 function finishQuiz(){
+  try{_finishQuiz();}catch(e){alert('שגיאה: '+e.message);console.error(e);}
+}
+function _finishQuiz(){
   if(!quiz.level){alert('בחר/י קודם את הרמה שלך.');return;}
   let score=0;const a=quiz.answers;
   const adv=(quiz.level==='advanced'||quiz.level==='crazy');
