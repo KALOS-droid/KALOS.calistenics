@@ -402,8 +402,11 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         <div class="qblock">
           <h3>איזה קרדיו זמין לך? (אפשר לבחור כמה)</h3>
           <div class="opt" data-cardio="running" onclick="toggleCardio('running',this)"><span class="dot"></span>🏃 ריצה</div>
+          <div class="opt" data-cardio="walking" onclick="toggleCardio('walking',this)"><span class="dot"></span>🚶 הליכה מהירה</div>
+          <div class="opt" data-cardio="stairs" onclick="toggleCardio('stairs',this)"><span class="dot"></span>🪜 מדרגות / סטפר</div>
           <div class="opt" data-cardio="bike" onclick="toggleCardio('bike',this)"><span class="dot"></span>🚴 אופניים</div>
           <div class="opt" data-cardio="pool" onclick="toggleCardio('pool',this)"><span class="dot"></span>🏊 בריכת שחייה</div>
+          <div class="opt" data-cardio="jump" onclick="toggleCardio('jump',this)"><span class="dot"></span>🪢 קפיצה בחבל</div>
           <div class="opt" data-cardio="none" onclick="toggleCardio('none',this)"><span class="dot"></span>❌ אין קרדיו זמין</div>
         </div>
         <div class="qblock">
@@ -1363,8 +1366,11 @@ const MUSCLE_POOL={
 
 const CARDIO_OPTIONS={
   running:[['ריצה קלה (קרדיו בסיס)','20-30 דק׳ דופק 130-150'],['אינטרוולים','8×30ש׳ ריצה / 60ש׳ הליכה'],['ריצת טמפו','15-20 דק׳ מהירות קבועה'],['Fartlek','25 דק׳ שינויי קצב']],
+  walking:[['הליכה מהירה','30-40 דק׳ קצב מהיר'],['הליכה בעלייה','25 דק׳ על משטח משופע / גבעה'],['הליכה אינטרוולים','10×2 דק׳ מהיר + 1 דק׳ רגוע'],['הליכה עם משקל','30 דק׳ עם תיק גב מלא']],
+  stairs:[['עלייה במדרגות רצוף','15-20 דק׳ עלייה ירידה'],['אינטרוולי מדרגות','10×עלייה מלאה + ירידה הליכה'],['סטפר קצב קבוע','25 דק׳ דופק 130-150'],['מדרגות 2 בבת אחת','12×עלייה דו-שלבית + מנוחה 45ש׳']],
   bike:[['רכיבה קלה','25-35 דק׳ דופק נמוך'],['אינטרוולי רכיבה','10×40ש׳ עצים / 90ש׳ מנוחה'],['עליות','20 דק׳ עם שינויי הילוכים'],['אנדורנס רכיבה','40 דק׳ קצב קבוע']],
   pool:[['שחייה חופשית','20 דק׳ רצוף'],['אינטרוולי בריכה','8×50 מטר + 30ש׳ מנוחה'],['סטייל מגוון','300מ חופשי+200מ גב+100מ חזה'],['שחייה מרחק','400 מטר רצוף']],
+  jump:[['קפיצה בחבל רצוף','3×3 דק׳ + 1 דק׳ מנוחה'],['אינטרוולי חבל','10×30ש׳ מהיר + 30ש׳ מנוחה'],['Double Unders','5×30 חזרות'],['קפיצה בוקס','4×2 דק׳ קצב מהיר']],
 };
 
 function tierFromLevel(lvl){
