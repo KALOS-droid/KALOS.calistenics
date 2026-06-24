@@ -428,6 +428,9 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="qblock">
         <h3>כמה אימונים בשבוע?</h3>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">מתחילים — מומלץ 3. אפשר עד 10 (כוח + קרדיו ביחד).</div>
+        <div id="beginnerDaysNote" class="hidden" style="padding:9px 12px;margin-bottom:10px;background:rgba(0,168,255,.07);border:1px solid rgba(0,168,255,.3);border-radius:7px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#7dd3fc;line-height:1.7">
+          💡 <b>למתחילים</b> — גם אם בחרת יותר, נתחיל אותך ב-<b>3 אימונים בשבוע</b> לחודש הראשון כדי להרגיל את הגוף. אחרי כן נעלה בהדרגה למה שבחרת.
+        </div>
         <div class="row" style="flex-wrap:wrap;gap:6px">
           <div class="opt" onclick="setDays(2,this)"><span class="dot"></span>2</div>
           <div class="opt" onclick="setDays(3,this)"><span class="dot"></span>3 ✓</div>
@@ -1335,12 +1338,13 @@ function setDays(n,el){
   profile1b.days=n;
   el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
+  // Beginner note: show when >3 selected
+  document.getElementById('beginnerDaysNote').classList.toggle('hidden',n<=3);
   // Show split section only if >5 days AND cardio-capable goal
   const needsSplit=n>5&&['body','both'].includes(profile1b.goal)&&profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
   const splitEl=document.getElementById('splitSection');
   splitEl.classList.toggle('hidden',!needsSplit);
   if(needsSplit)_buildSplitRows(n);
-  // Also refresh cardio dist section
   _buildCardioDistSection();
 }
 function _buildSplitRows(total){
@@ -1590,8 +1594,21 @@ function generateWeeklyPlan(){
   const cardioOptions=(p.cardio||[]).filter(c=>c!=='none');
   const wantsCardio=['body','both'].includes(goal)&&cardioOptions.length>0;
 
+  // ---------- Beginner ramp-up ----------
+  // If beginner (level ≤10) and target > 3, cap sessions per phase:
+  //   weeks 1-4 → 3, weeks 5-8 → min(5,target), weeks 9+ → full target
+  const isBeginnerLevel=state.level<=10;
+  const targetSessions=p.daysPerWeek||3;
+  let effectiveSessions=targetSessions;
+  if(isBeginnerLevel&&targetSessions>3){
+    const wk=p.weekNumber||1;
+    if(wk<=4)effectiveSessions=3;
+    else if(wk<=8)effectiveSessions=Math.min(5,targetSessions);
+    else effectiveSessions=targetSessions;
+  }
+
   // ---------- Determine strength / cardio day counts ----------
-  const totalSessions=p.daysPerWeek||3;
+  const totalSessions=effectiveSessions;
   let strengthDayCount,cardioDayCount;
   if(!wantsCardio){
     strengthDayCount=Math.min(totalSessions,5);
