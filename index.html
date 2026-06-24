@@ -143,6 +143,13 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .tree-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.18em;margin-top:4px}
 .tree-locked-banner{margin:14px auto;max-width:420px;border:1px solid rgba(255,51,85,.4);background:rgba(255,51,85,.06);
   padding:12px 16px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff8099;line-height:1.7}
+/* skills-locked overlay (for body-only goal users) */
+.skills-lock-overlay{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  background:rgba(2,3,8,.82);backdrop-filter:blur(2px)}
+.skills-lock-x{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:min(45vw,220px);font-weight:900;color:rgba(255,51,85,.12);pointer-events:none;font-family:'Orbitron',monospace;user-select:none}
+.skills-lock-icon{font-size:42px;cursor:pointer;filter:drop-shadow(0 0 18px rgba(255,193,77,.7));animation:dia 1.6s ease-in-out infinite;z-index:21}
+#treePathWrap{position:relative}
 .path{position:relative;z-index:10;max-width:520px;margin:10px auto 150px;padding:20px 0 60px;display:flex;flex-direction:column;align-items:center;gap:34px}
 
 .node{position:relative;width:104px;height:104px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;transition:transform .2s}
@@ -545,6 +552,49 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
     </div>
   </div>
 
+  <!-- step 2c: ultra-beginner health questionnaire (shown for very low scorers) -->
+  <div class="step" id="step2c">
+    <div class="sys-card">
+      <div class="sys-corner tl"></div><div class="sys-corner tr"></div><div class="sys-corner bl"></div><div class="sys-corner br"></div>
+      <div class="sys-diamonds"><span class="diamond"></span><span class="sys-title" style="font-size:18px">סריקה מעמיקה</span><span class="diamond"></span></div>
+      <div class="sys-divider"></div>
+      <div class="sys-line" style="font-size:12px;margin-bottom:14px">רמת הכושר שלך מצביעה על נקודת התחלה ממש בסיסית — <em>זה בסדר לגמרי</em>.<br>כמה שאלות קצרות כדי שנבנה תוכנית מתאימה.</div>
+
+      <div class="qblock">
+        <h3>🚶 כמה אתה פעיל ביום יום?</h3>
+        <div class="opt" data-ub="mobility" data-v="0" onclick="setUB('mobility',0,this)"><span class="dot"></span>רוב הזמן יושב — לא קם הרבה</div>
+        <div class="opt" data-ub="mobility" data-v="1" onclick="setUB('mobility',1,this)"><span class="dot"></span>הולך קצת — כמה אלפי צעדים ביום</div>
+        <div class="opt" data-ub="mobility" data-v="2" onclick="setUB('mobility',2,this)"><span class="dot"></span>פעיל בדרך כלל — עומד, הולך, מסתובב</div>
+      </div>
+
+      <div class="qblock">
+        <h3>🏃 האם התאמנת בעבר?</h3>
+        <div class="opt" data-ub="history" data-v="0" onclick="setUB('history',0,this)"><span class="dot"></span>מעולם לא התאמנתי ברצינות</div>
+        <div class="opt" data-ub="history" data-v="1" onclick="setUB('history',1,this)"><span class="dot"></span>התאמנתי בעבר אבל הפסקתי מזמן</div>
+        <div class="opt" data-ub="history" data-v="2" onclick="setUB('history',2,this)"><span class="dot"></span>מתאמן לאחרונה אבל ברמה נמוכה</div>
+      </div>
+
+      <div class="qblock">
+        <h3>⚕️ האם יש מגבלות בריאותיות?</h3>
+        <div class="opt" data-ub="health" data-v="0" onclick="setUB('health',0,this)"><span class="dot"></span>לא — בריא לגמרי</div>
+        <div class="opt" data-ub="health" data-v="1" onclick="setUB('health',1,this)"><span class="dot"></span>עודף משקל / כאבי גב / ברכיים</div>
+        <div class="opt" data-ub="health" data-v="2" onclick="setUB('health',2,this)"><span class="dot"></span>מצב רפואי — מאמן ייעץ לי להתחיל בקטן</div>
+      </div>
+
+      <div class="qblock">
+        <h3>💪 האם אתה יכול לעשות שכיבת סמיכה אחת?</h3>
+        <div class="opt" data-ub="pushup" data-v="0" onclick="setUB('pushup',0,this)"><span class="dot"></span>לא — לא מסוגל כרגע</div>
+        <div class="opt" data-ub="pushup" data-v="1" onclick="setUB('pushup',1,this)"><span class="dot"></span>כן — אחת עד שתיים</div>
+        <div class="opt" data-ub="pushup" data-v="2" onclick="setUB('pushup',2,this)"><span class="dot"></span>כן — כמה בקלות</div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+        <button class="btn ghost" onclick="goStep('2b')" style="flex-shrink:0">‹ חזור</button>
+        <button class="btn" onclick="finishUltraBeginner()">המשך ›</button>
+      </div>
+    </div>
+  </div>
+
   <!-- step 3: level reveal -->
   <div class="step" id="step3">
     <div class="sys-card" style="text-align:center">
@@ -558,6 +608,18 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="sys-line" style="font-size:13px;color:var(--muted);margin-top:10px">פתחנו לך אוטומטית את התרגילים שכבר כבשת. עכשיו — תעלה.</div>
       <button class="btn ghost" onclick="goStep('2b')" style="margin-top:8px;font-size:12px">‹ חזור ותשנה תשובות</button>
       <div class="sys-divider"></div>
+
+      <!-- Progress photo (optional) -->
+      <div style="border:1px solid rgba(0,168,255,.25);background:rgba(0,168,255,.04);padding:14px;margin:10px 0;border-radius:7px;text-align:right">
+        <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--cyan);letter-spacing:.1em;margin-bottom:6px">📸 תמונת נקודת ההתחלה (אופציונלי)</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8;margin-bottom:10px">
+          עוד 200 יום נבקש ממך לצלם שוב — ונראה לך<br>עד כמה השתנית. שמור את הזיכרון הזה.
+        </div>
+        <input type="file" id="startPhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handleStartPhoto(this)">
+        <div id="startPhotoPreview" style="margin-bottom:8px"></div>
+        <button onclick="document.getElementById('startPhotoInput').click()" style="background:rgba(0,168,255,.12);border:1px solid rgba(0,168,255,.4);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px 16px;border-radius:5px;cursor:pointer;width:100%">📷 צלם / העלה תמונה</button>
+      </div>
+
       <button class="btn" onclick="enterApp()">⚔ היכנס למסע ›</button>
     </div>
   </div>
@@ -641,7 +703,14 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
   </div>
   <div class="tree-head" id="treeHead" style="position:relative"><div class="tree-name" id="treeName">PULL</div><div class="tree-sub" id="treeSub"></div><button onclick="openTreeHelp()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(139,61,255,.25);border:1px solid rgba(139,61,255,.6);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;letter-spacing:.05em">❓ הדרכה</button></div>
   <div id="treeBanner"></div>
-  <div class="path" id="path" data-tree="pull"></div>
+  <div id="treePathWrap">
+    <div class="path" id="path" data-tree="pull"></div>
+    <div id="skillsLockOverlay" style="display:none" class="skills-lock-overlay">
+      <div class="skills-lock-x">✕</div>
+      <div class="skills-lock-icon" onclick="openUnlockTreesModal()">🔒</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,193,77,.8);text-align:center;z-index:21;line-height:1.7">לחץ על המנעול<br>לפתיחת עצי המיומנויות</div>
+    </div>
+  </div>
   <div id="workout" class="hidden"></div>
   <div id="library" class="hidden" style="max-width:600px;margin:0 auto 150px;padding:0 14px"></div>
 </div>
@@ -901,8 +970,9 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px" id="restNextLabel"></div>
       <button class="btn" onclick="skipRest()" style="margin-top:12px;background:transparent;border-color:var(--muted);color:var(--muted);font-size:11px;padding:8px">דלג על המנוחה ›</button>
     </div>
-    <div id="runnerBtns" style="display:flex;gap:10px;margin-top:4px">
+    <div id="runnerBtns" style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
       <button class="mbtn" onclick="stopRunner()" style="flex-shrink:0">✕ עצור</button>
+      <button class="mbtn" id="runnerBackBtn" onclick="runnerBack()" style="flex-shrink:0;background:rgba(0,168,255,.1);border-color:rgba(0,168,255,.4);font-size:13px">‹ חזור</button>
       <button class="mbtn mbtn-go" id="runnerMainBtn" onclick="runnerAction()" style="flex:1;font-size:15px">✅ סיימתי סט</button>
     </div>
   </div>
@@ -1198,7 +1268,7 @@ function startApp(email){
     switchTree('workout');
     if(fromJarvis){setTimeout(()=>renderXP(),100);}
     loadGlobalContent().then(()=>switchTree(currentTree||'workout'));
-    setTimeout(()=>{checkPunishment();if(shouldShowCheckin())openCheckin();},600);
+    setTimeout(()=>{checkPunishment();if(shouldShowCheckin())openCheckin();check200DayPhoto();},600);
     setTimeout(maybeShowTutorial, 1400);
   }else{loadGlobalContent();runBoot();}
 }
@@ -1563,8 +1633,8 @@ const CARDIO_OPTIONS={
 };
 
 function tierFromLevel(lvl){
-  if(lvl<=10)return'beginner';
-  if(lvl<=30)return'intermediate';
+  if(lvl<=20)return'beginner';
+  if(lvl<=55)return'intermediate';
   return'advanced';
 }
 
@@ -1992,6 +2062,20 @@ function buildQuiz(){
       </div>
     </div>`).join('');
 }
+const _ubAnswers={mobility:null,history:null,health:null,pushup:null};
+function setUB(k,v,el){_ubAnswers[k]=v;el.closest('.qblock').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function finishUltraBeginner(){
+  // Adjust level down based on health answers
+  const h=_ubAnswers;
+  if(h.health===2)state.level=Math.max(1,state.level-2);   // medical condition → lower
+  if(h.pushup===0)state.level=Math.max(1,state.level-1);   // can't do a pushup → lower
+  if(h.mobility===0)state.level=Math.max(1,state.level-1); // sedentary → lower
+  state.profile.ultraBeginner=_ubAnswers;
+  // Force beginner ramp-up regardless of what they selected
+  if(!state.profile.daysPerWeek||state.profile.daysPerWeek>3)state.profile.daysPerWeek=3;
+  goStep('3');
+}
+
 function pickLevel(v){
   quiz.level=v;quiz.answers={};
   const adv=(v==='advanced'||v==='crazy');
@@ -2034,7 +2118,7 @@ function _finishQuiz(){
     score+=(a.flag||0)*3;
     [a.front,a.planche,a.back].forEach(s=>{score+=[0,5,10,15,20,25][s||0];});
   }
-  const map=[[5,5],[15,10],[25,15],[40,20],[60,25],[80,30],[110,35],[150,40],[200,45],[250,50]];
+  const map=[[2,3],[4,5],[6,7],[8,10],[10,12],[14,15],[18,18],[22,22],[28,27],[36,32],[48,38],[65,45],[88,53],[115,62],[145,70],[180,78],[220,86],[270,93],[320,100]];
   let level=1;map.forEach(([s,l])=>{if(score>=s)level=l;});
   state.level=level;state.xp=Math.min(score*5,XP_PER_LEVEL-1);
 
@@ -2058,6 +2142,9 @@ function _finishQuiz(){
   state.workoutLog=state.workoutLog||[];
   state.weeklyCheckins=state.weeklyCheckins||[];
   state.punishmentLevel=state.punishmentLevel||0;
+
+  // If very low score → show ultra-beginner questionnaire before level reveal
+  if(score<=5&&quiz.level==='beginner'){goStep('2c');return;}
   // Compute per-category tiers from quiz answers
   const _a=quiz.answers;
   function _tierScore(score){return score<=1?'beginner':score<=2.5?'intermediate':'advanced';}
@@ -2106,7 +2193,16 @@ function _finishQuiz(){
   document.getElementById('rv_title').textContent=titleFor(level);
   goStep(3);chime();
 }
-function titleFor(l){if(l<=10)return'Beginner 🟢';if(l<=20)return'Foundation 🔵';if(l<=30)return'Advanced 🟡';if(l<=40)return'Elite 🟠';return'Legendary 🔴';}
+function titleFor(l){
+  if(l<=5) return'Zero 🔴';
+  if(l<=15)return'Beginner 🟢';
+  if(l<=25)return'Foundation 🔵';
+  if(l<=40)return'Intermediate 🟡';
+  if(l<=55)return'Advanced 🟠';
+  if(l<=70)return'Elite ⚪';
+  if(l<=85)return'Master 🟣';
+  return'Legendary 🏆';
+}
 
 /* ---- Profile modal ---- */
 function openProfile(){
@@ -2211,6 +2307,71 @@ function closeTreeHelp(){
   document.getElementById('treeHelpBackdrop').style.display='none';
 }
 
+function handleStartPhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    state.profile.startPhoto=e.target.result;
+    state.profile.startPhotoDate=new Date().toISOString();
+    save();
+    document.getElementById('startPhotoPreview').innerHTML=
+      `<img src="${e.target.result}" style="width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid rgba(0,168,255,.3)">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function check200DayPhoto(){
+  const p=state.profile;
+  if(!p.startPhotoDate||p.photo200Dismissed)return;
+  const daysPassed=Math.floor((Date.now()-new Date(p.startPhotoDate).getTime())/86400000);
+  if(daysPassed<200)return;
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.88)';
+  d.innerHTML=`<div style="background:#080e22;border:1px solid rgba(0,255,170,.4);border-radius:12px;padding:28px 22px;max-width:340px;width:90%;direction:rtl;text-align:center">
+    <div style="font-size:36px;margin-bottom:10px">📸</div>
+    <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--success);letter-spacing:.1em;margin-bottom:10px">200 ימים!</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#7dd3fc;line-height:1.9;margin-bottom:16px">
+      עברו <b>200 יום</b> מאז שהתחלת.<br>
+      תצלם תמונה עכשיו — נראה לך<br>כמה השתנית מאז ההתחלה!
+    </div>
+    ${p.startPhoto?`<img src="${p.startPhoto}" style="width:100%;max-height:120px;object-fit:cover;border-radius:6px;margin-bottom:12px;border:1px solid rgba(0,255,170,.3)">`:''
+    }
+    <input type="file" id="photo200Input" accept="image/*" capture="environment" style="display:none" onchange="handleProgress200Photo(this)">
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button onclick="document.getElementById('photo200Input').click()" style="background:rgba(0,255,170,.15);border:1px solid rgba(0,255,170,.4);color:var(--success);font-family:'Share Tech Mono',monospace;font-size:11px;padding:10px 14px;border-radius:5px;cursor:pointer">📷 צלם עכשיו</button>
+      <button onclick="state.profile.photo200Dismissed=true;save();this.closest('[style*=fixed]').remove()" style="background:rgba(90,122,160,.1);border:1px solid rgba(90,122,160,.3);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;padding:10px 14px;border-radius:5px;cursor:pointer">אחר כך</button>
+    </div>
+  </div>`;
+  document.body.appendChild(d);
+}
+
+function handleProgress200Photo(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    state.profile.photo200=e.target.result;
+    state.profile.photo200Date=new Date().toISOString();
+    state.profile.photo200Dismissed=true;
+    save();
+    // Show side-by-side comparison
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.92)';
+    d.innerHTML=`<div style="background:#080e22;border:1px solid rgba(255,193,77,.5);border-radius:12px;padding:24px 18px;max-width:360px;width:92%;direction:rtl;text-align:center">
+      <div style="font-family:'Orbitron',monospace;font-size:14px;color:var(--gold);letter-spacing:.1em;margin-bottom:14px">🏆 השינוי שלך</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div><div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px">יום 1</div><img src="${state.profile.startPhoto}" style="width:100%;border-radius:6px;border:1px solid rgba(90,122,160,.3)"></div>
+        <div><div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--success);margin-bottom:4px">יום 200</div><img src="${e.target.result}" style="width:100%;border-radius:6px;border:1px solid rgba(0,255,170,.4)"></div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#7dd3fc;margin-bottom:14px">כל הכבוד — זה מרגש לראות! 💪</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:11px 24px;border-radius:5px;cursor:pointer;width:100%">מעולה 🔥</button>
+    </div>`;
+    document.body.appendChild(d);
+    // Also close original modal
+    document.querySelectorAll('[style*="position:fixed"]').forEach(el=>{if(el.querySelector('#photo200Input'))el.remove();});
+  };
+  reader.readAsDataURL(file);
+}
+
 function enterApp(){
   // Save join date on first entry
   if(!state.profile.joinDate){state.profile.joinDate=new Date().toISOString();save();}
@@ -2222,6 +2383,7 @@ function enterApp(){
   setTimeout(()=>{
     checkPunishment();
     if(shouldShowCheckin())openCheckin();
+    check200DayPhoto();
   },400);
   // Tutorial popup — after other modals settle
   setTimeout(maybeShowTutorial, 1200);
@@ -2334,10 +2496,13 @@ function renderWorkout(){
 
   // Punishment banner
   const missedCount=countMissedWorkouts();
-  if(missedCount>0&&today.type!=='rest'){
+  const _missedDismissed=localStorage.getItem('kalos_missed_dismiss')===todayStr();
+  if(missedCount>0&&today.type!=='rest'&&!_missedDismissed){
     const col=missedCount>=3?'var(--danger)':missedCount>=2?'#ff8844':'var(--gold)';
-    html+=`<div style="border:1px solid ${col};background:rgba(255,51,85,.06);padding:10px 14px;margin:0 14px 10px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:${col};line-height:1.7">
-      ${missedCount>=3?'🚨 חמישה אימונים שהוחמצו — JARVIS מעדכן אותי. אתה בשבוע ניסיון.':missedCount>=2?'⚠️ שני אימונים שהוחמצו — אם אין סיבה טובה, יהיה עונש.':'⚡ אימון אחד הוחמץ — אל תחזור על זה.'}</div>`;
+    html+=`<div style="border:1px solid ${col};background:rgba(255,51,85,.06);padding:10px 14px;margin:0 14px 10px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:${col};line-height:1.7;position:relative">
+      ${missedCount>=3?'🚨 חמישה אימונים שהוחמצו — JARVIS מעדכן אותי. אתה בשבוע ניסיון.':missedCount>=2?'⚠️ שני אימונים שהוחמצו — אם אין סיבה טובה, יהיה עונש.':'⚡ אימון אחד הוחמץ — אל תחזור על זה.'}
+      <button onclick="localStorage.setItem('kalos_missed_dismiss','${todayStr()}');renderWorkout()" style="position:absolute;top:6px;left:8px;background:none;border:none;color:${col};font-size:16px;cursor:pointer;line-height:1;opacity:.7">✕</button>
+    </div>`;
   }
 
   if(today.type==='rest'){
@@ -2433,8 +2598,9 @@ function renderWorkout(){
 
   // Protein tip for body/weightloss goals
   if(['body','both','weightloss'].includes(state.profile.goalType)&&state.profile.weight){
-    const protein=Math.round(state.profile.weight*1.8);
-    html+=`<div style="border:1px solid rgba(0,255,170,.2);background:rgba(0,255,170,.04);padding:10px 14px;margin:10px 14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--success);line-height:1.7">🥩 יעד חלבון יומי: <b>${protein}ג׳</b> (${state.profile.weight}ק"ג × 1.8) · חלוק על 4-5 ארוחות</div>`;
+    const _pRatio=state.level<=20?1.8:state.level<=55?1.9:2.0;
+    const protein=Math.round(state.profile.weight*_pRatio);
+    html+=`<div style="border:1px solid rgba(0,255,170,.2);background:rgba(0,255,170,.04);padding:10px 14px;margin:10px 14px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--success);line-height:1.7">🥩 יעד חלבון יומי: <b>${protein}ג׳</b> (${state.profile.weight}ק"ג × ${_pRatio}) · חלוק על 4-5 ארוחות</div>`;
   }
 
   // Buttons
@@ -2567,6 +2733,29 @@ function buildWorkoutQueue(){
 function startRunner(){
   const queue=buildWorkoutQueue();
   if(!queue.length){alert('אין אימון להיום.');return;}
+
+  // If user can have goals (trees open) but hasn't set any, warn them
+  const canHaveGoals=['skills','both'].includes(state.profile.goalType);
+  if(canHaveGoals&&(!state.goals||!state.goals.length)){
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8)';
+    d.innerHTML=`<div style="background:#080e22;border:1px solid rgba(0,168,255,.4);border-radius:10px;padding:24px 20px;max-width:320px;width:90%;direction:rtl;text-align:center">
+      <div style="font-size:28px;margin-bottom:10px">🎯</div>
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--cyan);letter-spacing:.1em;margin-bottom:10px">לא בחרת מטרה</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#7dd3fc;line-height:1.8;margin-bottom:18px">לא הגדרת תרגיל מטרה בעצים.<br>בחירת מטרה תאפשר אימון מכוון ומדויק יותר.</div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button onclick="this.closest('[style*=fixed]').remove();switchTree('pull');render();" style="background:rgba(0,168,255,.15);border:1px solid rgba(0,168,255,.4);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:11px;padding:10px 14px;border-radius:5px;cursor:pointer">אשים עכשיו 🎯</button>
+        <button onclick="this.closest('[style*=fixed]').remove();_doStartRunner();" style="background:rgba(139,61,255,.15);border:1px solid rgba(139,61,255,.4);color:var(--violet2);font-family:'Share Tech Mono',monospace;font-size:11px;padding:10px 14px;border-radius:5px;cursor:pointer">אישור — בכל זאת</button>
+      </div>
+    </div>`;
+    document.body.appendChild(d);
+    window._runnerQueue=queue;
+    return;
+  }
+  _doStartRunner(queue);
+}
+function _doStartRunner(queue){
+  if(!queue)queue=window._runnerQueue||buildWorkoutQueue();
   _runner={queue,exIdx:0,setIdx:0,restTimer:null};
   document.getElementById('runnerBackdrop').classList.add('show');
   showRunnerExercise();
@@ -2587,6 +2776,8 @@ function showRunnerExercise(){
   document.getElementById('runnerPips').innerHTML=
     _runner.queue.map((_,i)=>`<div class="runner-pip ${i<_runner.exIdx?'done':i===_runner.exIdx?'active':''}"></div>`).join('');
 
+  const backBtn=document.getElementById('runnerBackBtn');
+  if(backBtn)backBtn.style.display=(_runner.exIdx===0&&_runner.setIdx===0)?'none':'';
   document.getElementById('runnerExNum').textContent=`${ex.tag||''} · תרגיל ${exNum} מתוך ${totalEx}`;
   document.getElementById('runnerExName').textContent=ex.name;
   document.getElementById('runnerExMuscle').textContent=ex.muscle||(ex.nameEn?`${ex.nameEn}`:'');
@@ -2726,6 +2917,21 @@ function showRest(sec,isLastSet){
 function skipRest(){
   clearInterval(_runner.restTimer);
   document.getElementById('runnerMainBtn').style.display='';
+  showRunnerExercise();
+}
+
+function runnerBack(){
+  clearInterval(_runner.restTimer);
+  document.getElementById('restScreen').style.display='none';
+  document.getElementById('repInputScreen').style.display='none';
+  document.getElementById('runnerBtns').style.display='flex';
+  document.getElementById('runnerMainBtn').style.display='';
+  if(_runner.setIdx>0){
+    _runner.setIdx--;
+  }else if(_runner.exIdx>0){
+    _runner.exIdx--;
+    _runner.setIdx=(_runner.queue[_runner.exIdx].sets||3)-1;
+  }
   showRunnerExercise();
 }
 
@@ -3060,7 +3266,38 @@ function render(){
   });
   for(const t in TREES){const tot=TREES[t].nodes.length,d=TREES[t].nodes.filter(n=>isDone(n.id)).length;
     const c=document.getElementById('cnt-'+t);if(c)c.textContent=`(${d}/${tot})`;}
+
+  // Skills-locked overlay: show when goal is body-only AND user hasn't unlocked trees
+  const _treeLocked=(state.profile.goalType==='body')&&!state.profile.treesUnlocked;
+  const _overlay=document.getElementById('skillsLockOverlay');
+  if(_overlay)_overlay.style.display=_treeLocked?'flex':'none';
+
   renderXP();
+}
+
+function openUnlockTreesModal(){
+  const d=document.createElement('div');
+  d.style.cssText='position:fixed;inset:0;z-index:600;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.85)';
+  d.innerHTML=`<div style="background:#080e22;border:1px solid rgba(255,193,77,.5);border-radius:10px;padding:28px 22px;max-width:320px;width:90%;direction:rtl;text-align:center">
+    <div style="font-size:36px;margin-bottom:12px">🔓</div>
+    <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);letter-spacing:.1em;margin-bottom:10px">עצי המיומנויות</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#7dd3fc;line-height:1.9;margin-bottom:20px">
+      התחרטת ורוצה להשיג מיומנויות?<br>
+      פלאנץ, מתח יד אחת, עמידת ידיים —<br>
+      הדברים שגורמים לאנשים לצלם אותך.
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button onclick="unlockTreesForUser();this.closest('[style*=fixed]').remove();" style="background:rgba(255,193,77,.2);border:1px solid rgba(255,193,77,.6);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:12px;padding:11px 18px;border-radius:5px;cursor:pointer">✅ אישור — פתח לי!</button>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgba(90,122,160,.12);border:1px solid rgba(90,122,160,.3);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;padding:11px 18px;border-radius:5px;cursor:pointer">חזור</button>
+    </div>
+  </div>`;
+  document.body.appendChild(d);
+}
+
+function unlockTreesForUser(){
+  state.profile.treesUnlocked=true;
+  save();
+  render();
 }
 function renderXP(){
   document.getElementById('lvl').textContent=state.level;
