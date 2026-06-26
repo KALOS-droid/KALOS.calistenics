@@ -1539,6 +1539,9 @@ const TREES={
     {id:'h_str',    track:'planche',name:'סטראדל פלאנץ',            icon:'⭐',desc:'רגליים פתוחות לצדדים — מעבר לפלאנץ מלא.',cond:'להחזיק 5 שניות.',req:['h_adv'],xp:120,pre:'6×החזקת 3-5ש׳'},
     {id:'h_planche',track:'planche',name:'פלאנץ מלא',               icon:'🌟',goal:true,desc:'הגוף מרחף אופקית, רגליים צמודות. אחד מהתרגילים הקשים ביותר בקאליסתניקס.',cond:'להחזיק 5 שניות.',req:['h_str'],xp:200,pre:'6×החזקת מקס · גוף ישר לחלוטין'},
     {id:'h_planchepush',track:'planche',name:'שכיבות בפלאנץ',       icon:'💥',goal:true,desc:'דחיפה דינמית מתוך פלאנץ מלא — Elite level.',cond:'3 שכיבות פלאנץ נקיות.',req:['h_planche'],xp:260,pre:'5×1-3'},
+    {id:'h_planche_fing', track:'planche_side',name:'פלאנץ על אצבעות',      icon:'☝️',desc:'פלאנץ מלא עם משקל על כל האצבעות — כוח אחיזה אקסטרים.',cond:'להחזיק 3 שניות.',req:['h_planche'],xp:220,pre:'6×החזקת מקס · אצבעות פתוחות'},
+    {id:'h_planche_2fing',track:'planche_side',name:'פלאנץ על שתי אצבעות', icon:'✌️',desc:'פלאנץ מלא על שתי אצבעות בלבד — רמת מאסטר מוחלטת.',cond:'להחזיק 3 שניות.',req:['h_planche_fing'],xp:280,pre:'6×ניסיונות מדורגים'},
+    {id:'h_planche_thumb',track:'planche_side',name:'פלאנץ על האגודל',      icon:'👍',goal:true,desc:'פלאנץ מלא על האגודל בלבד — הנדיר ביותר בעולם.',cond:'להחזיק 1 שנייה.',req:['h_planche_2fing'],xp:350,pre:'6×ניסיונות'},
 
     /* ── מסלול HSPU ── */
     {id:'h_pike_elev',track:'hspu',name:'שכיבות פייק גבוהות',         icon:'🔺',desc:'רגליים על ספסל/קופסה גבוהה — מדמה עמידת ידיים ומכין את הכתפיים.',cond:'10 שכיבות פייק עם רגליים מורמות גבוה.',req:['h_pike'],xp:35,pre:'4×8-10 · ספסל גבוה יותר עם הזמן'},
@@ -1553,7 +1556,9 @@ const TREES={
 
     /* ── מיזוג — דורש שניהם ── */
     {id:'h_90',     track:'merge',name:'90° Hold / Press',            icon:'📐',desc:'תנוחת 90 מעלות — גוף אופקי, ידיים מאונכות. מחבר כוח פלאנץ עם שליטת עמידת ידיים.',cond:'להחזיק 90° 5 שניות (דורש פלאנץ מלא + שליטה בעמידת ידיים).',req:['h_planche','b_full'],xp:240,pre:'6×החזקת מקס'},
-    {id:'h_maltese',track:'merge',name:'מלטיז (Maltese)',             icon:'✝️',goal:true,desc:'הפסגה המוחלטת — גוף אופקי גבוה, ידיים לצדדים מלאים. נדיר בעולם.',cond:'להחזיק מלטיז 3 שניות.',req:['h_planchepush','h_90'],xp:350,pre:'6×ניסיונות החזקה'},
+    {id:'h_maltese',     track:'merge',name:'מלטיז (Maltese)',   icon:'✝️',goal:true,desc:'הפסגה המוחלטת — גוף אופקי גבוה, ידיים לצדדים מלאים. נדיר בעולם.',cond:'להחזיק מלטיז 3 שניות.',req:['h_planchepush','h_90'],xp:350,pre:'6×ניסיונות החזקה'},
+    {id:'h_maltese_push',track:'merge',name:'מלטיז פוש אפ',     icon:'💪',desc:'דחיפה דינמית מתוך מלטיז — אחד התרגילים הנדירים ביותר בעולם.',cond:'מלטיז פוש אפ נקי אחד.',req:['h_maltese'],xp:400,pre:'5×ניסיונות מדורגים'},
+    {id:'h_maltese_press',track:'merge',name:'מלטיז פרס',       icon:'🏆',goal:true,desc:'לחיצה ישרה מתוך מלטיז — עוצמה מוחלטת. הנדיר ביותר בקאליסתניקס.',cond:'מלטיז פרס אחד נקי.',req:['h_maltese_push'],xp:450,pre:'5×ניסיונות'},
   ]},
   balance:{name:'BALANCE · שיווי משקל',color:'var(--balance)',sub:'עמידת ידיים · פראס · יד אחת',gate:'b_wall',
     gateMsg:'עץ ה-BALANCE נעול. כדי לפתוח אותו עליך קודם להחזיק עמידת ידיים על הקיר 30 שניות.',nodes:[
@@ -3338,6 +3343,7 @@ function render(){
     const centerReqIds=centerNodes.flatMap(cn=>cn.req);
     const t0Nodes=tree.nodes.filter(n=>n.track===tree.tracks[0]); // planche
     const t1Nodes=tree.nodes.filter(n=>n.track===tree.tracks[1]); // hspu
+    const plancheSideNodes=tree.nodes.filter(n=>n.track==='planche_side');
     const maxLen=Math.max(t0Nodes.length,t1Nodes.length);
 
     // track label row
@@ -3419,6 +3425,19 @@ function render(){
       nodeRow.appendChild(right);
 
       path.appendChild(nodeRow);
+
+      // horizontal side branch from פלאנץ מלא → 3 finger planche nodes
+      if(n0 && n0.id==='h_planche' && plancheSideNodes.length>0){
+        const branchRow=document.createElement('div');
+        branchRow.style.cssText='display:flex;flex-direction:row;align-items:center;justify-content:flex-end;width:100%;overflow:visible;direction:ltr;padding:6px 0';
+        const initC=document.createElement('div');initC.className='connector';initC.style.cssText='height:44px;margin:0;transform:rotate(90deg);flex-shrink:0';
+        branchRow.appendChild(initC);
+        plancheSideNodes.forEach((node,idx)=>{
+          branchRow.appendChild(_makeTreeNode(node,null));
+          if(idx<plancheSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:44px;margin:0;transform:rotate(90deg);flex-shrink:0';branchRow.appendChild(c);}
+        });
+        path.appendChild(branchRow);
+      }
     }
 
     // merge nodes — diagonal connectors from both tracks converging to center
