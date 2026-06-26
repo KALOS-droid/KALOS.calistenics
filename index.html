@@ -3395,7 +3395,7 @@ function render(){
       if(n0)left.appendChild(_makeTreeNode(n0,null));
       if(n0&&n0.id==='h_planche'&&plancheSideNodes.length>0){
         const sw=document.createElement('div');
-        sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr';
+        sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
         const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
         sw.appendChild(ha);
         const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
