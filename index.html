@@ -3291,7 +3291,6 @@ function _makeTreeNode(node, zigzagIdx){
   const unlocked=isUnlocked(node),done=isDone(node.id);
   const el=document.createElement('div');
   el.className='node '+(done?'done':unlocked?'avail':'locked');
-  if(zigzagIdx!=null) el.style.transform=`translateX(${Math.sin(zigzagIdx*0.9)*70}px)`;
   const star=state.goals.includes(node.id)?'<span class="goal-star">★</span>':'';
   el.innerHTML=`${star}<div class="disc">${done?'✓':unlocked?node.icon:'🔒'}</div><div class="label">${node.name}</div>`;
   el.onclick=()=>openNode(node);
