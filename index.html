@@ -3066,6 +3066,7 @@ function logTodayWorkout(){
   const ts=todayStr();
   if(state.workoutLog.find(l=>l.date===ts))return;
   state.workoutLog.push({date:ts,completed:true});
+  localStorage.removeItem('kalos_missed_dismiss');
   gainXP(15);
   awardCoins(5,'אימון הושלם');
   updateStreak();
