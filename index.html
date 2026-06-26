@@ -143,6 +143,14 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .tree-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.18em;margin-top:4px}
 .tree-locked-banner{margin:14px auto;max-width:420px;border:1px solid rgba(255,51,85,.4);background:rgba(255,51,85,.06);
   padding:12px 16px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff8099;line-height:1.7}
+/* two-track tree layout */
+.track-split-row{display:flex;gap:10px;width:100%;justify-content:center;padding:0 10px}
+.track-col{display:flex;flex-direction:column;align-items:center;gap:28px;flex:1;max-width:200px}
+.track-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.12em;padding:5px 12px;border-radius:4px;text-align:center;margin-bottom:4px;border:1px solid currentColor;opacity:.8}
+.track-split-banner{display:flex;align-items:center;gap:10px;margin:10px 0 0;padding:8px 14px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.1em}
+.track-split-banner .tsl{flex:1;height:1px}
+.track-merge-banner{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:8px 14px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--gold)}
+.track-merge-banner .tsl{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
 /* skills-locked overlay (for body-only goal users) */
 .skills-lock-overlay{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;
   background:rgba(2,3,8,.82);backdrop-filter:blur(2px)}
@@ -1501,23 +1509,37 @@ const TREES={
     {id:'p_flpull',name:'משיכות בפרונט לבר',icon:'🔃',desc:'דינמי מתוך פרונט לבר.',cond:'5 משיכות פרונט לבר.',req:['p_fl'],xp:200,pre:'4×3-5 משיכות'},
     {id:'p_oafl',name:'פרונט לבר על יד אחת',icon:'🌠',goal:true,desc:'הפסגה של המשיכה הסטטית.',cond:'להחזיק טאק פרונט לבר על יד אחת.',req:['p_flpull','p_oa'],xp:300,pre:'6×ניסיונות החזקה לכל צד'},
   ]},
-  push:{name:'PUSH · דחיפה',color:'var(--push)',sub:'חזה · כתף · פלאנץ · מלטיז',nodes:[
-    {id:'h_knee',name:'שכיבות על הברכיים',icon:'🧎',desc:'נקודת התחלה לכל אחד.',cond:'15 שכיבות על הברכיים.',req:[],xp:15,pre:'4×12-15'},
-    {id:'h_pushup',name:'שכיבות סמיכה',icon:'🟧',desc:'בסיס הדחיפה.',cond:'10 שכיבות סמיכה מלאות.',req:['h_knee'],xp:20,pre:'4×מקס (שאף ל-10+)'},
-    {id:'h_dia',name:'שכיבות דיימונד/רחב',icon:'💠',desc:'וריאציות צרות ורחבות.',cond:'10 דיימונד + 10 רחב.',req:['h_pushup'],xp:25,pre:'3×10 דיימונד + 3×10 רחב'},
-    {id:'h_pike',name:'שכיבות פייק',icon:'⛰️',desc:'דחיפת כתף — מעבר לעמידת ידיים.',cond:'10 שכיבות פייק.',req:['h_dia'],xp:35,pre:'4×8-10 · רגליים גבוה יותר = קשה יותר'},
-    {id:'h_pseudo',name:'Pseudo Planche Pushups',icon:'🅿️',desc:'שכיבות עם משקל קדימה — בסיס לפלאנץ.',cond:'8 PPPU עם הטיה קדימה.',req:['h_pike'],xp:45,pre:'4×6-8 · ידיים מסובבות החוצה'},
-    {id:'h_whspu',name:'HSPU על הקיר',icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים.',cond:'10 HSPU על הקיר.',req:['h_pike','b_wall'],xp:70,pre:'4×מקס · טווח מלא'},
-    {id:'h_hspu',name:'HSPU חופשי',icon:'🆓',goal:true,desc:'HSPU בלי קיר.',cond:'3 HSPU חופשיים.',req:['h_whspu','b_free30'],xp:130,pre:'5×1-3'},
-    {id:'h_lean',name:'הישענות לפלאנץ 10 שניות',icon:'↗️',desc:'משקל קדימה על הכתפיים.',cond:'להחזיק 10 שניות.',req:['h_pseudo'],xp:40,pre:'5×החזקת מקס · ידיים מסובבות'},
-    {id:'h_leanpush',name:'שכיבות בהישענות לפלאנץ',icon:'🔼',desc:'דחיפה מתוך הישענות קדמית.',cond:'8 חזרות.',req:['h_lean'],xp:55,pre:'4×6-8'},
-    {id:'h_tuck',name:'טאק פלאנץ',icon:'🟠',desc:'פלאנץ בברכיים אסופות.',cond:'להחזיק 10 שניות.',req:['h_leanpush'],xp:70,pre:'6×החזקת מקס'},
-    {id:'h_adv',name:'אדוונס טאק פלאנץ',icon:'🟡',desc:'גב ישר, ברכיים אסופות.',cond:'להחזיק 8 שניות.',req:['h_tuck'],xp:90,pre:'6×החזקת מקס'},
-    {id:'h_str',name:'סטראדל פלאנץ',icon:'⭐',desc:'רגליים פתוחות.',cond:'להחזיק 5 שניות.',req:['h_adv'],xp:120,pre:'6×החזקת 3-5ש׳'},
-    {id:'h_planche',name:'פלאנץ מלא',icon:'🌟',goal:true,desc:'הגוף מרחף אופקית, רגליים צמודות.',cond:'להחזיק 5 שניות.',req:['h_str'],xp:200,pre:'6×החזקת מקס · גוף ישר'},
-    {id:'h_planchepush',name:'שכיבות בפלאנץ',icon:'💥',desc:'דחיפה דינמית מתוך פלאנץ.',cond:'3 שכיבות פלאנץ.',req:['h_planche'],xp:260,pre:'5×1-3'},
-    {id:'h_90',name:'90° Hold / Press',icon:'📐',desc:'מעבר כוח בין פלאנץ לעמידת ידיים — דורש גם שליטה בעמידת ידיים.',cond:'להחזיק 90 מעלות 5 שניות (דורש פלאנץ + עמידת ידיים).',req:['h_planche','b_full'],xp:240,pre:'6×החזקת מקס'},
-    {id:'h_maltese',name:'מלטיז (Maltese)',icon:'✝️',goal:true,desc:'הפסגה — גוף אופקי גבוה, ידיים בצדדים.',cond:'להחזיק מלטיז.',req:['h_planchepush','h_90'],xp:350,pre:'6×ניסיונות החזקה'},
+  push:{name:'PUSH · דחיפה',color:'var(--push)',sub:'חזה · כתף · פלאנץ · HSPU',
+    tracks:['planche','hspu'],
+    trackLabels:{planche:'🌟 פלאנץ',hspu:'🤸 HSPU'},
+    trackColors:{planche:'var(--push)',hspu:'var(--cyan)'},
+    nodes:[
+    /* ── בסיס משותף ── */
+    {id:'h_knee',   track:'base',name:'שכיבות על הברכיים',    icon:'🧎',desc:'נקודת התחלה לכל אחד — מבנה גוף נכון לפני שעולים לשכיבות מלאות.',cond:'15 שכיבות על הברכיים.',req:[],xp:15,pre:'4×12-15 · גוף ישר'},
+    {id:'h_pushup', track:'base',name:'שכיבות סמיכה',          icon:'🟧',desc:'בסיס הדחיפה. כוח חזה, כתפיים וטריצפס.',cond:'15 שכיבות סמיכה מלאות.',req:['h_knee'],xp:20,pre:'4×מקס (שאף ל-15)'},
+    {id:'h_dia',    track:'base',name:'שכיבות דיימונד + רחב',  icon:'💠',desc:'דיימונד = טריצפס. רחב = חזה חיצוני. שניהם ביחד.',cond:'10 דיימונד + 10 רחב.',req:['h_pushup'],xp:25,pre:'3×10 דיימונד · 3×10 רחב'},
+    {id:'h_dips',   track:'base',name:'מקבילים (Dips)',          icon:'🏗️',desc:'תרגיל הדחיפה הגדול — חזה, כתף קדמית, טריצפס.',cond:'10 מקבילים מלאים עם טווח תנועה מלא.',req:['h_dia'],xp:35,pre:'4×מקס · נשמ קדימה קצת לחזה'},
+    {id:'h_pike',   track:'base',name:'שכיבות פייק',             icon:'⛰️',desc:'גוף בזווית V הפוכה — מדמה דחיפת כתף, שלב לפני עמידת ידיים.',cond:'12 שכיבות פייק עם רגליים גבוהות.',req:['h_dips'],xp:40,pre:'4×10-12 · רגליים על ספסל = יותר קשה'},
+
+    /* ── מסלול פלאנץ ── */
+    {id:'h_pseudo', track:'planche',name:'Pseudo Planche PU',     icon:'🅿️',desc:'שכיבות עם ידיים מסובבות החוצה ומשקל גוף קדימה — מייצרת את כוח הכתף לפלאנץ.',cond:'8 PPPU עם הטיה קדימה ברורה.',req:['h_pike'],xp:45,pre:'4×6-8 · ידיים מסובבות'},
+    {id:'h_lean',   track:'planche',name:'הישענות לפלאנץ',         icon:'↗️',desc:'ידיים מסובבות, כתפיים מעל האצבעות — החזקת עמדה. שורש הפלאנץ.',cond:'להחזיק 15 שניות.',req:['h_pseudo'],xp:40,pre:'5×החזקת מקס · ידיים בצדדים'},
+    {id:'h_leanpush',track:'planche',name:'שכיבות מהישענות לפלאנץ',icon:'🔼',desc:'דחיפה דינמית מתוך הישענות קדמית — בונה כוח ספציפי לפלאנץ.',cond:'8 חזרות עם פוזיציה נכונה.',req:['h_lean'],xp:55,pre:'4×6-8'},
+    {id:'h_tuck',   track:'planche',name:'טאק פלאנץ',              icon:'🟠',desc:'ברכיים אסופות, גוף מרחף — הפלאנץ הראשון שלך.',cond:'להחזיק 10 שניות.',req:['h_leanpush'],xp:70,pre:'6×החזקת מקס'},
+    {id:'h_adv',    track:'planche',name:'אדוונס טאק פלאנץ',       icon:'🟡',desc:'גב ישר, ברכיים פחות אסופות — כוח גדול יותר.',cond:'להחזיק 8 שניות.',req:['h_tuck'],xp:90,pre:'6×החזקת מקס'},
+    {id:'h_str',    track:'planche',name:'סטראדל פלאנץ',            icon:'⭐',desc:'רגליים פתוחות לצדדים — מעבר לפלאנץ מלא.',cond:'להחזיק 5 שניות.',req:['h_adv'],xp:120,pre:'6×החזקת 3-5ש׳'},
+    {id:'h_planche',track:'planche',name:'פלאנץ מלא',               icon:'🌟',goal:true,desc:'הגוף מרחף אופקית, רגליים צמודות. אחד מהתרגילים הקשים ביותר בקאליסתניקס.',cond:'להחזיק 5 שניות.',req:['h_str'],xp:200,pre:'6×החזקת מקס · גוף ישר לחלוטין'},
+    {id:'h_planchepush',track:'planche',name:'שכיבות בפלאנץ',       icon:'💥',goal:true,desc:'דחיפה דינמית מתוך פלאנץ מלא — Elite level.',cond:'3 שכיבות פלאנץ נקיות.',req:['h_planche'],xp:260,pre:'5×1-3'},
+
+    /* ── מסלול HSPU ── */
+    {id:'h_pike_elev',track:'hspu',name:'שכיבות פייק גבוהות',       icon:'🔺',desc:'רגליים על ספסל/קופסה גבוהה — מדמה עמידת ידיים ומכין את הכתפיים.',cond:'10 שכיבות פייק עם רגליים מורמות גבוה.',req:['h_pike'],xp:35,pre:'4×8-10 · ספסל גבוה יותר עם הזמן'},
+    {id:'h_whspu',  track:'hspu', name:'HSPU על הקיר',               icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים על הקיר. בניית כוח ספציפי לכתפיים.',cond:'10 HSPU על הקיר עם טווח תנועה מלא.',req:['h_pike_elev','b_wall'],xp:70,pre:'4×מקס · טווח מלא, ראש בין הידיים'},
+    {id:'h_hspu_neg',track:'hspu',name:'Negative HSPU חופשי',        icon:'⬇️',desc:'ירידה איטית בעמידת ידיים חופשית — בניית כוח לפני HSPU מלא.',cond:'5 ירידות איטיות (5 שניות כל אחת) בעמידת ידיים חופשית.',req:['h_whspu','b_free30'],xp:90,pre:'5×3-5 ירידות · 3-5ש׳ כל ירידה'},
+    {id:'h_hspu',   track:'hspu', name:'HSPU חופשי',                  icon:'🆓',goal:true,desc:'שכיבת סמיכה בעמידת ידיים חופשית — שיא הדחיפה הניצבת.',cond:'3 HSPU חופשיים נקיים.',req:['h_hspu_neg'],xp:130,pre:'5×1-3 · גוף ישר לחלוטין'},
+
+    /* ── מיזוג — דורש שניהם ── */
+    {id:'h_90',     track:'merge',name:'90° Hold / Press',            icon:'📐',desc:'תנוחת 90 מעלות — גוף אופקי, ידיים מאונכות. מחבר כוח פלאנץ עם שליטת עמידת ידיים.',cond:'להחזיק 90° 5 שניות (דורש פלאנץ מלא + שליטה בעמידת ידיים).',req:['h_planche','b_full'],xp:240,pre:'6×החזקת מקס'},
+    {id:'h_maltese',track:'merge',name:'מלטיז (Maltese)',             icon:'✝️',goal:true,desc:'הפסגה המוחלטת — גוף אופקי גבוה, ידיים לצדדים מלאים. נדיר בעולם.',cond:'להחזיק מלטיז 3 שניות.',req:['h_planchepush','h_90'],xp:350,pre:'6×ניסיונות החזקה'},
   ]},
   balance:{name:'BALANCE · שיווי משקל',color:'var(--balance)',sub:'עמידת ידיים · פראס · יד אחת',gate:'b_wall',
     gateMsg:'עץ ה-BALANCE נעול. כדי לפתוח אותו עליך קודם להחזיק עמידת ידיים על הקיר 30 שניות.',nodes:[
@@ -2125,19 +2147,23 @@ function _finishQuiz(){
 
   // auto-unlock nodes from answers
   const mark=id=>{if(!isDone(id))state.done.push(id);};
-  if((a.pushups||0)>=1)mark('h_pushup');
-  if((a.pushups||0)>=3)mark('h_dia');
+  // push base
+  if((a.pushups||0)>=1){mark('h_knee');mark('h_pushup');}
+  if((a.pushups||0)>=2){mark('h_dia');mark('h_dips');}
+  if((a.pushups||0)>=3){mark('h_dia');mark('h_dips');mark('h_pike');}
+  // pull tree
   if((a.pullups||0)>=1){mark('p_hang');mark('p_scap');mark('p_neg');}
   if((a.pullups||0)>=2)mark('p_pull5');
   if((a.pullups||0)>=3){mark('p_pull5');mark('p_pull10');}
   if(adv){
-    if((a.handstand||0)>=3){mark('b_wall');}            // 10-30s+ on wall
+    if((a.handstand||0)>=3){mark('b_wall');}
     if((a.handstand||0)>=4){mark('b_free5');}
-    // front lever stage -> pull tree
-    const fl=['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][a.front||0];if(fl){mark('p_pull10');for(let i=1;i<=(a.front);i++){mark(['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][i]);}}
-    // planche stage -> push tree
-    for(let i=1;i<=(a.planche||0);i++){mark(['','h_tuck','h_adv','h_str','h_str','h_planche'][i]);}
-    if((a.planche||0)>=1){mark('h_pushup');mark('h_dia');mark('h_pike');mark('h_lean');mark('h_leanpush');}
+    // front lever → pull tree
+    const fl=['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][a.front||0];
+    if(fl){mark('p_pull10');for(let i=1;i<=(a.front);i++){mark(['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][i]);}}
+    // planche → push planche track
+    if((a.planche||0)>=1){mark('h_knee');mark('h_pushup');mark('h_dia');mark('h_dips');mark('h_pike');mark('h_pseudo');mark('h_lean');mark('h_leanpush');mark('h_tuck');}
+    for(let i=2;i<=(a.planche||0);i++){mark(['','','h_adv','h_str','h_str','h_planche'][i]);}
   }
   state.onboarded=true;
   state.workoutLog=state.workoutLog||[];
@@ -3248,6 +3274,22 @@ function setNote(id){
   if(t.trim())content.notes[id]=t.trim();else delete content.notes[id];
   saveContent();openNode(nodeById(id));
 }
+function _makeTreeNode(node, zigzagIdx){
+  const unlocked=isUnlocked(node),done=isDone(node.id);
+  const el=document.createElement('div');
+  el.className='node '+(done?'done':unlocked?'avail':'locked');
+  if(zigzagIdx!=null) el.style.transform=`translateX(${Math.sin(zigzagIdx*0.9)*70}px)`;
+  const star=state.goals.includes(node.id)?'<span class="goal-star">★</span>':'';
+  el.innerHTML=`${star}<div class="disc">${done?'✓':unlocked?node.icon:'🔒'}</div><div class="label">${node.name}</div>`;
+  el.onclick=()=>openNode(node);
+  return el;
+}
+function _makeConnector(prevId, col){
+  const c=document.createElement('div');
+  c.className='connector'+(isDone(prevId)?' done':'');
+  return c;
+}
+
 function render(){
   const tree=TREES[activeTree];
   document.getElementById('treeName').textContent=tree.name;
@@ -3256,15 +3298,66 @@ function render(){
   const path=document.getElementById('path');path.dataset.tree=activeTree;path.innerHTML='';
   const banner=document.getElementById('treeBanner');
   banner.innerHTML=(tree.gate && !isDone(tree.gate) && !state.admin)?`<div class="tree-locked-banner">🔒 ${tree.gateMsg}</div>`:'';
-  tree.nodes.forEach((node,i)=>{
-    if(i>0){const c=document.createElement('div');c.className='connector'+(isDone(tree.nodes[i-1].id)?' done':'');path.appendChild(c);}
-    const unlocked=isUnlocked(node),done=isDone(node.id);
-    const el=document.createElement('div');el.className='node '+(done?'done':unlocked?'avail':'locked');
-    el.style.transform=`translateX(${Math.sin(i*0.9)*70}px)`;
-    const star=state.goals.includes(node.id)?'<span class="goal-star">★</span>':'';
-    el.innerHTML=`${star}<div class="disc">${done?'✓':unlocked?node.icon:'🔒'}</div><div class="label">${node.name}</div>`;
-    el.onclick=()=>openNode(node);path.appendChild(el);
-  });
+
+  if(tree.tracks){
+    // ── branching tree (two parallel tracks) ──
+    const base  = tree.nodes.filter(n=>n.track==='base');
+    const merge = tree.nodes.filter(n=>n.track==='merge');
+
+    // base nodes (centered, with zigzag)
+    base.forEach((node,i)=>{
+      if(i>0) path.appendChild(_makeConnector(base[i-1].id));
+      path.appendChild(_makeTreeNode(node,i));
+    });
+
+    // split banner
+    const lastBase = base[base.length-1];
+    const splitDiv=document.createElement('div');
+    splitDiv.className='track-split-banner';
+    splitDiv.innerHTML=tree.tracks.map(tid=>`<span style="color:${tree.trackColors[tid]}">${tree.trackLabels[tid]}</span>`).join('<span class="tsl" style="background:linear-gradient(90deg,var(--push),var(--cyan))"></span>');
+    // connector from last base to split
+    if(lastBase) path.appendChild(_makeConnector(lastBase.id));
+    path.appendChild(splitDiv);
+
+    // two-column tracks
+    const row=document.createElement('div');
+    row.className='track-split-row';
+    tree.tracks.forEach(tid=>{
+      const col=document.createElement('div');
+      col.className='track-col';
+      const lbl=document.createElement('div');
+      lbl.className='track-label';
+      lbl.style.color=tree.trackColors[tid];
+      lbl.textContent=tree.trackLabels[tid];
+      col.appendChild(lbl);
+      const tNodes=tree.nodes.filter(n=>n.track===tid);
+      tNodes.forEach((node,i)=>{
+        if(i>0) col.appendChild(_makeConnector(tNodes[i-1].id));
+        col.appendChild(_makeTreeNode(node,null));
+      });
+      row.appendChild(col);
+    });
+    path.appendChild(row);
+
+    // merge banner
+    const mergeDiv=document.createElement('div');
+    mergeDiv.className='track-merge-banner';
+    mergeDiv.innerHTML='<span class="tsl"></span>⚡ שני המסלולים מתחברים<span class="tsl" style="background:linear-gradient(270deg,transparent,var(--gold))"></span>';
+    path.appendChild(mergeDiv);
+
+    // merge nodes (centered)
+    merge.forEach((node,i)=>{
+      if(i>0) path.appendChild(_makeConnector(merge[i-1].id));
+      path.appendChild(_makeTreeNode(node,i));
+    });
+  } else {
+    // ── standard linear tree ──
+    tree.nodes.forEach((node,i)=>{
+      if(i>0) path.appendChild(_makeConnector(tree.nodes[i-1].id));
+      path.appendChild(_makeTreeNode(node,i));
+    });
+  }
+
   for(const t in TREES){const tot=TREES[t].nodes.length,d=TREES[t].nodes.filter(n=>isDone(n.id)).length;
     const c=document.getElementById('cnt-'+t);if(c)c.textContent=`(${d}/${tot})`;}
 
