@@ -2536,12 +2536,12 @@ function renderWorkout(){
 
   // Punishment banner
   const missedCount=countMissedWorkouts();
-  const _missedDismissed=localStorage.getItem('kalos_missed_dismiss')===todayStr();
+  const _missedDismissed=localStorage.getItem('kalos_missed_dismiss')==='permanent'||localStorage.getItem('kalos_missed_dismiss')===todayStr();
   if(missedCount>0&&today.type!=='rest'&&!_missedDismissed){
     const col=missedCount>=3?'var(--danger)':missedCount>=2?'#ff8844':'var(--gold)';
     html+=`<div style="border:1px solid ${col};background:rgba(255,51,85,.06);padding:10px 14px;margin:0 14px 10px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:11px;color:${col};line-height:1.7;position:relative">
       ${missedCount>=3?'🚨 חמישה אימונים שהוחמצו — JARVIS מעדכן אותי. אתה בשבוע ניסיון.':missedCount>=2?'⚠️ שני אימונים שהוחמצו — אם אין סיבה טובה, יהיה עונש.':'⚡ אימון אחד הוחמץ — אל תחזור על זה.'}
-      <button onclick="localStorage.setItem('kalos_missed_dismiss','${todayStr()}');renderWorkout()" style="position:absolute;top:6px;left:8px;background:none;border:none;color:${col};font-size:16px;cursor:pointer;line-height:1;opacity:.7">✕</button>
+      <button onclick="localStorage.setItem('kalos_missed_dismiss','permanent');renderWorkout()" style="position:absolute;top:6px;left:8px;background:none;border:none;color:${col};font-size:16px;cursor:pointer;line-height:1;opacity:.7">✕</button>
     </div>`;
   }
 
@@ -3066,7 +3066,7 @@ function logTodayWorkout(){
   const ts=todayStr();
   if(state.workoutLog.find(l=>l.date===ts))return;
   state.workoutLog.push({date:ts,completed:true});
-  localStorage.removeItem('kalos_missed_dismiss');
+  if(localStorage.getItem('kalos_missed_dismiss')!=='permanent') localStorage.removeItem('kalos_missed_dismiss');
   gainXP(15);
   awardCoins(5,'אימון הושלם');
   updateStreak();
@@ -3426,7 +3426,7 @@ function render(){
         const diagRow=document.createElement('div');
         diagRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;height:56px;overflow:visible;pointer-events:none';
         const lc=document.createElement('div');lc.style.cssText='position:relative;overflow:visible';
-        if(t0Nodes[t0Nodes.length-1]){const c=document.createElement('div');c.className='connector';c.style.cssText='height:100px;margin:0;transform-origin:bottom center;transform:rotate(60deg);position:absolute;bottom:0;left:50%;margin-left:-2.5px';lc.appendChild(c);}
+        if(t0Nodes[t0Nodes.length-1]){const c=document.createElement('div');c.className='connector';c.style.cssText='height:100px;margin:0;transform-origin:bottom center;transform:rotate(-60deg);position:absolute;bottom:0;left:50%;margin-left:-2.5px';lc.appendChild(c);}
         diagRow.appendChild(lc);
         diagRow.appendChild(document.createElement('div'));
         diagRow.appendChild(document.createElement('div'));
