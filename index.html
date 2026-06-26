@@ -3420,16 +3420,15 @@ function render(){
       path.appendChild(nodeRow);
     }
 
-    // merge banner
-    const mergeDiv=document.createElement('div');
-    mergeDiv.className='track-merge-banner';
-    mergeDiv.innerHTML='<span class="tsl"></span>⚡ שני המסלולים מתחברים<span class="tsl" style="background:linear-gradient(270deg,transparent,var(--gold))"></span>';
-    path.appendChild(mergeDiv);
-
-    // merge nodes (centered)
+    // merge nodes (centered) — connector from last track node into first merge node
     merge.forEach((node,i)=>{
-      if(i>0) path.appendChild(_makeConnector(merge[i-1].id));
-      path.appendChild(_makeTreeNode(node,i));
+      if(i===0){
+        const prev=t0Nodes[t0Nodes.length-1]||t1Nodes[t1Nodes.length-1];
+        if(prev) path.appendChild(_makeConnector(prev.id));
+      } else {
+        path.appendChild(_makeConnector(merge[i-1].id));
+      }
+      path.appendChild(_makeTreeNode(node,null));
     });
   } else {
     // ── standard linear tree ──
