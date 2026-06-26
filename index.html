@@ -3360,6 +3360,10 @@ function render(){
       const n0=t0Nodes[i]||null;
       const n1=t1Nodes[i]||null;
 
+      const leftFeeds=n0&&centerReqIds.includes(n0.id);
+      const rightFeeds=n1&&centerReqIds.includes(n1.id);
+      const showDiag=(leftFeeds||rightFeeds)&&centerNodes.length;
+
       // connector row (after first row)
       if(i>0){
         const connRow=document.createElement('div');
@@ -3373,6 +3377,20 @@ function render(){
         path.appendChild(connRow);
       }
 
+      // diagonal connectors to center node — same .connector element, rotated
+      if(showDiag){
+        const diagRow=document.createElement('div');
+        diagRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;height:56px;overflow:visible;pointer-events:none';
+        const lc=document.createElement('div');lc.style.cssText='position:relative;overflow:visible';
+        if(leftFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:100px;margin:0;transform-origin:bottom center;transform:rotate(60deg);position:absolute;bottom:0;left:50%;margin-left:-2.5px';lc.appendChild(c);}
+        diagRow.appendChild(lc);
+        diagRow.appendChild(document.createElement('div'));
+        const rc=document.createElement('div');rc.style.cssText='position:relative;overflow:visible';
+        if(rightFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:100px;margin:0;transform-origin:bottom center;transform:rotate(-60deg);position:absolute;bottom:0;left:50%;margin-left:-2.5px';rc.appendChild(c);}
+        diagRow.appendChild(rc);
+        path.appendChild(diagRow);
+      }
+
       // node row
       const nodeRow=document.createElement('div');
       nodeRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
@@ -3381,51 +3399,9 @@ function render(){
       if(n0)left.appendChild(_makeTreeNode(n0,null));
       nodeRow.appendChild(left);
 
-      // center column: show center node + arrows if this row's nodes feed it
       const mid=document.createElement('div');
       mid.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px';
-      const leftFeeds=n0&&centerReqIds.includes(n0.id);
-      const rightFeeds=n1&&centerReqIds.includes(n1.id);
-      if((leftFeeds||rightFeeds)&&centerNodes.length){
-        const arrowRow=document.createElement('div');
-        arrowRow.style.cssText='display:flex;justify-content:center';
-        arrowRow.innerHTML=`<svg width="70" height="52" viewBox="0 0 70 52" style="overflow:visible;display:block">
-          <defs>
-            <filter id="dg" x="-100%" y="-50%" width="300%" height="200%">
-              <feGaussianBlur stdDeviation="3" result="b"/>
-              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <linearGradient id="fgL" gradientUnits="userSpaceOnUse" x1="-75" y1="4" x2="35" y2="48">
-              <stop offset="0%" stop-color="rgba(0,255,213,0.05)"/>
-              <stop offset="45%" stop-color="#00ffd5"/>
-              <stop offset="55%" stop-color="#00a8ff"/>
-              <stop offset="100%" stop-color="rgba(0,255,213,0.05)"/>
-              <animateTransform attributeName="gradientTransform" type="translate" values="-110,-44; 110,44" dur="1.4s" repeatCount="indefinite"/>
-            </linearGradient>
-            <linearGradient id="fgR" gradientUnits="userSpaceOnUse" x1="145" y1="4" x2="35" y2="48">
-              <stop offset="0%" stop-color="rgba(0,255,213,0.05)"/>
-              <stop offset="45%" stop-color="#00ffd5"/>
-              <stop offset="55%" stop-color="#00a8ff"/>
-              <stop offset="100%" stop-color="rgba(0,255,213,0.05)"/>
-              <animateTransform attributeName="gradientTransform" type="translate" values="110,-44; -110,44" dur="1.4s" begin="0.3s" repeatCount="indefinite"/>
-            </linearGradient>
-            <marker id="dML" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto">
-              <polygon points="0,0 14,5 0,10" fill="#00ffd5"/>
-            </marker>
-            <marker id="dMR" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto">
-              <polygon points="0,0 14,5 0,10" fill="#00ffd5"/>
-            </marker>
-          </defs>
-          ${leftFeeds?`
-          <line x1="-75" y1="4" x2="35" y2="48" stroke="rgba(0,255,213,0.25)" stroke-width="5" stroke-linecap="round" marker-end="url(#dML)"/>
-          <line x1="-75" y1="4" x2="35" y2="48" stroke="url(#fgL)" stroke-width="5" stroke-linecap="round" filter="url(#dg)"/>
-          `:''}
-          ${rightFeeds?`
-          <line x1="145" y1="4" x2="35" y2="48" stroke="rgba(0,168,255,0.25)" stroke-width="5" stroke-linecap="round" marker-end="url(#dMR)"/>
-          <line x1="145" y1="4" x2="35" y2="48" stroke="url(#fgR)" stroke-width="5" stroke-linecap="round" filter="url(#dg)"/>
-          `:''}
-        </svg>`;
-        mid.appendChild(arrowRow);
+      if(showDiag){
         centerNodes.forEach(cn=>mid.appendChild(_makeTreeNode(cn,null)));
         const cnLabel=document.createElement('div');
         cnLabel.style.cssText='font-family:"Share Tech Mono",monospace;font-size:8px;color:var(--gold);text-align:center;line-height:1.4;opacity:.7';
