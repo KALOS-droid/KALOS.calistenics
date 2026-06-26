@@ -3429,9 +3429,7 @@ function render(){
         if(t0Nodes[t0Nodes.length-1]){const c=document.createElement('div');c.className='connector';c.style.cssText='height:100px;margin:0;transform-origin:bottom center;transform:rotate(60deg);position:absolute;bottom:0;left:50%;margin-left:-2.5px';lc.appendChild(c);}
         diagRow.appendChild(lc);
         diagRow.appendChild(document.createElement('div'));
-        const rc=document.createElement('div');rc.style.cssText='position:relative;overflow:visible';
-        if(t1Nodes[t1Nodes.length-1]){const c=document.createElement('div');c.className='connector';c.style.cssText='height:100px;margin:0;transform-origin:bottom center;transform:rotate(-60deg);position:absolute;bottom:0;left:50%;margin-left:-2.5px';rc.appendChild(c);}
-        diagRow.appendChild(rc);
+        diagRow.appendChild(document.createElement('div'));
         path.appendChild(diagRow);
       } else {
         path.appendChild(_makeConnector(merge[i-1].id));
