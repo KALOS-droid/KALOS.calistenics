@@ -3323,52 +3323,81 @@ function render(){
     if(lastBase) path.appendChild(_makeConnector(lastBase.id));
     path.appendChild(splitDiv);
 
-    // three-column layout: [planche] [center nodes] [hspu]
+    // paired-row layout — both tracks advance row by row, center node appears inline
     const centerNodes=tree.nodes.filter(n=>n.track==='center');
-    const row=document.createElement('div');
-    row.style.cssText='display:grid;grid-template-columns:1fr auto 1fr;gap:8px;width:100%;align-items:center';
+    const centerReqIds=centerNodes.flatMap(cn=>cn.req);
+    const t0Nodes=tree.nodes.filter(n=>n.track===tree.tracks[0]); // planche
+    const t1Nodes=tree.nodes.filter(n=>n.track===tree.tracks[1]); // hspu
+    const maxLen=Math.max(t0Nodes.length,t1Nodes.length);
 
-    tree.tracks.forEach((tid,colIdx)=>{
-      const col=document.createElement('div');
-      col.className='track-col';
-      const lbl=document.createElement('div');
-      lbl.className='track-label';
-      lbl.style.color=tree.trackColors[tid];
-      lbl.textContent=tree.trackLabels[tid];
-      col.appendChild(lbl);
-      const tNodes=tree.nodes.filter(n=>n.track===tid);
-
-      // find which node in this track points to a center node
-      const centerReqIds=centerNodes.flatMap(cn=>cn.req);
-
-      tNodes.forEach((node,i)=>{
-        if(i>0) col.appendChild(_makeConnector(tNodes[i-1].id));
-        col.appendChild(_makeTreeNode(node,null));
-        // if this node feeds a center node, add a visual arrow hint
-        if(centerReqIds.includes(node.id)&&centerNodes.length){
-          const arrow=document.createElement('div');
-          arrow.style.cssText=`font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);opacity:.6;text-align:${colIdx===0?'left':'right'};padding:0 4px`;
-          arrow.textContent=colIdx===0?'↙ 90° Hold':'↘ 90° Hold';
-          col.appendChild(arrow);
-        }
-      });
-      row.appendChild(col);
-
-      // middle column — insert center nodes between the two track columns
-      if(colIdx===0&&centerNodes.length){
-        const midCol=document.createElement('div');
-        midCol.style.cssText='display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:60px';
-        const midLbl=document.createElement('div');
-        midLbl.style.cssText='font-family:"Share Tech Mono",monospace;font-size:8px;color:var(--gold);letter-spacing:.1em;text-align:center;line-height:1.5;margin-bottom:4px;opacity:.75';
-        midLbl.innerHTML='צומת<br>מחבר';
-        midCol.appendChild(midLbl);
-        centerNodes.forEach(cn=>{
-          midCol.appendChild(_makeTreeNode(cn,null));
-        });
-        row.appendChild(midCol);
+    // track label row
+    const lblRow=document.createElement('div');
+    lblRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;margin-bottom:8px';
+    [tree.tracks[0],null,tree.tracks[1]].forEach(tid=>{
+      const cell=document.createElement('div');
+      cell.style.cssText='display:flex;justify-content:center';
+      if(tid){
+        const lbl=document.createElement('div');
+        lbl.className='track-label';
+        lbl.style.color=tree.trackColors[tid];
+        lbl.textContent=tree.trackLabels[tid];
+        cell.appendChild(lbl);
       }
+      lblRow.appendChild(cell);
     });
-    path.appendChild(row);
+    path.appendChild(lblRow);
+
+    // render row by row
+    for(let i=0;i<maxLen;i++){
+      const n0=t0Nodes[i]||null;
+      const n1=t1Nodes[i]||null;
+
+      // connector row (after first row)
+      if(i>0){
+        const connRow=document.createElement('div');
+        connRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%';
+        const c0=document.createElement('div');c0.style.cssText='display:flex;justify-content:center';
+        if(n0&&t0Nodes[i-1])c0.appendChild(_makeConnector(t0Nodes[i-1].id));
+        const cMid=document.createElement('div');
+        const c1=document.createElement('div');c1.style.cssText='display:flex;justify-content:center';
+        if(n1&&t1Nodes[i-1])c1.appendChild(_makeConnector(t1Nodes[i-1].id));
+        connRow.appendChild(c0);connRow.appendChild(cMid);connRow.appendChild(c1);
+        path.appendChild(connRow);
+      }
+
+      // node row
+      const nodeRow=document.createElement('div');
+      nodeRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
+
+      const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center';
+      if(n0)left.appendChild(_makeTreeNode(n0,null));
+      nodeRow.appendChild(left);
+
+      // center column: show center node + arrows if this row's nodes feed it
+      const mid=document.createElement('div');
+      mid.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px';
+      const leftFeeds=n0&&centerReqIds.includes(n0.id);
+      const rightFeeds=n1&&centerReqIds.includes(n1.id);
+      if((leftFeeds||rightFeeds)&&centerNodes.length){
+        // arrow row
+        const arrowRow=document.createElement('div');
+        arrowRow.style.cssText='display:flex;align-items:center;gap:2px;font-size:14px;color:var(--gold)';
+        arrowRow.innerHTML=`<span style="opacity:${leftFeeds?1:.15}">↗</span><span style="opacity:${rightFeeds?1:.15}">↖</span>`;
+        mid.appendChild(arrowRow);
+        centerNodes.forEach(cn=>mid.appendChild(_makeTreeNode(cn,null)));
+        const cnLabel=document.createElement('div');
+        cnLabel.style.cssText='font-family:"Share Tech Mono",monospace;font-size:8px;color:var(--gold);text-align:center;line-height:1.4;opacity:.7';
+        cnLabel.textContent='צומת מחבר';
+        mid.appendChild(cnLabel);
+      }
+      nodeRow.appendChild(mid);
+
+      const right=document.createElement('div');right.style.cssText='display:flex;justify-content:center';
+      if(n1)right.appendChild(_makeTreeNode(n1,null));
+      nodeRow.appendChild(right);
+
+      path.appendChild(nodeRow);
+    }
 
     // merge banner
     const mergeDiv=document.createElement('div');
