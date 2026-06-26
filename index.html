@@ -3323,10 +3323,12 @@ function render(){
     if(lastBase) path.appendChild(_makeConnector(lastBase.id));
     path.appendChild(splitDiv);
 
-    // two-column tracks
+    // three-column layout: [planche] [center nodes] [hspu]
+    const centerNodes=tree.nodes.filter(n=>n.track==='center');
     const row=document.createElement('div');
-    row.className='track-split-row';
-    tree.tracks.forEach(tid=>{
+    row.style.cssText='display:grid;grid-template-columns:1fr auto 1fr;gap:8px;width:100%;align-items:center';
+
+    tree.tracks.forEach((tid,colIdx)=>{
       const col=document.createElement('div');
       col.className='track-col';
       const lbl=document.createElement('div');
@@ -3335,32 +3337,38 @@ function render(){
       lbl.textContent=tree.trackLabels[tid];
       col.appendChild(lbl);
       const tNodes=tree.nodes.filter(n=>n.track===tid);
+
+      // find which node in this track points to a center node
+      const centerReqIds=centerNodes.flatMap(cn=>cn.req);
+
       tNodes.forEach((node,i)=>{
         if(i>0) col.appendChild(_makeConnector(tNodes[i-1].id));
         col.appendChild(_makeTreeNode(node,null));
+        // if this node feeds a center node, add a visual arrow hint
+        if(centerReqIds.includes(node.id)&&centerNodes.length){
+          const arrow=document.createElement('div');
+          arrow.style.cssText=`font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);opacity:.6;text-align:${colIdx===0?'left':'right'};padding:0 4px`;
+          arrow.textContent=colIdx===0?'↙ 90° Hold':'↘ 90° Hold';
+          col.appendChild(arrow);
+        }
       });
       row.appendChild(col);
+
+      // middle column — insert center nodes between the two track columns
+      if(colIdx===0&&centerNodes.length){
+        const midCol=document.createElement('div');
+        midCol.style.cssText='display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:60px';
+        const midLbl=document.createElement('div');
+        midLbl.style.cssText='font-family:"Share Tech Mono",monospace;font-size:8px;color:var(--gold);letter-spacing:.1em;text-align:center;line-height:1.5;margin-bottom:4px;opacity:.75';
+        midLbl.innerHTML='צומת<br>מחבר';
+        midCol.appendChild(midLbl);
+        centerNodes.forEach(cn=>{
+          midCol.appendChild(_makeTreeNode(cn,null));
+        });
+        row.appendChild(midCol);
+      }
     });
     path.appendChild(row);
-
-    // center nodes (between tracks and merge)
-    const centerNodes=tree.nodes.filter(n=>n.track==='center');
-    if(centerNodes.length){
-      const centerRow=document.createElement('div');
-      centerRow.style.cssText='display:flex;flex-direction:column;align-items:center;gap:6px;margin:6px 0';
-      const centerLabel=document.createElement('div');
-      centerLabel.style.cssText='font-family:"Share Tech Mono",monospace;font-size:9px;letter-spacing:.12em;color:var(--gold);opacity:.7;text-align:center';
-      centerLabel.textContent='⬡ צומת מחבר';
-      centerRow.appendChild(centerLabel);
-      centerNodes.forEach(node=>{
-        centerRow.appendChild(_makeTreeNode(node,null));
-        const reqLabel=document.createElement('div');
-        reqLabel.style.cssText='font-family:"Share Tech Mono",monospace;font-size:9px;color:var(--muted);text-align:center;line-height:1.6';
-        reqLabel.innerHTML=`דורש: ${node.req.map(r=>{const n2=tree.nodes.find(x=>x.id===r);return`<span style="color:var(--gold)">${n2?n2.name:r}</span>`;}).join(' + ')}`;
-        centerRow.appendChild(reqLabel);
-      });
-      path.appendChild(centerRow);
-    }
 
     // merge banner
     const mergeDiv=document.createElement('div');
