@@ -3391,8 +3391,21 @@ function render(){
         ?'display:grid;grid-template-columns:1fr 44px 104px 44px 1fr;gap:0;width:100%;align-items:center'
         :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
 
-      const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center';
+      const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(n0&&n0.id==='h_planche'?';position:relative;overflow:visible':'');
       if(n0)left.appendChild(_makeTreeNode(n0,null));
+      if(n0&&n0.id==='h_planche'&&plancheSideNodes.length>0){
+        const sw=document.createElement('div');
+        sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto';
+        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+        sw.appendChild(ha);
+        const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:column;align-items:center;transform:scale(0.82);transform-origin:top center';
+        plancheSideNodes.forEach((node,idx)=>{
+          col.appendChild(_makeTreeNode(node,null));
+          if(idx<plancheSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:30px;margin:0';col.appendChild(c);}
+        });
+        sw.appendChild(col);
+        left.appendChild(sw);
+      }
       nodeRow.appendChild(left);
 
       if(showDiag){
@@ -3425,19 +3438,6 @@ function render(){
       nodeRow.appendChild(right);
 
       path.appendChild(nodeRow);
-
-      // horizontal side branch from פלאנץ מלא → 3 finger planche nodes
-      if(n0 && n0.id==='h_planche' && plancheSideNodes.length>0){
-        const branchRow=document.createElement('div');
-        branchRow.style.cssText='display:flex;flex-direction:row;align-items:center;justify-content:flex-end;width:100%;overflow:visible;direction:ltr;padding:6px 0';
-        const initC=document.createElement('div');initC.className='connector';initC.style.cssText='height:44px;margin:0;transform:rotate(90deg);flex-shrink:0';
-        branchRow.appendChild(initC);
-        plancheSideNodes.forEach((node,idx)=>{
-          branchRow.appendChild(_makeTreeNode(node,null));
-          if(idx<plancheSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:44px;margin:0;transform:rotate(90deg);flex-shrink:0';branchRow.appendChild(c);}
-        });
-        path.appendChild(branchRow);
-      }
     }
 
     // merge nodes — diagonal connectors from both tracks converging to center
