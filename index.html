@@ -171,8 +171,17 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 @keyframes pulse{0%,100%{box-shadow:0 0 18px rgba(0,255,213,.5)}50%{box-shadow:0 0 34px rgba(0,255,213,.85),0 0 60px rgba(0,200,170,.4)}}
 .node.done .disc{border-color:var(--success);color:#001a10;background:radial-gradient(circle at 40% 35%,#7dffce,#00cc88);box-shadow:0 0 22px rgba(0,255,170,.6)}
 .node.done .label{color:var(--success)}
-.connector{width:4px;height:34px;margin-top:-34px;border-radius:2px;background:repeating-linear-gradient(180deg,var(--border) 0 6px,transparent 6px 12px)}
-.connector.done{background:linear-gradient(180deg,var(--success),var(--cyan));box-shadow:0 0 10px var(--success)}
+.connector{width:5px;height:36px;margin-top:-34px;border-radius:3px;position:relative;
+  background:linear-gradient(180deg,rgba(0,255,213,.08) 0%,rgba(0,255,213,.9) 45%,rgba(0,168,255,.9) 55%,rgba(0,255,213,.08) 100%);
+  background-size:100% 300%;animation:flowDown 1.4s linear infinite;
+  box-shadow:0 0 8px rgba(0,255,213,.35),0 0 18px rgba(0,168,255,.15)}
+.connector::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
+  border-top:10px solid var(--cyan);filter:drop-shadow(0 0 5px var(--cyan))}
+.connector.done{background:linear-gradient(180deg,rgba(0,255,170,.08) 0%,rgba(0,255,170,.95) 45%,rgba(0,220,130,.95) 55%,rgba(0,255,170,.08) 100%);
+  background-size:100% 300%;box-shadow:0 0 10px rgba(0,255,170,.4)}
+.connector.done::after{border-top-color:var(--success);filter:drop-shadow(0 0 5px var(--success))}
+@keyframes flowDown{0%{background-position:0 -100%}100%{background-position:0 200%}}
 .path[data-tree=pull] .node.avail .disc{border-color:var(--pull);box-shadow:0 0 22px rgba(0,168,255,.55)}
 .path[data-tree=push] .node.avail .disc{border-color:var(--push);box-shadow:0 0 22px rgba(255,122,46,.55)}
 .path[data-tree=balance] .node.avail .disc{border-color:var(--balance);box-shadow:0 0 22px rgba(150,90,255,.55)}
@@ -3379,10 +3388,32 @@ function render(){
       const leftFeeds=n0&&centerReqIds.includes(n0.id);
       const rightFeeds=n1&&centerReqIds.includes(n1.id);
       if((leftFeeds||rightFeeds)&&centerNodes.length){
-        // arrow row
         const arrowRow=document.createElement('div');
-        arrowRow.style.cssText='display:flex;align-items:center;gap:2px;font-size:14px;color:var(--gold)';
-        arrowRow.innerHTML=`<span style="opacity:${leftFeeds?1:.15}">↗</span><span style="opacity:${rightFeeds?1:.15}">↖</span>`;
+        arrowRow.style.cssText='display:flex;justify-content:center';
+        arrowRow.innerHTML=`<svg width="72" height="32" viewBox="0 0 72 32" style="overflow:visible">
+          <defs>
+            <linearGradient id="cxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00ffd5"><animate attributeName="stop-color" values="#00ffd5;#00a8ff;#00ffd5" dur="2s" repeatCount="indefinite"/></stop>
+              <stop offset="100%" stop-color="#00a8ff"><animate attributeName="stop-color" values="#00a8ff;#00ffd5;#00a8ff" dur="2s" repeatCount="indefinite"/></stop>
+            </linearGradient>
+            <linearGradient id="cxGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#00ffd5"><animate attributeName="stop-color" values="#00ffd5;#00a8ff;#00ffd5" dur="2s" repeatCount="indefinite"/></stop>
+              <stop offset="100%" stop-color="#00a8ff"><animate attributeName="stop-color" values="#00a8ff;#00ffd5;#00a8ff" dur="2s" repeatCount="indefinite"/></stop>
+            </linearGradient>
+            <marker id="ahL" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="url(#cxGrad)"/>
+            </marker>
+            <marker id="ahR" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="url(#cxGrad2)"/>
+            </marker>
+          </defs>
+          ${leftFeeds?`<line x1="2" y1="2" x2="32" y2="28" stroke="url(#cxGrad)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#ahL)" filter="url(#glow)">
+            <animate attributeName="stroke-opacity" values=".5;1;.5" dur="1.8s" repeatCount="indefinite"/>
+          </line>`:''}
+          ${rightFeeds?`<line x1="70" y1="2" x2="40" y2="28" stroke="url(#cxGrad2)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#ahR)" filter="url(#glow)">
+            <animate attributeName="stroke-opacity" values=".5;1;.5" dur="1.8s" begin="0.3s" repeatCount="indefinite"/>
+          </line>`:''}
+        </svg>`;
         mid.appendChild(arrowRow);
         centerNodes.forEach(cn=>mid.appendChild(_makeTreeNode(cn,null)));
         const cnLabel=document.createElement('div');
