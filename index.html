@@ -3429,7 +3429,7 @@ function render(){
         const lc=document.createElement('div');lc.style.cssText='position:relative;overflow:visible';
         if(t0Nodes[t0Nodes.length-1]){const c=document.createElement('div');c.className='connector';c.style.cssText='height:120px;margin:0;transform-origin:top center;transform:rotate(62deg);position:absolute;top:0;left:50%;margin-left:-2.5px';lc.appendChild(c);}
         const rc=document.createElement('div');rc.style.cssText='position:relative;overflow:visible';
-        if(t1Nodes[t1Nodes.length-1]){const c=document.createElement('div');c.className='connector';const _ep=Math.max(0,t0Nodes.length-t1Nodes.length)*104;c.style.cssText=`height:${120+_ep}px;margin:0;transform-origin:top center;transform:rotate(-21deg);position:absolute;top:${-_ep}px;left:50%;margin-left:-2.5px`;rc.appendChild(c);}
+        if(t1Nodes[t1Nodes.length-1]){const c=document.createElement('div');c.className='connector';const _ep=Math.max(0,t0Nodes.length-t1Nodes.length)*104;c.style.cssText=`height:${120+_ep}px;margin:0;transform-origin:top center;transform:rotate(-21deg);position:absolute;top:${-_ep-42}px;left:50%;margin-left:-2.5px`;rc.appendChild(c);}
         diagRow.appendChild(lc);
         diagRow.appendChild(document.createElement('div'));
         diagRow.appendChild(rc);
