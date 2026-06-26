@@ -3377,27 +3377,22 @@ function render(){
         path.appendChild(connRow);
       }
 
-      // diagonal connectors to center node — same .connector element, rotated
-      if(showDiag){
-        const diagRow=document.createElement('div');
-        diagRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;height:56px;overflow:visible;pointer-events:none';
-        const lc=document.createElement('div');lc.style.cssText='position:relative;overflow:visible';
-        if(leftFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:100px;margin:0;transform-origin:bottom center;transform:rotate(60deg);position:absolute;bottom:0;left:50%;margin-left:-2.5px';lc.appendChild(c);}
-        diagRow.appendChild(lc);
-        diagRow.appendChild(document.createElement('div'));
-        const rc=document.createElement('div');rc.style.cssText='position:relative;overflow:visible';
-        if(rightFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:100px;margin:0;transform-origin:bottom center;transform:rotate(-60deg);position:absolute;bottom:0;left:50%;margin-left:-2.5px';rc.appendChild(c);}
-        diagRow.appendChild(rc);
-        path.appendChild(diagRow);
-      }
-
-      // node row
+      // node row — 5 columns when showDiag (side nodes + h-arrows + center node)
       const nodeRow=document.createElement('div');
-      nodeRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
+      nodeRow.style.cssText=showDiag
+        ?'display:grid;grid-template-columns:1fr 44px 104px 44px 1fr;gap:0;width:100%;align-items:center'
+        :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
 
       const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center';
       if(n0)left.appendChild(_makeTreeNode(n0,null));
       nodeRow.appendChild(left);
+
+      if(showDiag){
+        // horizontal arrow: left node → center (connector rotated -90°, arrowhead points right)
+        const la=document.createElement('div');la.style.cssText='display:flex;align-items:center;justify-content:center';
+        if(leftFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:44px;margin:0;transform:rotate(-90deg)';la.appendChild(c);}
+        nodeRow.appendChild(la);
+      }
 
       const mid=document.createElement('div');
       mid.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px';
@@ -3409,6 +3404,13 @@ function render(){
         mid.appendChild(cnLabel);
       }
       nodeRow.appendChild(mid);
+
+      if(showDiag){
+        // horizontal arrow: right node → center (connector rotated 90°, arrowhead points left)
+        const ra=document.createElement('div');ra.style.cssText='display:flex;align-items:center;justify-content:center';
+        if(rightFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:44px;margin:0;transform:rotate(90deg)';ra.appendChild(c);}
+        nodeRow.appendChild(ra);
+      }
 
       const right=document.createElement('div');right.style.cssText='display:flex;justify-content:center';
       if(n1)right.appendChild(_makeTreeNode(n1,null));
