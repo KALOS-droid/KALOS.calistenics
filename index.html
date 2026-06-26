@@ -3389,29 +3389,41 @@ function render(){
       if((leftFeeds||rightFeeds)&&centerNodes.length){
         const arrowRow=document.createElement('div');
         arrowRow.style.cssText='display:flex;justify-content:center';
-        arrowRow.innerHTML=`<svg width="72" height="32" viewBox="0 0 72 32" style="overflow:visible">
+        arrowRow.innerHTML=`<svg width="70" height="52" viewBox="0 0 70 52" style="overflow:visible;display:block">
           <defs>
-            <linearGradient id="cxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#00ffd5"><animate attributeName="stop-color" values="#00ffd5;#00a8ff;#00ffd5" dur="2s" repeatCount="indefinite"/></stop>
-              <stop offset="100%" stop-color="#00a8ff"><animate attributeName="stop-color" values="#00a8ff;#00ffd5;#00a8ff" dur="2s" repeatCount="indefinite"/></stop>
+            <filter id="dg" x="-100%" y="-50%" width="300%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <linearGradient id="fgL" gradientUnits="userSpaceOnUse" x1="-75" y1="4" x2="35" y2="48">
+              <stop offset="0%" stop-color="rgba(0,255,213,0.05)"/>
+              <stop offset="45%" stop-color="#00ffd5"/>
+              <stop offset="55%" stop-color="#00a8ff"/>
+              <stop offset="100%" stop-color="rgba(0,255,213,0.05)"/>
+              <animateTransform attributeName="gradientTransform" type="translate" values="-110,-44; 110,44" dur="1.4s" repeatCount="indefinite"/>
             </linearGradient>
-            <linearGradient id="cxGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#00ffd5"><animate attributeName="stop-color" values="#00ffd5;#00a8ff;#00ffd5" dur="2s" repeatCount="indefinite"/></stop>
-              <stop offset="100%" stop-color="#00a8ff"><animate attributeName="stop-color" values="#00a8ff;#00ffd5;#00a8ff" dur="2s" repeatCount="indefinite"/></stop>
+            <linearGradient id="fgR" gradientUnits="userSpaceOnUse" x1="145" y1="4" x2="35" y2="48">
+              <stop offset="0%" stop-color="rgba(0,255,213,0.05)"/>
+              <stop offset="45%" stop-color="#00ffd5"/>
+              <stop offset="55%" stop-color="#00a8ff"/>
+              <stop offset="100%" stop-color="rgba(0,255,213,0.05)"/>
+              <animateTransform attributeName="gradientTransform" type="translate" values="110,-44; -110,44" dur="1.4s" begin="0.3s" repeatCount="indefinite"/>
             </linearGradient>
-            <marker id="ahL" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-              <path d="M0,0 L8,4 L0,8 Z" fill="url(#cxGrad)"/>
+            <marker id="dML" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto">
+              <polygon points="0,0 14,5 0,10" fill="#00ffd5"/>
             </marker>
-            <marker id="ahR" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-              <path d="M0,0 L8,4 L0,8 Z" fill="url(#cxGrad2)"/>
+            <marker id="dMR" markerWidth="14" markerHeight="10" refX="13" refY="5" orient="auto">
+              <polygon points="0,0 14,5 0,10" fill="#00ffd5"/>
             </marker>
           </defs>
-          ${leftFeeds?`<line x1="2" y1="2" x2="32" y2="28" stroke="url(#cxGrad)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#ahL)" filter="url(#glow)">
-            <animate attributeName="stroke-opacity" values=".5;1;.5" dur="1.8s" repeatCount="indefinite"/>
-          </line>`:''}
-          ${rightFeeds?`<line x1="70" y1="2" x2="40" y2="28" stroke="url(#cxGrad2)" stroke-width="3.5" stroke-linecap="round" marker-end="url(#ahR)" filter="url(#glow)">
-            <animate attributeName="stroke-opacity" values=".5;1;.5" dur="1.8s" begin="0.3s" repeatCount="indefinite"/>
-          </line>`:''}
+          ${leftFeeds?`
+          <line x1="-75" y1="4" x2="35" y2="48" stroke="rgba(0,255,213,0.25)" stroke-width="5" stroke-linecap="round" marker-end="url(#dML)"/>
+          <line x1="-75" y1="4" x2="35" y2="48" stroke="url(#fgL)" stroke-width="5" stroke-linecap="round" filter="url(#dg)"/>
+          `:''}
+          ${rightFeeds?`
+          <line x1="145" y1="4" x2="35" y2="48" stroke="rgba(0,168,255,0.25)" stroke-width="5" stroke-linecap="round" marker-end="url(#dMR)"/>
+          <line x1="145" y1="4" x2="35" y2="48" stroke="url(#fgR)" stroke-width="5" stroke-linecap="round" filter="url(#dg)"/>
+          `:''}
         </svg>`;
         mid.appendChild(arrowRow);
         centerNodes.forEach(cn=>mid.appendChild(_makeTreeNode(cn,null)));
