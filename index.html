@@ -3582,7 +3582,7 @@ function render(){
         if(_hspuSide.length>0){
           const sw=document.createElement('div');
           sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row-reverse;align-items:center;pointer-events:auto;gap:8px';
-          const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+          const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(90deg);flex-shrink:0';
           sw.appendChild(ha);
           _hspuSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
           right.appendChild(sw);
