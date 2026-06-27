@@ -1537,6 +1537,8 @@ const TREES={
     {id:'h_tuck',   track:'planche',name:'טאק פלאנץ',              icon:'🟠',desc:'ברכיים אסופות, גוף מרחף — הפלאנץ הראשון שלך.',cond:'להחזיק 10 שניות.',req:['h_leanpush'],xp:70,pre:'6×החזקת מקס'},
     {id:'h_adv',    track:'planche',name:'אדוונס טאק פלאנץ',       icon:'🟡',desc:'גב ישר, ברכיים פחות אסופות — כוח גדול יותר.',cond:'להחזיק 8 שניות.',req:['h_tuck'],xp:90,pre:'6×החזקת מקס'},
     {id:'h_str',    track:'planche',name:'סטראדל פלאנץ',            icon:'⭐',desc:'רגליים פתוחות לצדדים — מעבר לפלאנץ מלא.',cond:'להחזיק 5 שניות.',req:['h_adv'],xp:120,pre:'6×החזקת 3-5ש׳'},
+    {id:'h_str_push',track:'straddle_side',name:'פוש אפ בסטראדל פלאנץ',icon:'🔛',desc:'דחיפה דינמית מתוך סטראדל פלאנץ — כוח פלאנץ בתנועה.',cond:'3 פוש אפ נקיים בסטראדל פלאנץ.',req:['h_str'],xp:140,pre:'5×1-3'},
+    {id:'h_str_press',track:'straddle_side',name:'פרס בסטראדל פלאנץ',  icon:'⬆️',desc:'לחיצה ישרה מתוך סטראדל פלאנץ — Elite.',cond:'פרס אחד נקי בסטראדל פלאנץ.',req:['h_str_push'],xp:170,pre:'5×ניסיונות'},
     {id:'h_planche',track:'planche',name:'פלאנץ מלא',               icon:'🌟',goal:true,desc:'הגוף מרחף אופקית, רגליים צמודות. אחד מהתרגילים הקשים ביותר בקאליסתניקס.',cond:'להחזיק 5 שניות.',req:['h_str'],xp:200,pre:'6×החזקת מקס · גוף ישר לחלוטין'},
     {id:'h_planchepush',track:'planche',name:'שכיבות בפלאנץ',       icon:'💥',goal:true,desc:'דחיפה דינמית מתוך פלאנץ מלא — Elite level.',cond:'3 שכיבות פלאנץ נקיות.',req:['h_planche'],xp:260,pre:'5×1-3'},
     {id:'h_planche_fing', track:'planche_side',name:'פלאנץ על אצבעות',      icon:'☝️',desc:'פלאנץ מלא עם משקל על כל האצבעות — כוח אחיזה אקסטרים.',cond:'להחזיק 3 שניות.',req:['h_planche'],xp:220,pre:'6×החזקת מקס · אצבעות פתוחות'},
@@ -3344,6 +3346,7 @@ function render(){
     const t0Nodes=tree.nodes.filter(n=>n.track===tree.tracks[0]); // planche
     const t1Nodes=tree.nodes.filter(n=>n.track===tree.tracks[1]); // hspu
     const plancheSideNodes=tree.nodes.filter(n=>n.track==='planche_side');
+    const straddleSideNodes=tree.nodes.filter(n=>n.track==='straddle_side');
     const maxLen=Math.max(t0Nodes.length,t1Nodes.length);
 
     // track label row
@@ -3391,8 +3394,22 @@ function render(){
         ?'display:grid;grid-template-columns:1fr 44px 104px 44px 1fr;gap:0;width:100%;align-items:center'
         :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
 
-      const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(n0&&n0.id==='h_planche'?';position:relative;overflow:visible':'');
+      const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'));
+      const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(_needsSide?';position:relative;overflow:visible':'');
       if(n0)left.appendChild(_makeTreeNode(n0,null));
+      if(n0&&n0.id==='h_str'&&straddleSideNodes.length>0){
+        const sw=document.createElement('div');
+        sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
+        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+        sw.appendChild(ha);
+        const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
+        straddleSideNodes.forEach((node,idx)=>{
+          col.appendChild(_makeTreeNode(node,null));
+          if(idx<straddleSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
+        });
+        sw.appendChild(col);
+        left.appendChild(sw);
+      }
       if(n0&&n0.id==='h_planche'&&plancheSideNodes.length>0){
         const sw=document.createElement('div');
         sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
