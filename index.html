@@ -3817,7 +3817,12 @@ function logout(){
 function openAdmin(){document.getElementById('adminBackdrop').classList.add('show');setTimeout(()=>document.getElementById('adminCode').focus(),100);}
 function closeAdmin(){document.getElementById('adminBackdrop').classList.remove('show');}
 function submitAdmin(){const v=document.getElementById('adminCode').value.trim();
-  if(v==='AJ@Ffd&@34'){state.admin=true;save();closeAdmin();flash('ACCESS GRANTED');switchTree(activeTree);}
+  if(v==='121212'){
+    if(confirm('לאפס את כל התרגילים שהושלמו? הפרופיל והיסטוריית האימונים יישמרו.')){
+      state.done=[];state.xp=0;state.level=1;save();closeAdmin();flash('התרגילים אופסו ✓');render();
+    }else{closeAdmin();}
+  }
+  else if(v==='AJ@Ffd&@34'){state.admin=true;save();closeAdmin();flash('ACCESS GRANTED');switchTree(activeTree);}
   else if(v==='987654321'){
     state.admin=false;save();closeAdmin();flash('USER MODE');switchTree(activeTree);
   }
