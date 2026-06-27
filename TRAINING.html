@@ -24,7 +24,7 @@ const _db=firebase.firestore();
   --bg:#020308;--panel:rgba(6,12,28,.9);--border:#143a72;--blue:#00a8ff;--blue2:#0066ff;
   --violet:#8b3dff;--violet2:#b66dff;--cyan:#00ffd5;--text:#cfe6ff;--muted:#46688f;
   --gold:#ffc14d;--success:#00ffaa;--danger:#ff3355;
-  --pull:#00a8ff;--push:#ff7a2e;--balance:#b66dff;
+  --pull:#00a8ff;--push:#ff7a2e;--balance:#b66dff;--core:#00d97e;--legs:#ff5566;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:radial-gradient(ellipse at 50% -10%,#0a1030,var(--bg) 60%);color:var(--text);
@@ -137,6 +137,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .tab[data-tree=pull].active{color:#fff;border-color:var(--pull);box-shadow:0 0 20px rgba(0,168,255,.35);background:rgba(0,100,255,.12)}
 .tab[data-tree=push].active{color:#fff;border-color:var(--push);box-shadow:0 0 20px rgba(255,122,46,.35);background:rgba(255,90,20,.12)}
 .tab[data-tree=balance].active{color:#fff;border-color:var(--balance);box-shadow:0 0 20px rgba(150,90,255,.4);background:rgba(120,50,255,.12)}
+.tab[data-tree=core].active{color:#fff;border-color:var(--core);box-shadow:0 0 20px rgba(0,217,126,.4);background:rgba(0,180,100,.12)}
+.tab[data-tree=legs].active{color:#fff;border-color:var(--legs);box-shadow:0 0 20px rgba(255,85,102,.4);background:rgba(220,50,70,.12)}
 
 .tree-head{text-align:center;margin-bottom:6px}
 .tree-name{font-family:'Cinzel',serif;font-weight:900;font-size:26px;letter-spacing:.1em}
@@ -185,6 +187,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 .path[data-tree=pull] .node.avail .disc{border-color:var(--pull);box-shadow:0 0 22px rgba(0,168,255,.55)}
 .path[data-tree=push] .node.avail .disc{border-color:var(--push);box-shadow:0 0 22px rgba(255,122,46,.55)}
 .path[data-tree=balance] .node.avail .disc{border-color:var(--balance);box-shadow:0 0 22px rgba(150,90,255,.55)}
+.path[data-tree=core] .node.avail .disc{border-color:var(--core);box-shadow:0 0 22px rgba(0,217,126,.55)}
+.path[data-tree=legs] .node.avail .disc{border-color:var(--legs);box-shadow:0 0 22px rgba(255,85,102,.55)}
 
 /* modal */
 .backdrop{position:fixed;inset:0;z-index:100;background:rgba(0,0,8,.8);backdrop-filter:blur(7px);display:none;align-items:center;justify-content:center;padding:20px}
@@ -716,6 +720,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
     <div class="tab" data-tree="pull" onclick="switchTree('pull')">PULL · מתח <span class="cnt" id="cnt-pull"></span></div>
     <div class="tab" data-tree="push" onclick="switchTree('push')">PUSH · דחיפה <span class="cnt" id="cnt-push"></span></div>
     <div class="tab" data-tree="balance" onclick="switchTree('balance')">BALANCE · שיווי <span class="cnt" id="cnt-balance"></span></div>
+    <div class="tab" data-tree="core" onclick="switchTree('core')">CORE · ליבה <span class="cnt" id="cnt-core"></span></div>
+    <div class="tab" data-tree="legs" onclick="switchTree('legs')">LEGS · רגליים <span class="cnt" id="cnt-legs"></span></div>
     <div class="tab" data-tree="library" id="libraryTab" onclick="switchTree('library')" style="display:none;border-color:var(--gold);color:var(--gold)">📚 מאגר תרגילים</div>
   </div>
   <div class="tree-head" id="treeHead" style="position:relative"><div class="tree-name" id="treeName">PULL</div><div class="tree-sub" id="treeSub"></div><button onclick="openTreeHelp()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:rgba(139,61,255,.25);border:1px solid rgba(139,61,255,.6);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;letter-spacing:.05em">❓ הדרכה</button></div>
@@ -1599,6 +1605,27 @@ const TREES={
     {id:'b_press',name:'כניסה בכוח (Press to Handstand)',icon:'🛗',goal:true,desc:'עלייה לעמידת ידיים בלי קפיצה — דורש כוח דחיפה ישר-זרוע.',cond:'Press to handstand נקי (דורש עמידת ידיים + כוח דחיפה).',req:['b_full','h_lean'],xp:160,pre:'6×ניסיונות פראס · עבוד על סטראדל/פייק פראס'},
     {id:'b_oa_assist',name:'עמידת ידיים יד אחת — בעזרת קיר',icon:'🧗',desc:'מעבר משקל ליד אחת ליד הקיר.',cond:'להחזיק 5 שניות עם אצבעות על הקיר.',req:['b_press'],xp:200,pre:'6×החזקת מקס לכל צד'},
     {id:'b_oa',name:'עמידת ידיים על יד אחת',icon:'🙌',goal:true,desc:'הפסגה של שיווי המשקל — דורש גם כוח דחיפה (HSPU) ליציבות הכתף.',cond:'להחזיק עמידת ידיים על יד אחת (דורש איזון יד-אחת + כוח HSPU).',req:['b_oa_assist','h_whspu'],xp:300,pre:'8×ניסיונות החזקה לכל צד'},
+    /* ── combo side branch ── */
+    {id:'b_lsit_hs',track:'side',name:'L-Sit Press to Handstand',icon:'🌟',goal:true,desc:'קומבו נדיר — כניסה לעמידות ידיים ישירות מ-L-sit, דורש כוח ליבה + כוח דחיפה גבוהה.',cond:'פראס נקי מ-L-sit לעמידות ידיים.',req:['b_press','c_lsit30'],xp:250,pre:'5×ניסיונות פייק פראס מ-L-sit · עבוד על Straddle press'},
+  ]},
+  core:{name:'CORE · ליבה',color:'var(--core)',sub:'פלאנק · L-Sit · Dragon Flag · Windshield Wipers',nodes:[
+    {id:'c_plank',name:'פלאנק 60 שניות',icon:'🏋️',desc:'בסיס יציבות הליבה.',cond:'להחזיק פלאנק 60 שניות ישר.',req:[],xp:20,pre:'4×מקס · גוף ישר כמו קרש'},
+    {id:'c_hollow',name:'Hollow Body Hold 30 שניות',icon:'🍌',desc:'יציבת גוף חלול — הבסיס לכל תרגילי הליבה.',cond:'להחזיק Hollow Body 30 שניות.',req:['c_plank'],xp:30,pre:'4×מקס · גב שטוח לרצפה, גפיים מתוחות'},
+    {id:'c_legraise',name:'הרמות רגליים בתלייה 10×',icon:'📐',desc:'חיזוק Hip Flexors וליבה בתלייה.',cond:'10 הרמות רגליים מלאות בתלייה.',req:['c_hollow'],xp:40,pre:'4×10 · רגליים ישרות, עלייה שליטה'},
+    {id:'c_tuck_lsit',name:'Tuck L-Sit 10 שניות',icon:'🦵',desc:'L-sit בברכיים אסופות — הצעד הראשון.',cond:'להחזיק Tuck L-sit 10 שניות.',req:['c_legraise'],xp:50,pre:'5×מקס · ידיים נעולות, ירכיים מעל הקרקע'},
+    {id:'c_lsit',name:'L-Sit מלא 5 שניות',icon:'⚡',goal:true,desc:'רגליים מקבילות לרצפה — ליבה וכפיפורים.',cond:'L-Sit מלא 5 שניות ברצף.',req:['c_tuck_lsit'],xp:70,pre:'5×מקס · רגליים ישרות לחלוטין'},
+    {id:'c_lsit30',name:'L-Sit 30 שניות',icon:'🔥',goal:true,desc:'שליטה מלאה ב-L-sit.',cond:'L-Sit 30 שניות ברצף.',req:['c_lsit'],xp:100,pre:'4×20ש׳ → 30ש׳ · עבוד על פורקת כתפיים'},
+    {id:'c_dragonflag',name:'Dragon Flag 3 חזרות',icon:'🐉',goal:true,desc:'שליטה עצומה בגוף — Bruce Lee.',cond:'3 Dragon Flags שליטה מלאה.',req:['c_lsit30'],xp:150,pre:'5×נגטיב איטי → קונצנטרי'},
+    {id:'c_wiper',name:'Windshield Wipers 5× לכל צד',icon:'🌀',goal:true,desc:'ליבה רוטציונית — שליטה ב-360°.',cond:'5 Windshield Wipers לכל צד בתלייה.',req:['c_dragonflag'],xp:200,pre:'4×מקס לכל צד · שמור רגליים ישרות'},
+  ]},
+  legs:{name:'LEGS · רגליים',color:'var(--legs)',sub:'סקוואט · פיסטול · Nordic Curls · Shrimp Squat',nodes:[
+    {id:'l_squat20',name:'20 סקוואט',icon:'🦵',desc:'בסיס — טווח תנועה מלא.',cond:'20 סקוואט מלאים ברצף.',req:[],xp:20,pre:'4×15-20 · ירכיים מתחת לברכיים'},
+    {id:'l_lunge',name:'לאנג׳ 10× לכל רגל',icon:'🚶',desc:'חיזוק חד-רגלי ואיזון.',cond:'10 לאנג׳ לכל רגל בשליטה.',req:['l_squat20'],xp:30,pre:'4×10 לכל רגל · ברך אחורית לא נוגעת ברצפה'},
+    {id:'l_nordic',name:'Nordic Curls 5 חזרות',icon:'❄️',desc:'חיזוק Hamstrings — מניעת פציעות.',cond:'5 Nordic Hamstring Curls מלאים.',req:['l_lunge'],xp:50,pre:'4×3-5 · שמור גוף ישר · עצור לפני הרצפה'},
+    {id:'l_pistol_neg',name:'פיסטול נגטיב',icon:'⬇️',desc:'ירידה איטית על רגל אחת — בניית כוח.',cond:'5 פיסטול נגטיב לכל רגל.',req:['l_nordic'],xp:65,pre:'5×3-5 לכל רגל · ירידה 5 שניות'},
+    {id:'l_pistol',name:'פיסטול סקוואט',icon:'🎯',goal:true,desc:'סקוואט על רגל אחת — כוח + איזון מלא.',cond:'5 פיסטול לכל רגל ברצף.',req:['l_pistol_neg'],xp:100,pre:'5×3-5 לכל רגל · מחבק עם הרגל החופשית'},
+    {id:'l_shrimp',name:'Shrimp Squat',icon:'🦐',goal:true,desc:'פיסטול עם רגל אחורית כפופה — טווח תנועה עצום.',cond:'5 Shrimp Squats לכל רגל.',req:['l_pistol'],xp:140,pre:'5×3 לכל רגל · אחוז קרסול אחורי'},
+    {id:'l_nordic_full',name:'Nordic Curls 10× שליטה מלאה',icon:'💪',goal:true,desc:'Nordic Curls מלאים — Hamstrings ברזל.',cond:'10 Nordic Curls מלאים בשליטה.',req:['l_shrimp'],xp:180,pre:'4×8-10 · ירידה + עלייה בשליטה מלאה'},
   ]},
 };
 
@@ -3575,9 +3602,25 @@ function render(){
     });
   } else {
     // ── standard linear tree ──
-    tree.nodes.forEach((node,i)=>{
-      if(i>0) path.appendChild(_makeConnector(tree.nodes[i-1].id));
-      path.appendChild(_makeTreeNode(node,i));
+    const sideNodes=tree.nodes.filter(n=>n.track==='side');
+    const mainNodes=tree.nodes.filter(n=>n.track!=='side');
+    mainNodes.forEach((node,i)=>{
+      if(i>0) path.appendChild(_makeConnector(mainNodes[i-1].id));
+      const side=sideNodes.filter(s=>s.req.includes(node.id));
+      if(side.length>0){
+        const wr=document.createElement('div');
+        wr.style.cssText='position:relative;overflow:visible;display:flex;justify-content:center';
+        wr.appendChild(_makeTreeNode(node,i));
+        const sw=document.createElement('div');
+        sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row-reverse;align-items:center;pointer-events:auto;direction:rtl;gap:8px';
+        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+        sw.appendChild(ha);
+        side.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
+        wr.appendChild(sw);
+        path.appendChild(wr);
+      } else {
+        path.appendChild(_makeTreeNode(node,i));
+      }
     });
   }
 
@@ -3974,6 +4017,14 @@ const NODE_EX_TYPE={
   b_wall:'handstand',b_legoff:'handstand',b_free5:'handstand',
   b_free30:'handstand',b_taps:'handstand',b_full:'handstand',
   b_press:'handstand',b_oa_assist:'handstand',b_oa:'handstand',
+  b_lsit_hs:'handstand',
+  // Core
+  c_plank:'pushup',c_hollow:'pushup',c_legraise:'pullup',
+  c_tuck_lsit:'hold',c_lsit:'hold',c_lsit30:'hold',
+  c_dragonflag:'pushup',c_wiper:'pullup',
+  // Legs
+  l_squat20:'pushup',l_lunge:'pushup',l_nordic:'pushup',
+  l_pistol_neg:'pushup',l_pistol:'pushup',l_shrimp:'pushup',l_nordic_full:'pushup',
 };
 
 /* ── ANGLE HELPER ── */
