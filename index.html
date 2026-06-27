@@ -1496,27 +1496,44 @@ function setCardioPerType(type,n,el){
 function setSessionLen(n,el){profile1b.sessionLen=n;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 
 const TREES={
-  pull:{name:'PULL · מתח',color:'var(--pull)',sub:'גב · ביצפס · פרונט לבר · יד אחת',nodes:[
-    {id:'p_hang',name:'תליה על המתח 30 שניות',icon:'🪢',desc:'בסיס האחיזה והכתף.',cond:'להחזיק תלייה 30 שניות.',req:[],xp:20,pre:'4×החזקת תלייה מקסימלית · מנוחה 60ש׳'},
-    {id:'p_scap',name:'משיכות סקפולה',icon:'🔧',desc:'הפעלת שכמות — היסוד לכל משיכה.',cond:'10 משיכות סקפולה.',req:['p_hang'],xp:20,pre:'4×8 משיכות סקפולה איטיות'},
-    {id:'p_rows',name:'מתח אוסטרלי (Row)',icon:'↔️',desc:'משיכה אופקית — בונה בסיס למתח.',cond:'15 מתח אוסטרלי נקיים.',req:['p_scap'],xp:25,pre:'4×10-12 · ככל שהגוף אופקי יותר — קשה יותר'},
-    {id:'p_neg',name:'מתח שלילי',icon:'⬇️',desc:'ירידה איטית ומבוקרת.',cond:'5 ירידות (3+ שניות).',req:['p_rows'],xp:25,pre:'5×3 ירידות איטיות (5 שניות כל אחת)'},
-    {id:'p_pull1',name:'המתח הראשון',icon:'🥇',desc:'אבן הדרך הראשונה.',cond:'מתח מלא אחד, סנטר מעל המוט.',req:['p_neg'],xp:35,pre:'מקס סטים × 1-3 מתחים · מנוחה מלאה'},
-    {id:'p_pull5',name:'5 מתח',icon:'💪',desc:'מתח מלא, שליטה.',cond:'5 מתחים מלאים ברצף.',req:['p_pull1'],xp:40,pre:'4×מקס (שאף ל-5) · מנוחה 2 דק׳'},
-    {id:'p_pull10',name:'10 מתח',icon:'🔥',desc:'נפח וכוח.',cond:'10 מתחים מלאים ברצף.',req:['p_pull5'],xp:50,pre:'4×6-10 · אם קל — הוסף עצירה למעלה'},
-    {id:'p_mu',name:'מאסל-אפ (Muscle-Up)',icon:'🚀',goal:true,desc:'משיכה נפיצה + דחיפה מעל המוט — תרגיל חוצה-עצים.',cond:'מאסל-אפ נקי (דורש כוח משיכה + כוח דחיפה).',req:['p_pull10','h_dia'],xp:90,pre:'5×ניסיונות נפיצים · משיכה גבוהה + מעבר מהיר'},
-    {id:'p_archer',name:"מתח ארצ'ר",icon:'🏹',desc:'מעבר משקל לצד — שלב ליד אחת.',cond:"3 מתח ארצ'ר לכל צד.",req:['p_pull10'],xp:60,pre:'4×3 לכל צד'},
-    {id:'p_weight',name:'מתח עם משקל',icon:'🏋️',desc:'עומס מתקדם.',cond:'5 מתחים עם +10 ק"ג.',req:['p_pull10'],xp:60,pre:'5×3-5 עם משקל · עלה בהדרגה'},
-    {id:'p_typewriter',name:'מתח מכונת כתיבה',icon:'⌨️',desc:'מעבר אופקי בין הידיים למעלה.',cond:'3 חזרות לכל צד.',req:['p_archer'],xp:80,pre:'4×2-3 לכל צד'},
-    {id:'p_oa_neg',name:'מתח יד אחת — שלילי',icon:'🖐️',desc:'ירידה על יד אחת.',cond:'3 ירידות על יד אחת לכל צד.',req:['p_typewriter','p_weight'],xp:90,pre:'5×ירידה איטית אחת לכל צד'},
-    {id:'p_oa_assist',name:'מתח יד אחת בעזרה',icon:'🤝',desc:'יד אחת עם עזרת אצבעות מהיד השנייה.',cond:'3 חזרות בעזרה מינימלית לכל צד.',req:['p_oa_neg'],xp:120,pre:'5×1-3 לכל צד · הפחת עזרה בהדרגה'},
-    {id:'p_oa',name:'מתח יד אחת מלא',icon:'☝️',goal:true,desc:'הגביע הקדוש של המשיכה.',cond:'מתח יד אחת מלא לכל צד.',req:['p_oa_assist'],xp:180,pre:'מקס סטים × 1 לכל צד · מנוחה מלאה'},
-    {id:'p_tuckfl',name:'טאק פרונט לבר',icon:'➖',desc:'אופקי בברכיים אסופות.',cond:'להחזיק 10 שניות.',req:['p_pull10'],xp:50,pre:'5×החזקת מקס · שמור גב עגול-שטוח'},
-    {id:'p_advfl',name:'אדוונס טאק פרונט לבר',icon:'➗',desc:'ברכיים פתוחות חלקית.',cond:'להחזיק 8 שניות.',req:['p_tuckfl'],xp:70,pre:'5×החזקת מקס'},
-    {id:'p_strfl',name:'סטראדל פרונט לבר',icon:'✖️',desc:'רגליים פתוחות.',cond:'להחזיק 5 שניות.',req:['p_advfl'],xp:90,pre:'6×החזקת 3-5ש׳'},
-    {id:'p_fl',name:'פרונט לבר מלא',icon:'🛬',goal:true,desc:'הגוף מקביל לרצפה, ישר לגמרי.',cond:'להחזיק 5 שניות.',req:['p_strfl'],xp:160,pre:'6×החזקת מקס · גוף ישר ומתוח'},
-    {id:'p_flpull',name:'משיכות בפרונט לבר',icon:'🔃',desc:'דינמי מתוך פרונט לבר.',cond:'5 משיכות פרונט לבר.',req:['p_fl'],xp:200,pre:'4×3-5 משיכות'},
-    {id:'p_oafl',name:'פרונט לבר על יד אחת',icon:'🌠',goal:true,desc:'הפסגה של המשיכה הסטטית.',cond:'להחזיק טאק פרונט לבר על יד אחת.',req:['p_flpull','p_oa'],xp:300,pre:'6×ניסיונות החזקה לכל צד'},
+  pull:{name:'PULL · מתח',color:'var(--pull)',sub:'גב · ביצפס · פרונט לבר · מתח עם משקל · יד אחת',
+    tracks:['weighted','frontlever'],
+    trackLabels:{weighted:'🏋️ מתח עם משקל',frontlever:'🛬 פרונט לבר'},
+    trackColors:{weighted:'var(--pull)',frontlever:'var(--cyan)'},
+    nodes:[
+    /* ── בסיס משותף ── */
+    {id:'p_hang', track:'base',name:'תליה על המתח 30 שניות',icon:'🪢',desc:'בסיס האחיזה והכתף.',cond:'להחזיק תלייה 30 שניות.',req:[],xp:20,pre:'4×החזקת תלייה מקסימלית · מנוחה 60ש׳'},
+    {id:'p_scap', track:'base',name:'משיכות סקפולה',icon:'🔧',desc:'הפעלת שכמות — היסוד לכל משיכה.',cond:'10 משיכות סקפולה.',req:['p_hang'],xp:20,pre:'4×8 משיכות סקפולה איטיות'},
+    {id:'p_rows', track:'base',name:'מתח אוסטרלי (Row)',icon:'↔️',desc:'משיכה אופקית — בונה בסיס למתח.',cond:'15 מתח אוסטרלי נקיים.',req:['p_scap'],xp:25,pre:'4×10-12 · ככל שהגוף אופקי יותר — קשה יותר'},
+    {id:'p_neg',  track:'base',name:'מתח שלילי',icon:'⬇️',desc:'ירידה איטית ומבוקרת.',cond:'5 ירידות (3+ שניות).',req:['p_rows'],xp:25,pre:'5×3 ירידות איטיות (5 שניות כל אחת)'},
+    {id:'p_pull1',track:'base',name:'המתח הראשון',icon:'🥇',desc:'אבן הדרך הראשונה.',cond:'מתח מלא אחד, סנטר מעל המוט.',req:['p_neg'],xp:35,pre:'מקס סטים × 1-3 מתחים · מנוחה מלאה'},
+    {id:'p_pull5',track:'base',name:'5 מתח',icon:'💪',desc:'מתח מלא, שליטה.',cond:'5 מתחים מלאים ברצף.',req:['p_pull1'],xp:40,pre:'4×מקס (שאף ל-5) · מנוחה 2 דק׳'},
+    {id:'p_pull10',track:'base',name:'10 מתח',icon:'🔥',desc:'נפח וכוח — שלב הפיצול.',cond:'10 מתחים מלאים ברצף.',req:['p_pull5'],xp:50,pre:'4×6-10 · אם קל — הוסף עצירה למעלה'},
+    /* ── מסלול מתח עם משקל ── */
+    {id:'p_w10', track:'weighted',name:'מתח +10 ק"ג',icon:'🏋️',desc:'התחלת עומס חיצוני.',cond:'5 מתחים עם +10 ק"ג.',req:['p_pull10'],xp:65,pre:'4×5 · שמור טכניקה מלאה'},
+    {id:'p_w20', track:'weighted',name:'מתח +20 ק"ג',icon:'🏋️',desc:'כוח מתחיל להיבנות.',cond:'5 מתחים עם +20 ק"ג.',req:['p_w10'],xp:80,pre:'4×5 · פותח מסלול יד אחת'},
+    {id:'p_w30', track:'weighted',name:'מתח +30 ק"ג',icon:'🏋️',desc:'רמת כוח גבוהה.',cond:'5 מתחים עם +30 ק"ג.',req:['p_w20'],xp:95,pre:'4×5'},
+    {id:'p_w40', track:'weighted',name:'מתח +40 ק"ג',icon:'⚡',desc:'כוח משמעותי.',cond:'5 מתחים עם +40 ק"ג.',req:['p_w30'],xp:115,pre:'4×5'},
+    {id:'p_w50', track:'weighted',name:'מתח +50 ק"ג',icon:'⚡',desc:'נשיאת חצי גוף נוסף.',cond:'5 מתחים עם +50 ק"ג.',req:['p_w40'],xp:135,pre:'4×5'},
+    {id:'p_w60', track:'weighted',name:'מתח +60 ק"ג',icon:'💥',desc:'כוח אליטה.',cond:'5 מתחים עם +60 ק"ג.',req:['p_w50'],xp:160,pre:'4×5'},
+    {id:'p_w70', track:'weighted',name:'מתח +70 ק"ג',icon:'💥',desc:'פותח מתח יד אחת עם משקל.',cond:'5 מתחים עם +70 ק"ג.',req:['p_w60'],xp:190,pre:'4×5'},
+    {id:'p_w80', track:'weighted',name:'מתח +80 ק"ג',icon:'🔱',desc:'חזק להפליא.',cond:'5 מתחים עם +80 ק"ג.',req:['p_w70'],xp:220,pre:'4×5'},
+    {id:'p_w90', track:'weighted',name:'מתח +90 ק"ג',icon:'🔱',desc:'פסגת הכוח.',cond:'5 מתחים עם +90 ק"ג.',req:['p_w80'],xp:255,pre:'4×5'},
+    {id:'p_w100',track:'weighted',name:'מתח +100 ק"ג',icon:'👑',goal:true,desc:'מאה קילוגרם במתח — הישג נדיר.',cond:'5 מתחים עם +100 ק"ג.',req:['p_w90'],xp:300,pre:'4×5'},
+    /* ── מסלול פרונט לבר ── */
+    {id:'p_tuckfl',track:'frontlever',name:'טאק פרונט לבר',icon:'➖',desc:'אופקי בברכיים אסופות.',cond:'להחזיק 10 שניות.',req:['p_pull10'],xp:50,pre:'5×החזקת מקס · שמור גב עגול-שטוח'},
+    {id:'p_advfl', track:'frontlever',name:'אדוונס טאק פרונט לבר',icon:'➗',desc:'ברכיים פתוחות חלקית.',cond:'להחזיק 8 שניות.',req:['p_tuckfl'],xp:70,pre:'5×החזקת מקס'},
+    {id:'p_strfl', track:'frontlever',name:'סטראדל פרונט לבר',icon:'✖️',desc:'רגליים פתוחות.',cond:'להחזיק 5 שניות.',req:['p_advfl'],xp:90,pre:'6×החזקת 3-5ש׳'},
+    {id:'p_fl',    track:'frontlever',name:'פרונט לבר מלא',icon:'🛬',goal:true,desc:'הגוף מקביל לרצפה, ישר לגמרי.',cond:'להחזיק 5 שניות.',req:['p_strfl'],xp:160,pre:'6×החזקת מקס · גוף ישר ומתוח'},
+    {id:'p_flpull',track:'frontlever',name:'משיכות בפרונט לבר',icon:'🔃',desc:'דינמי מתוך פרונט לבר.',cond:'5 משיכות פרונט לבר.',req:['p_fl'],xp:200,pre:'4×3-5 משיכות'},
+    {id:'p_oafl',  track:'frontlever',name:'פרונט לבר על יד אחת',icon:'🌠',goal:true,desc:'הפסגה של המשיכה הסטטית.',cond:'להחזיק טאק פרונט לבר על יד אחת.',req:['p_flpull','p_oa'],xp:300,pre:'6×ניסיונות החזקה לכל צד'},
+    /* ── ענף יד אחת (מתפצל מ-+20 ק"ג) ── */
+    {id:'p_oa_lean', track:'oa_side',name:'השענות יד אחת',icon:'🤚',desc:'האצבעות של היד השנייה על המוט — מורידים עזרה.',cond:'5 חזרות כל צד.',req:['p_w20'],xp:100,pre:'4×5 לכל צד · הפחת עזרה כל שבוע'},
+    {id:'p_oa_neg',  track:'oa_side',name:'מתח שלילי יד אחת',icon:'🖐️',desc:'ירידה איטית על יד אחת בלבד.',cond:'3 ירידות (5+ שניות) כל צד.',req:['p_oa_lean'],xp:130,pre:'5×ירידה אחת לכל צד'},
+    {id:'p_oa_90bot',track:'oa_side',name:'עצירת 90° תחתית',icon:'⏸️',desc:'עצירה בזווית 90° ולרדת — בונה כוח התחתית.',cond:'5 שניות בעצירה 90° לכל צד.',req:['p_oa_neg'],xp:160,pre:'5×עצור ורד לכל צד'},
+    {id:'p_oa_90top',track:'oa_side',name:'עצירת 90° ועלייה',icon:'⏩',desc:'עצירה בזווית 90° ולעלות עד למעלה.',cond:'3 חזרות מלאות כל צד.',req:['p_oa_90bot'],xp:195,pre:'4×3 לכל צד'},
+    {id:'p_oa',      track:'oa_side',name:'מתח יד אחת מלא',icon:'☝️',goal:true,desc:'הגביע הקדוש של המשיכה.',cond:'מתח יד אחת מלא לכל צד.',req:['p_oa_90top'],xp:250,pre:'מקס סטים × 1 לכל צד · מנוחה מלאה'},
+    {id:'p_oa_w',    track:'oa_side',name:'מתח יד אחת + משקל',icon:'👑',goal:true,desc:'5 חזרות יד אחת + משקל — שיא מוחלט.',cond:'5 חזרות יד אחת עם +5 ק"ג לכל צד.',req:['p_oa','p_w70'],xp:400,pre:'4×3-5 לכל צד'},
   ]},
   push:{name:'PUSH · דחיפה',color:'var(--push)',sub:'חזה · כתף · פלאנץ · HSPU',
     tracks:['planche','hspu'],
@@ -1872,7 +1889,7 @@ const ACHIEVEMENTS=[
   {id:'pullup_1',  name:'מתח ראשון',      icon:'🏅',coins:30, desc:'השלמת את המתח הראשון',            check:s=>(s.done||[]).includes('p_pull1')},
   {id:'pullup_10', name:'10 מתחים',       icon:'💥',coins:80, desc:'10 מתחים ברצף — מרשים',           check:s=>(s.done||[]).includes('p_pull10')},
   {id:'handstand', name:'עמידת ידיים',    icon:'🤸',coins:80, desc:'עמידת ידיים חופשית 5 שניות',      check:s=>(s.done||[]).includes('b_free5')},
-  {id:'muscle_up', name:'Muscle-Up',       icon:'🚀',coins:120,desc:'מאסל-אפ ראשון',                  check:s=>(s.done||[]).includes('p_mu')},
+  {id:'muscle_up', name:'Muscle-Up',       icon:'🚀',coins:120,desc:'מאסל-אפ ראשון',                  check:s=>(s.done||[]).includes('p_mu')||false},
   {id:'planche',   name:'פלאנץ מלא',      icon:'🌟',coins:300,desc:'פלאנץ מלא — אלפא',               check:s=>(s.done||[]).includes('h_planche')},
   {id:'front_lever',name:'Front Lever',   icon:'🛬',coins:300,desc:'פרונט לבר מלא',                   check:s=>(s.done||[]).includes('p_fl')},
   {id:'oa_pullup', name:'מתח יד אחת',     icon:'☝️',coins:500,desc:'מתח יד אחת מלא — גביע קדוש',    check:s=>(s.done||[]).includes('p_oa')},
@@ -2173,9 +2190,9 @@ function _finishQuiz(){
   if((a.pushups||0)>=2){mark('h_dia');mark('h_dips');}
   if((a.pushups||0)>=3){mark('h_dia');mark('h_dips');mark('h_pike');}
   // pull tree
-  if((a.pullups||0)>=1){mark('p_hang');mark('p_scap');mark('p_neg');}
-  if((a.pullups||0)>=2)mark('p_pull5');
-  if((a.pullups||0)>=3){mark('p_pull5');mark('p_pull10');}
+  if((a.pullups||0)>=1){mark('p_hang');mark('p_scap');mark('p_rows');mark('p_neg');}
+  if((a.pullups||0)>=2){mark('p_pull1');mark('p_pull5');}
+  if((a.pullups||0)>=3){mark('p_pull1');mark('p_pull5');mark('p_pull10');}
   if(adv){
     if((a.handstand||0)>=3){mark('b_wall');}
     if((a.handstand||0)>=4){mark('b_free5');}
@@ -3340,7 +3357,8 @@ function render(){
     const lastBase = base[base.length-1];
     const splitDiv=document.createElement('div');
     splitDiv.className='track-split-banner';
-    splitDiv.innerHTML=tree.tracks.map(tid=>`<span style="color:${tree.trackColors[tid]}">${tree.trackLabels[tid]}</span>`).join('<span class="tsl" style="background:linear-gradient(90deg,var(--push),var(--cyan))"></span>');
+    const _tc=tree.tracks.map(t=>tree.trackColors[t]);
+    splitDiv.innerHTML=tree.tracks.map(tid=>`<span style="color:${tree.trackColors[tid]}">${tree.trackLabels[tid]}</span>`).join(`<span class="tsl" style="background:linear-gradient(90deg,${_tc[0]},${_tc[1]})"></span>`);
     // connector from last base to split
     if(lastBase) path.appendChild(_makeConnector(lastBase.id));
     path.appendChild(splitDiv);
@@ -3352,6 +3370,7 @@ function render(){
     const t1Nodes=tree.nodes.filter(n=>n.track===tree.tracks[1]); // hspu
     const plancheSideNodes=tree.nodes.filter(n=>n.track==='planche_side');
     const straddleSideNodes=tree.nodes.filter(n=>n.track==='straddle_side');
+    const oaSideNodes=tree.nodes.filter(n=>n.track==='oa_side');
     const maxLen=Math.max(t0Nodes.length,t1Nodes.length);
 
     // track label row
@@ -3399,7 +3418,7 @@ function render(){
         ?'display:grid;grid-template-columns:1fr 44px 104px 44px 1fr;gap:0;width:100%;align-items:center'
         :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
 
-      const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'));
+      const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'||n0.id==='p_w20'));
       const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(_needsSide?';position:relative;overflow:visible':'');
       if(n0)left.appendChild(_makeTreeNode(n0,null));
       if(n0&&n0.id==='h_str'&&straddleSideNodes.length>0){
@@ -3424,6 +3443,19 @@ function render(){
         plancheSideNodes.forEach((node,idx)=>{
           col.appendChild(_makeTreeNode(node,null));
           if(idx<plancheSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
+        });
+        sw.appendChild(col);
+        left.appendChild(sw);
+      }
+      if(n0&&n0.id==='p_w20'&&oaSideNodes.length>0){
+        const sw=document.createElement('div');
+        sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
+        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+        sw.appendChild(ha);
+        const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
+        oaSideNodes.forEach((node,idx)=>{
+          col.appendChild(_makeTreeNode(node,null));
+          if(idx<oaSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
         });
         sw.appendChild(col);
         left.appendChild(sw);
@@ -3858,17 +3890,24 @@ initAuth();
 const NODE_EX_TYPE={
   // Pull
   p_hang:'hold',p_scap:'pullup',p_rows:'pullup',p_neg:'pullup',
-  p_pull1:'pullup',p_pull5:'pullup',p_pull10:'pullup',p_mu:'pullup',
-  p_archer:'pullup',p_weight:'pullup',p_typewriter:'pullup',
-  p_oa_neg:'pullup',p_oa_assist:'pullup',p_oa:'pullup',
+  p_pull1:'pullup',p_pull5:'pullup',p_pull10:'pullup',
+  p_w10:'pullup',p_w20:'pullup',p_w30:'pullup',p_w40:'pullup',p_w50:'pullup',
+  p_w60:'pullup',p_w70:'pullup',p_w80:'pullup',p_w90:'pullup',p_w100:'pullup',
+  p_oa_lean:'pullup',p_oa_neg:'pullup',p_oa_90bot:'pullup',p_oa_90top:'pullup',p_oa:'pullup',p_oa_w:'pullup',
   p_tuckfl:'frontlever',p_advfl:'frontlever',p_strfl:'frontlever',
   p_fl:'frontlever',p_flpull:'pullup',p_oafl:'frontlever',
-  // Push
-  h_knee:'pushup',h_pushup:'pushup',h_dia:'pushup',h_pike:'pushup',
-  h_pseudo:'pushup',h_whspu:'hspu',h_hspu:'hspu',
+  // Push — HSPU family
+  h_pike_elev:'hspu',h_whspu:'hspu',h_hspu_neg:'hspu',h_hspu:'hspu',
+  h_90neg:'hspu',h_90pushup:'hspu',h_90hold:'hspu',
+  // Push — pushup family
+  h_knee:'pushup',h_pushup:'pushup',h_dia:'pushup',h_pike:'pushup',h_pseudo:'pushup',
+  // Push — planche family
   h_lean:'planchelean',h_leanpush:'planchelean',h_tuck:'planchelean',
   h_adv:'planchelean',h_str:'planchelean',h_planche:'planchelean',
   h_planchepush:'planchelean',h_90:'planchelean',h_maltese:'planchelean',
+  h_str_push:'planchelean',h_str_press:'planchelean',
+  h_planche_fing:'planchelean',h_planche_2fing:'planchelean',h_planche_thumb:'planchelean',
+  h_maltese_push:'planchelean',h_maltese_press:'planchelean',
   // Balance
   b_wall:'handstand',b_legoff:'handstand',b_free5:'handstand',
   b_free30:'handstand',b_taps:'handstand',b_full:'handstand',
@@ -3914,83 +3953,168 @@ function _score(type,lm){
   const wrY=avgY(lWr,rWr);
   const noseY=nose?nose.y:0.5;
 
+  // Derived positions
+  const knY=avgY(lKn,rKn);
+  const shX=((lSh&&lSh.x||0.5)+(rSh&&rSh.x||0.5))/2;
+  const hipX=((lHip&&lHip.x||0.5)+(rHip&&rHip.x||0.5))/2;
+  const bodyVertSpread=_vis(lm,0,27,28)?Math.abs(noseY-ankY):(_vis(lm,0,23,24)?Math.abs(noseY-hipY):0);
+
   switch(type){
     case'planchelean':{
-      // Planche: entire body HORIZONTAL — nose, shoulders, hips, ankles all at same y
-      // HSPU/handstand: body vertical → huge y-spread between head and feet
-      if(!_vis(lm,0,11,12,23,24,27,28))return 12;
-      const allY=[noseY,shY,hipY,ankY];
+      // Planche: entire body HORIZONTAL — nose/shoulders/hips/ankles all near same Y
+      if(!_vis(lm,0,11,12,23,24))return 12;
+      const allY=[noseY,shY,hipY];
+      if(_vis(lm,27,28))allY.push(ankY);
       const ySpread=Math.max(...allY)-Math.min(...allY);
-      // Feet on floor = standing/kneeling, not planche
-      if(ankY>0.87)return 10;
-      // Body too vertical (HSPU, handstand, or standing) → hard fail
-      if(ySpread>0.30)return 12;
-      // Body is roughly horizontal — score by how flat it is
+      // Standing/kneeling: feet clearly on floor
+      if(_vis(lm,27,28)&&ankY>0.85)return 8;
+      // Inverted (handstand/HSPU): head below hips in frame
+      if(_vis(lm,0,23,24)&&noseY>hipY+0.2)return 8;
+      // Body too vertical → hard fail
+      if(ySpread>0.28)return 10;
+      // Body horizontal: score by flatness
       let score=20;
-      if(ySpread<0.25)score+=30;
-      if(ySpread<0.18)score+=20;
-      if(ySpread<0.12)score+=15;
-      if(conf>0.5)score+=10;
+      if(ySpread<0.22)score+=25;
+      if(ySpread<0.16)score+=20;
+      if(ySpread<0.10)score+=15;
+      // Wrists must be near same height as body (on floor/bars), not hanging above
+      if(_vis(lm,11,12,15,16)&&wrY<shY-0.15)return 10; // wrists way above = hanging
+      if(conf>0.45)score+=10;
+      if(conf>0.6)score+=5;
       return Math.min(95,score);
     }
     case'pushup':{
-      // Push-up: normal orientation (nose above hips), elbows bend
-      let score=20;
-      if(conf>0.4)score+=15;
-      if(noseY<hipY)score+=15; // upright orientation (not inverted)
-      if(el>0&&el<165)score+=20;
-      if(el<110)score+=15;
-      return Math.min(95,score);
+      // Push-up: wrists near floor + elbow bend + upright orientation
+      // HARD FAIL: wrists clearly above head = pulling not pushing
+      if(_vis(lm,0,15,16)&&wrY<noseY-0.18)return 8;
+      // HARD FAIL: body inverted (handstand) — head much lower than hips in frame
+      if(_vis(lm,0,23,24)&&noseY>hipY+0.25)return 8;
+      // HARD FAIL: body horizontal (planche/front-lever attempt)
+      if(_vis(lm,0,11,12,23,24)){
+        const sp=Math.max(noseY,shY,hipY)-Math.min(noseY,shY,hipY);
+        if(sp<0.12)return 8;
+      }
+      let score=15;
+      if(conf>0.35)score+=12;
+      // Wrists low in frame = on floor
+      if(_vis(lm,15,16)&&wrY>0.58)score+=18;
+      if(_vis(lm,15,16)&&wrY>0.70)score+=8;
+      // Head above hips = normal push-up orientation
+      if(_vis(lm,0,23,24)&&noseY<hipY)score+=10;
+      // Elbow flexion = actual rep
+      if(el>0&&el<165)score+=18;
+      if(el<115)score+=12;
+      // Knees bent significantly = kneeling, deduct (not standard push-up)
+      if(_vis(lm,23,24,25,26)&&Math.abs(hipY-knY)<0.08)score-=10;
+      return Math.min(90,score);
     }
     case'hspu':{
-      // MediaPipe is unreliable for inverted poses — use wrist+elbow detection instead
-      // HSPU: wrists near floor (high y) + elbow flexion during movement
-      let score=20;
-      if(conf>0.3)score+=15;
-      if(conf>0.5)score+=10;
-      // Wrists near bottom of frame = hands on floor (inverted person's hands)
-      if(_vis(lm,15,16)){
-        if(wrY>0.65)score+=20;
-        if(wrY>0.80)score+=10;
-      }
-      // Elbow movement = push rep happening
-      if(el>0&&el<165)score+=15;
-      if(el<120)score+=5;
+      // HSPU: fully inverted — wrists at bottom of frame, feet at top, elbow movement
+      // HARD FAIL: feet below head (standing orientation)
+      if(_vis(lm,0,27,28)&&ankY>noseY)return 8;
+      // HARD FAIL: wrists above hips (standing/pushup — not inverted)
+      if(_vis(lm,15,16,23,24)&&wrY<hipY-0.05)return 8;
+      // HARD FAIL: body horizontal (planche/front-lever) → not inverted
+      if(_vis(lm,11,12,23,24)&&Math.abs(shY-hipY)<0.10)return 8;
+      let score=15;
+      if(conf>0.3)score+=12;
+      if(conf>0.5)score+=8;
+      // Wrists near bottom of frame = hands on floor (inverted)
+      if(_vis(lm,15,16)&&wrY>0.60)score+=18;
+      if(_vis(lm,15,16)&&wrY>0.75)score+=10;
+      // Elbow flexion during the push
+      if(el>0&&el<160)score+=15;
+      if(el<120)score+=8;
+      // Bonus: feet near top of frame (fully inverted)
+      if(_vis(lm,27,28)&&ankY<0.35)score+=10;
       return Math.min(92,score);
     }
     case'handstand':{
-      // Handstand: wrists near floor + arms extended + person visible
-      let score=20;
-      if(conf>0.3)score+=15;
-      if(conf>0.5)score+=10;
-      if(_vis(lm,15,16)&&wrY>0.65)score+=20;
-      if(el>145)score+=20; // arms locked straight
-      if(el>160)score+=10;
+      // Wall handstand: fully inverted, arms STRAIGHT, feet at very top of frame
+      // HARD FAIL: ankles below shoulders in frame = standing, not inverted
+      if(_vis(lm,11,12,27,28)&&ankY>shY)return 8;
+      // HARD FAIL: wrists above hips = standing orientation
+      if(_vis(lm,15,16,23,24)&&wrY<hipY-0.05)return 8;
+      // HARD FAIL: body horizontal (front lever, not handstand)
+      if(_vis(lm,11,12,23,24)&&Math.abs(shY-hipY)<0.10)return 8;
+      // HARD FAIL: elbows bent a lot (HSPU rep, not handstand hold)
+      if(el>5&&el<100)return 8;
+      let score=15;
+      if(conf>0.3)score+=12;
+      if(conf>0.5)score+=8;
+      // Wrists at bottom of frame = on floor (inverted)
+      if(_vis(lm,15,16)&&wrY>0.65)score+=18;
+      if(_vis(lm,15,16)&&wrY>0.80)score+=8;
+      // Arms extended = locked handstand hold
+      if(el>145)score+=18;
+      if(el>165)score+=10;
+      // Feet at top of frame = proper inversion
+      if(_vis(lm,27,28)&&ankY<0.30)score+=12;
+      if(_vis(lm,27,28)&&ankY<0.18)score+=8;
       return Math.min(92,score);
     }
     case'pullup':{
-      // Pull-up: wrists above head, elbows bend significantly
-      let score=25;
-      if(conf>0.4)score+=15;
-      if(_vis(lm,0,15,16)&&wrY<noseY)score+=20; // wrists above nose = hanging
-      if(el>0&&el<165)score+=15;
-      if(el<100)score+=15;
-      return Math.min(95,score);
+      // Pull-up: wrists above nose, body hanging vertically, elbow flexion
+      // HARD FAIL: wrists near floor level = pushup, not pullup
+      if(_vis(lm,15,16)&&wrY>0.72)return 8;
+      // HARD FAIL: body horizontal (front lever)
+      if(_vis(lm,11,12,23,24)&&Math.abs(shY-hipY)<0.10)return 8;
+      // HARD FAIL: inverted (handstand)
+      if(_vis(lm,0,27,28)&&ankY<0.25&&noseY>0.5)return 8;
+      let score=12;
+      if(conf>0.35)score+=12;
+      // Wrists clearly above nose = hanging from bar
+      if(_vis(lm,0,15,16)&&wrY<noseY-0.10)score+=22;
+      if(_vis(lm,0,15,16)&&wrY<noseY-0.25)score+=10;
+      // Elbow flexion = actual pull rep
+      if(el>0&&el<160)score+=15;
+      if(el<100)score+=12;
+      // Body hanging vertically: hips below shoulders in frame
+      if(_vis(lm,11,12,23,24)&&hipY>shY+0.1)score+=10;
+      return Math.min(92,score);
     }
     case'frontlever':{
-      // Front lever: body horizontal + hanging (wrists above shoulders)
-      let score=20;
-      if(conf>0.4)score+=15;
+      // Front lever: body HORIZONTAL + hanging (wrists above shoulders)
+      // HARD FAIL: wrists below shoulders = not hanging from bar
+      if(_vis(lm,11,12,15,16)&&wrY>shY+0.08)return 8;
+      // HARD FAIL: body vertical (standing/hanging idle, not lever)
+      if(_vis(lm,0,11,12,23,24)&&Math.abs(shY-hipY)>0.25)return 8;
+      // HARD FAIL: inverted (handstand)
+      if(_vis(lm,0,27,28)&&ankY<0.25&&noseY>0.5)return 8;
+      let score=12;
+      if(conf>0.35)score+=12;
+      // Shoulders and hips at same height = body horizontal
       if(_vis(lm,11,12,23,24)){
-        if(Math.abs(shY-hipY)<0.12)score+=30; // horizontal
-        if(wrY<shY)score+=20; // hanging from bar
+        const shHipDiff=Math.abs(shY-hipY);
+        if(shHipDiff<0.18)score+=25;
+        if(shHipDiff<0.10)score+=15;
+        if(shHipDiff<0.06)score+=10;
       }
-      return Math.min(95,score);
+      // Wrists above shoulders = hanging from bar
+      if(_vis(lm,11,12,15,16)&&wrY<shY)score+=18;
+      if(_vis(lm,11,12,15,16)&&wrY<shY-0.10)score+=8;
+      // Ankles at same height as hips = full horizontal body
+      if(_vis(lm,23,24,27,28)&&Math.abs(hipY-ankY)<0.12)score+=8;
+      return Math.min(92,score);
     }
     case'hold':{
-      let score=35;
-      if(conf>0.45)score+=30;
-      return Math.min(95,score);
+      // Dead hang: wrists above shoulders, body hanging DOWN, arms slightly bent or extended
+      // HARD FAIL: wrists below shoulders = not hanging
+      if(_vis(lm,11,12,15,16)&&wrY>shY+0.05)return 8;
+      // HARD FAIL: body horizontal = front lever attempt
+      if(_vis(lm,11,12,23,24)&&Math.abs(shY-hipY)<0.08)return 8;
+      // HARD FAIL: inverted (handstand)
+      if(_vis(lm,0,27,28)&&ankY<0.25&&noseY>0.5)return 8;
+      let score=15;
+      if(conf>0.4)score+=18;
+      // Wrists clearly above shoulders
+      if(_vis(lm,11,12,15,16)&&wrY<shY-0.05)score+=20;
+      if(_vis(lm,11,12,15,16)&&wrY<shY-0.15)score+=10;
+      // Body hanging: hips and ankles below shoulders
+      if(_vis(lm,11,12,23,24)&&hipY>shY+0.15)score+=12;
+      if(_vis(lm,11,12,27,28)&&ankY>shY+0.25)score+=10;
+      if(conf>0.55)score+=10;
+      return Math.min(92,score);
     }
     default:{
       let score=35;
