@@ -3115,6 +3115,10 @@ function checkPunishment(){
   if(!state.onboarded||fromJarvis)return;
   const missed=countMissedWorkouts();
   if(missed===0)return;
+  // Don't show if today's workout is already logged
+  if((state.workoutLog||[]).find(l=>l.date===todayStr()&&l.completed))return;
+  // Don't show if already dismissed today
+  if(localStorage.getItem('kalos_punish_dismiss')===todayStr())return;
   const overlay=document.getElementById('punishOverlay');
   overlay.style.display='flex';
 
@@ -3147,6 +3151,7 @@ function submitPunishment(missedCount){
   if(missedCount>=4&&!reason){alert('חובה לכתוב הסבר.');return;}
   state.punishmentLog=state.punishmentLog||[];
   state.punishmentLog.push({date:todayStr(),missed:missedCount,reason});
+  localStorage.setItem('kalos_punish_dismiss',todayStr());
   if(missedCount>=2){state.punishmentWeek=true;}
   save();dismissPunishment();
 }
