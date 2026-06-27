@@ -3885,51 +3885,110 @@ function _ang(a,b,c){
 function _vis(lm,...ii){return ii.every(i=>lm[i]&&(lm[i].visibility||0)>0.2);}
 
 /* ── PER-TYPE SCORER (returns 0-100) ──
-   Goal: did the person ATTEMPT the exercise? Not perfect form.
-   MediaPipe struggles with inverted poses (HSPU/handstand) so
-   we base scoring on: person visible + relevant joint movement.
+   Each exercise type has specific body-position checks.
+   Coordinates: y=0 top of frame, y=1 bottom. x=0 left.
 ── */
 function _score(type,lm){
-  // Average landmark confidence
   const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
-  if(conf<0.2)return 15; // barely any person detected
+  if(conf<0.25)return 10;
 
-  // Base: person is visible = they're doing something
-  let score=52;
+  const nose=lm[0];
+  const lSh=lm[11],rSh=lm[12];
+  const lEl=lm[13],rEl=lm[14];
+  const lWr=lm[15],rWr=lm[16];
+  const lHip=lm[23],rHip=lm[24];
+  const lKn=lm[25],rKn=lm[26];
+  const lAnk=lm[27],rAnk=lm[28];
 
-  // Elbow angles from both sides (works even if person is inverted/rotated)
-  const elR=_ang(lm[12],lm[14],lm[16]); // right side
-  const elL=_ang(lm[11],lm[13],lm[15]); // left side
+  const elR=_ang(lm[12],lm[14],lm[16]);
+  const elL=_ang(lm[11],lm[13],lm[15]);
   const el=elR>5?elR:(elL>5?elL:0);
 
+  const avgY=(...pts)=>{const v=pts.filter(p=>p);return v.length?v.reduce((s,p)=>s+p.y,0)/v.length:0.5;};
+
+  const shY=avgY(lSh,rSh);
+  const hipY=avgY(lHip,rHip);
+  const ankY=avgY(lAnk,rAnk);
+  const wrY=avgY(lWr,rWr);
+  const noseY=nose?nose.y:0.5;
+
   switch(type){
-    case'pullup':
-    case'pushup':
-    case'hspu':
     case'planchelean':{
-      // Any elbow flexion = doing a push/pull movement
-      if(el>0&&el<165)score+=18;  // arms bent
-      if(el<110)score+=15;        // deep range of motion
-      if(conf>0.45)score+=10;
-      break;
+      // Planche: body HORIZONTAL + FEET IN THE AIR
+      // ankleY ≈ shoulderY (horizontal body), and feet NOT at bottom of frame
+      let score=15;
+      if(conf>0.4)score+=10;
+      if(_vis(lm,11,12,23,24,27,28)){
+        const bodyHoriz=Math.abs(shY-ankY)<0.18; // shoulders and ankles at similar height
+        const feetInAir=ankY<0.85; // feet not resting on floor (bottom of frame)
+        const hipLevel=Math.abs(shY-hipY)<0.15; // hips aligned with shoulders
+        if(bodyHoriz)score+=30;
+        if(feetInAir)score+=25;
+        if(hipLevel)score+=15;
+        if(!bodyHoriz||!feetInAir)score=Math.min(score,45); // hard cap if not horizontal/airborne
+      }
+      return Math.min(95,score);
+    }
+    case'pushup':{
+      // Push-up: normal orientation (nose above hips), elbows bend
+      let score=20;
+      if(conf>0.4)score+=15;
+      if(noseY<hipY)score+=15; // upright orientation (not inverted)
+      if(el>0&&el<165)score+=20;
+      if(el<110)score+=15;
+      return Math.min(95,score);
+    }
+    case'hspu':{
+      // HSPU: INVERTED (ankles above nose), elbows bend
+      let score=20;
+      if(conf>0.4)score+=10;
+      if(_vis(lm,0,27,28)){
+        if(ankY<noseY-0.1)score+=35; // feet clearly above head = inverted
+      }
+      if(el>0&&el<165)score+=15;
+      if(el<110)score+=10;
+      return Math.min(95,score);
     }
     case'handstand':{
-      // For handstand: wrists near ground = hands-down; or person visible + arm extension
-      if(conf>0.4)score+=20;
-      if(el>150||el===0)score+=10; // arms locked = holding position
-      break;
+      // Handstand: inverted + arms straight
+      let score=20;
+      if(conf>0.4)score+=10;
+      if(_vis(lm,0,27,28)){
+        if(ankY<noseY-0.15)score+=35;
+      }
+      if(el>150)score+=20; // arms locked straight
+      return Math.min(95,score);
     }
-    case'frontlever':
+    case'pullup':{
+      // Pull-up: wrists above head, elbows bend significantly
+      let score=25;
+      if(conf>0.4)score+=15;
+      if(_vis(lm,0,15,16)&&wrY<noseY)score+=20; // wrists above nose = hanging
+      if(el>0&&el<165)score+=15;
+      if(el<100)score+=15;
+      return Math.min(95,score);
+    }
+    case'frontlever':{
+      // Front lever: body horizontal + hanging (wrists above shoulders)
+      let score=20;
+      if(conf>0.4)score+=15;
+      if(_vis(lm,11,12,23,24)){
+        if(Math.abs(shY-hipY)<0.12)score+=30; // horizontal
+        if(wrY<shY)score+=20; // hanging from bar
+      }
+      return Math.min(95,score);
+    }
     case'hold':{
-      if(conf>0.4)score+=22;
-      if(conf>0.55)score+=10;
-      break;
+      let score=35;
+      if(conf>0.45)score+=30;
+      return Math.min(95,score);
     }
     default:{
-      if(conf>0.38)score+=20;
+      let score=35;
+      if(conf>0.4)score+=20;
+      return Math.min(95,score);
     }
   }
-  return Math.min(95,score);
 }
 
 /* ── MAIN ANALYSIS FUNCTION ── */
@@ -3965,32 +4024,27 @@ async function analyzeProofVideo(nodeId, file){
 
   // ← CORRECT: call as method, not property assignment
   _proofPose.onResults(results=>{
-    if(!results.poseLandmarks)return;
+    if(done||!results.poseLandmarks)return;
     scores.push(_score(exType,results.poseLandmarks));
-    if(scores.length>=15){
-      const last15=scores.slice(-15);
-      const avg15=last15.reduce((a,b)=>a+b)/15;
-      if(avg15>=60&&!done){done=true;finishAnalysis(true);}
+    // Update progress while scanning
+    if(statusEl&&scores.length%10===0){
+      const cur=Math.round(scores.reduce((a,b)=>a+b)/scores.length);
+      statusEl.innerHTML=`⏳ סורק... ${cur}%`;
     }
   });
 
   // Analyze frame by frame
   const interval=setInterval(async()=>{
-    if(done||vid.paused&&vid.ended)return;
+    if(done||vid.ended)return;
     try{await _proofPose.send({image:vid});}catch(e){}
   },80);
 
   vid.onended=()=>{
     if(done)return;
-    loopCount++;
+    done=true;
+    clearInterval(interval);
     const avg=scores.length?scores.reduce((a,b)=>a+b)/scores.length:0;
-    if(loopCount>=2||avg>=60){
-      done=true;finishAnalysis(avg>=60);
-    }else{
-      // play again
-      if(statusEl)statusEl.innerHTML=`⏳ סיבוב ${loopCount}/2 — ממוצע: ${Math.round(avg)}% — ממשיך לנתח...`;
-      vid.currentTime=0;vid.play();
-    }
+    finishAnalysis(avg>=60);
   };
 
   vid.onloadeddata=()=>vid.play();
