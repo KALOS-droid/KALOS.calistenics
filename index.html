@@ -3914,19 +3914,21 @@ function _score(type,lm){
 
   switch(type){
     case'planchelean':{
-      // Planche: body HORIZONTAL + FEET IN THE AIR
-      // ankleY ≈ shoulderY (horizontal body), and feet NOT at bottom of frame
-      let score=15;
-      if(conf>0.4)score+=10;
-      if(_vis(lm,11,12,23,24,27,28)){
-        const bodyHoriz=Math.abs(shY-ankY)<0.18; // shoulders and ankles at similar height
-        const feetInAir=ankY<0.85; // feet not resting on floor (bottom of frame)
-        const hipLevel=Math.abs(shY-hipY)<0.15; // hips aligned with shoulders
-        if(bodyHoriz)score+=30;
-        if(feetInAir)score+=25;
-        if(hipLevel)score+=15;
-        if(!bodyHoriz||!feetInAir)score=Math.min(score,45); // hard cap if not horizontal/airborne
-      }
+      // Planche: entire body HORIZONTAL — nose, shoulders, hips, ankles all at same y
+      // HSPU/handstand: body vertical → huge y-spread between head and feet
+      if(!_vis(lm,0,11,12,23,24,27,28))return 12;
+      const allY=[noseY,shY,hipY,ankY];
+      const ySpread=Math.max(...allY)-Math.min(...allY);
+      // Feet on floor = standing/kneeling, not planche
+      if(ankY>0.87)return 10;
+      // Body too vertical (HSPU, handstand, or standing) → hard fail
+      if(ySpread>0.30)return 12;
+      // Body is roughly horizontal — score by how flat it is
+      let score=20;
+      if(ySpread<0.25)score+=30;
+      if(ySpread<0.18)score+=20;
+      if(ySpread<0.12)score+=15;
+      if(conf>0.5)score+=10;
       return Math.min(95,score);
     }
     case'pushup':{
