@@ -3633,7 +3633,7 @@ function render(){
         sw.appendChild(ha);
         side.forEach((sn,si)=>{
           sw.appendChild(_makeTreeNode(sn,null));
-          if(si<side.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(90deg);flex-shrink:0';sw.appendChild(c);}
+          if(si<side.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';sw.appendChild(c);}
         });
         wr.appendChild(sw);
         path.appendChild(wr);
