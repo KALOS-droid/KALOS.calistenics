@@ -1609,15 +1609,19 @@ const TREES={
     {id:'b_oa_assist',name:'עמידת ידיים יד אחת — בעזרת קיר',icon:'🧗',desc:'מעבר משקל ליד אחת ליד הקיר.',cond:'להחזיק 5 שניות עם אצבעות על הקיר.',req:['b_press'],xp:200,pre:'6×החזקת מקס לכל צד'},
     {id:'b_oa',name:'עמידת ידיים על יד אחת',icon:'🙌',goal:true,desc:'הפסגה של שיווי המשקל — דורש גם כוח דחיפה (HSPU) ליציבות הכתף.',cond:'להחזיק עמידת ידיים על יד אחת (דורש איזון יד-אחת + כוח HSPU).',req:['b_oa_assist','h_whspu'],xp:300,pre:'8×ניסיונות החזקה לכל צד'},
   ]},
-  core:{name:'CORE · ליבה',color:'var(--core)',sub:'פלאנק · L-Sit · Dragon Flag · Windshield Wipers',nodes:[
+  core:{name:'CORE · ליבה',color:'var(--core)',sub:'פלאנק · L-Sit · Dragon Flag · V-Sit',nodes:[
     {id:'c_plank',name:'פלאנק 60 שניות',icon:'🏋️',desc:'בסיס יציבות הליבה.',cond:'להחזיק פלאנק 60 שניות ישר.',req:[],xp:20,pre:'4×מקס · גוף ישר כמו קרש'},
     {id:'c_hollow',name:'Hollow Body Hold 30 שניות',icon:'🍌',desc:'יציבת גוף חלול — הבסיס לכל תרגילי הליבה.',cond:'להחזיק Hollow Body 30 שניות.',req:['c_plank'],xp:30,pre:'4×מקס · גב שטוח לרצפה, גפיים מתוחות'},
     {id:'c_legraise',name:'הרמות רגליים בתלייה 10×',icon:'📐',desc:'חיזוק Hip Flexors וליבה בתלייה.',cond:'10 הרמות רגליים מלאות בתלייה.',req:['c_hollow'],xp:40,pre:'4×10 · רגליים ישרות, עלייה שליטה'},
     {id:'c_tuck_lsit',name:'Tuck L-Sit 10 שניות',icon:'🦵',desc:'L-sit בברכיים אסופות — הצעד הראשון.',cond:'להחזיק Tuck L-sit 10 שניות.',req:['c_legraise'],xp:50,pre:'5×מקס · ידיים נעולות, ירכיים מעל הקרקע'},
     {id:'c_lsit',name:'L-Sit מלא 5 שניות',icon:'⚡',goal:true,desc:'רגליים מקבילות לרצפה — ליבה וכפיפורים.',cond:'L-Sit מלא 5 שניות ברצף.',req:['c_tuck_lsit'],xp:70,pre:'5×מקס · רגליים ישרות לחלוטין'},
     {id:'c_lsit30',name:'L-Sit 30 שניות',icon:'🔥',goal:true,desc:'שליטה מלאה ב-L-sit.',cond:'L-Sit 30 שניות ברצף.',req:['c_lsit'],xp:100,pre:'4×20ש׳ → 30ש׳ · עבוד על פורקת כתפיים'},
-    {id:'c_dragonflag',name:'Dragon Flag 3 חזרות',icon:'🐉',goal:true,desc:'שליטה עצומה בגוף — Bruce Lee.',cond:'3 Dragon Flags שליטה מלאה.',req:['c_lsit30'],xp:150,pre:'5×נגטיב איטי → קונצנטרי'},
-    {id:'c_wiper',name:'Windshield Wipers 5× לכל צד',icon:'🌀',goal:true,desc:'ליבה רוטציונית — שליטה ב-360°.',cond:'5 Windshield Wipers לכל צד בתלייה.',req:['c_dragonflag'],xp:200,pre:'4×מקס לכל צד · שמור רגליים ישרות'},
+    {id:'c_wiper',name:'Windshield Wipers 5× לכל צד',icon:'🌀',goal:true,desc:'ליבה רוטציונית — שליטה ב-360°.',cond:'5 Windshield Wipers לכל צד בתלייה.',req:['c_lsit30'],xp:130,pre:'4×מקס לכל צד · שמור רגליים ישרות'},
+    {id:'c_dragonflag',name:'Dragon Flag 3 חזרות',icon:'🐉',goal:true,desc:'שליטה עצומה בגוף — Bruce Lee.',cond:'3 Dragon Flags שליטה מלאה.',req:['c_wiper'],xp:170,pre:'5×נגטיב איטי → קונצנטרי'},
+    {id:'c_tuck_vsit',name:'Tuck V-Sit 10 שניות',icon:'🔼',desc:'V-Sit בברכיים אסופות — הרמת ירכיים גבוה.',cond:'להחזיק Tuck V-Sit 10 שניות.',req:['c_dragonflag'],xp:200,pre:'5×מקס · ירכיים מעל הכתפיים'},
+    {id:'c_advtuck_vsit',name:'Advanced Tuck V-Sit',icon:'🔽',desc:'רגליים קרובות לגוף עם זווית חדה יותר.',cond:'להחזיק Adv. Tuck V-Sit 10 שניות.',req:['c_tuck_vsit'],xp:230,pre:'5×מקס · שמור מרפקים נעולים'},
+    {id:'c_str_vsit',name:'Straddle V-Sit',icon:'✨',desc:'V-Sit עם רגליים פתוחות — פחות קשה מהמלא.',cond:'להחזיק Straddle V-Sit 10 שניות.',req:['c_advtuck_vsit'],xp:270,pre:'5×מקס · פתח רגליים ל-90° ומעלה'},
+    {id:'c_vsit',name:'V-Sit מלא',icon:'⭐',goal:true,desc:'רגליים ישרות בזווית V — פסגת כוח הליבה.',cond:'להחזיק V-Sit מלא 5 שניות.',req:['c_str_vsit'],xp:320,pre:'5×מקס · רגליים ישרות, גוף בזווית V'},
   ]},
   legs:{name:'LEGS · רגליים',color:'var(--legs)',sub:'סקוואט · פיסטול · Nordic Curls · Shrimp Squat',nodes:[
     {id:'l_squat20',name:'20 סקוואט',icon:'🦵',desc:'בסיס — טווח תנועה מלא.',cond:'20 סקוואט מלאים ברצף.',req:[],xp:20,pre:'4×15-20 · ירכיים מתחת לברכיים'},
