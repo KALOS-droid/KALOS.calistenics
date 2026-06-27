@@ -1577,6 +1577,9 @@ const TREES={
     {id:'h_planche_2fing',track:'planche_side',name:'פלאנץ על שתי אצבעות', icon:'✌️',desc:'פלאנץ מלא על שתי אצבעות בלבד — רמת מאסטר מוחלטת.',cond:'להחזיק 3 שניות.',req:['h_planche_fing'],xp:280,pre:'6×ניסיונות מדורגים'},
     {id:'h_planche_thumb',track:'planche_side',name:'פלאנץ על האגודל',      icon:'👍',goal:true,desc:'פלאנץ מלא על האגודל בלבד — הנדיר ביותר בעולם.',cond:'להחזיק 1 שנייה.',req:['h_planche_2fing'],xp:350,pre:'6×ניסיונות'},
 
+    /* ── HSPU side combo ── */
+    {id:'b_lsit_hs',track:'hspu_side',name:'L-Sit Press to Handstand',icon:'🌟',goal:true,desc:'קומבו נדיר — כניסה לעמידות ידיים ישירות מ-L-sit.',cond:'פראס נקי מ-L-sit לעמידות ידיים.',req:['h_whspu','c_lsit30'],xp:250,pre:'5×ניסיונות Straddle press מ-L-sit'},
+
     /* ── מסלול HSPU ── */
     {id:'h_pike_elev',track:'hspu',name:'שכיבות פייק גבוהות',         icon:'🔺',desc:'רגליים על ספסל/קופסה גבוהה — מדמה עמידת ידיים ומכין את הכתפיים.',cond:'10 שכיבות פייק עם רגליים מורמות גבוה.',req:['h_pike'],xp:35,pre:'4×8-10 · ספסל גבוה יותר עם הזמן'},
     {id:'h_whspu',   track:'hspu',name:'HSPU על הקיר',                icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים על הקיר. בניית כוח ספציפי לכתפיים.',cond:'10 HSPU על הקיר עם טווח תנועה מלא.',req:['h_pike_elev','b_wall'],xp:70,pre:'4×מקס · טווח מלא, ראש בין הידיים'},
@@ -1605,8 +1608,6 @@ const TREES={
     {id:'b_press',name:'כניסה בכוח (Press to Handstand)',icon:'🛗',goal:true,desc:'עלייה לעמידת ידיים בלי קפיצה — דורש כוח דחיפה ישר-זרוע.',cond:'Press to handstand נקי (דורש עמידת ידיים + כוח דחיפה).',req:['b_full','h_lean'],xp:160,pre:'6×ניסיונות פראס · עבוד על סטראדל/פייק פראס'},
     {id:'b_oa_assist',name:'עמידת ידיים יד אחת — בעזרת קיר',icon:'🧗',desc:'מעבר משקל ליד אחת ליד הקיר.',cond:'להחזיק 5 שניות עם אצבעות על הקיר.',req:['b_press'],xp:200,pre:'6×החזקת מקס לכל צד'},
     {id:'b_oa',name:'עמידת ידיים על יד אחת',icon:'🙌',goal:true,desc:'הפסגה של שיווי המשקל — דורש גם כוח דחיפה (HSPU) ליציבות הכתף.',cond:'להחזיק עמידת ידיים על יד אחת (דורש איזון יד-אחת + כוח HSPU).',req:['b_oa_assist','h_whspu'],xp:300,pre:'8×ניסיונות החזקה לכל צד'},
-    /* ── combo side branch ── */
-    {id:'b_lsit_hs',track:'side',name:'L-Sit Press to Handstand',icon:'🌟',goal:true,desc:'קומבו נדיר — כניסה לעמידות ידיים ישירות מ-L-sit, דורש כוח ליבה + כוח דחיפה גבוהה.',cond:'פראס נקי מ-L-sit לעמידות ידיים.',req:['b_press','c_lsit30'],xp:250,pre:'5×ניסיונות פייק פראס מ-L-sit · עבוד על Straddle press'},
   ]},
   core:{name:'CORE · ליבה',color:'var(--core)',sub:'פלאנק · L-Sit · Dragon Flag · Windshield Wipers',nodes:[
     {id:'c_plank',name:'פלאנק 60 שניות',icon:'🏋️',desc:'בסיס יציבות הליבה.',cond:'להחזיק פלאנק 60 שניות ישר.',req:[],xp:20,pre:'4×מקס · גוף ישר כמו קרש'},
@@ -3477,6 +3478,7 @@ function render(){
       // ── 2-track layout (push tree) ──
       const plancheSideNodes=tree.nodes.filter(n=>n.track==='planche_side');
       const straddleSideNodes=tree.nodes.filter(n=>n.track==='straddle_side');
+      const hspuSideNodes=tree.nodes.filter(n=>n.track==='hspu_side');
       const centerNodes=tree.nodes.filter(n=>n.track==='center');
       const centerReqIds=centerNodes.flatMap(cn=>cn.req);
       const maxLen=Math.max(t0Nodes.length,t1Nodes.length);
@@ -3522,7 +3524,8 @@ function render(){
           ?'display:grid;grid-template-columns:1fr 44px 104px 44px 1fr;gap:0;width:100%;align-items:center'
           :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
 
-        const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'));
+        const _hspuSide=n0?hspuSideNodes.filter(s=>s.req.includes(n0.id)):[];
+        const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'))||_hspuSide.length>0;
         const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(_needsSide?';position:relative;overflow:visible':'');
         if(n0)left.appendChild(_makeTreeNode(n0,null));
         if(n0&&n0.id==='h_str'&&straddleSideNodes.length>0){
@@ -3548,6 +3551,14 @@ function render(){
             if(idx<plancheSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
           });
           sw.appendChild(col);left.appendChild(sw);
+        }
+        if(_hspuSide.length>0){
+          const sw=document.createElement('div');
+          sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row-reverse;align-items:center;pointer-events:auto;direction:rtl;gap:8px';
+          const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+          sw.appendChild(ha);
+          _hspuSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
+          left.appendChild(sw);
         }
         nodeRow.appendChild(left);
 
