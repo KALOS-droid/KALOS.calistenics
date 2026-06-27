@@ -1525,8 +1525,11 @@ const TREES={
     {id:'p_tuckfl',track:'frontlever',name:'טאק פרונט לבר',icon:'➖',desc:'אופקי בברכיים אסופות.',cond:'להחזיק 10 שניות.',req:['p_pull10'],xp:50,pre:'5×החזקת מקס · שמור גב עגול-שטוח'},
     {id:'p_advfl', track:'frontlever',name:'אדוונס טאק פרונט לבר',icon:'➗',desc:'ברכיים פתוחות חלקית.',cond:'להחזיק 8 שניות.',req:['p_tuckfl'],xp:70,pre:'5×החזקת מקס'},
     {id:'p_strfl', track:'frontlever',name:'סטראדל פרונט לבר',icon:'✖️',desc:'רגליים פתוחות.',cond:'להחזיק 5 שניות.',req:['p_advfl'],xp:90,pre:'6×החזקת 3-5ש׳'},
-    {id:'p_fl',    track:'frontlever',name:'פרונט לבר מלא',icon:'🛬',goal:true,desc:'הגוף מקביל לרצפה, ישר לגמרי.',cond:'להחזיק 5 שניות.',req:['p_strfl'],xp:160,pre:'6×החזקת מקס · גוף ישר ומתוח'},
-    {id:'p_oafl',  track:'frontlever',name:'פרונט לבר על יד אחת',icon:'🌠',goal:true,desc:'הפסגה של המשיכה הסטטית.',cond:'להחזיק טאק פרונט לבר על יד אחת.',req:['p_fl','p_oa'],xp:300,pre:'6×ניסיונות החזקה לכל צד'},
+    {id:'p_fl',       track:'frontlever',name:'פרונט לבר מלא',icon:'🛬',goal:true,desc:'הגוף מקביל לרצפה, ישר לגמרי.',cond:'להחזיק 5 שניות.',req:['p_strfl'],xp:160,pre:'6×החזקת מקס · גוף ישר ומתוח'},
+    {id:'p_oatuckfl', track:'frontlever',name:'טאק פרונט לבר יד אחת',icon:'☝️',desc:'טאק פרונט לבר על יד אחת — התחלה.',cond:'להחזיק 5 שניות לכל צד.',req:['p_fl','p_oa'],xp:220,pre:'5×החזקת מקס לכל צד'},
+    {id:'p_oaadvfl',  track:'frontlever',name:'אדוונס טאק פרונט יד אחת',icon:'☝️',desc:'ברכיים פתוחות חלקית — יד אחת.',cond:'להחזיק 5 שניות לכל צד.',req:['p_oatuckfl'],xp:260,pre:'5×החזקת מקס'},
+    {id:'p_oastrfl',  track:'frontlever',name:'סטראדל פרונט לבר יד אחת',icon:'☝️',desc:'רגליים פתוחות — יד אחת.',cond:'להחזיק 3 שניות לכל צד.',req:['p_oaadvfl'],xp:300,pre:'6×החזקת מקס'},
+    {id:'p_oafl',     track:'frontlever',name:'פרונט לבר מלא יד אחת',icon:'🌠',goal:true,desc:'הפסגה המוחלטת של כוח המשיכה.',cond:'להחזיק 3 שניות לכל צד.',req:['p_oastrfl'],xp:400,pre:'6×ניסיונות החזקה לכל צד'},
     /* ── פול אפ בפרונט (ענפים צד מהמסלול הראשי) ── */
     {id:'p_advfl_pull',track:'fl_side',name:'פול אפ באדוונס טאק',icon:'🔃',desc:'משיכה דינמית מתוך אדוונס טאק פרונט.',cond:'5 פול אפ באדוונס טאק.',req:['p_advfl'],xp:90,pre:'4×5'},
     {id:'p_strfl_pull',track:'fl_side',name:'פול אפ בסטראדל פרונט',icon:'🔃',desc:'משיכה דינמית מתוך סטראדל פרונט.',cond:'5 פול אפ בסטראדל פרונט.',req:['p_strfl'],xp:115,pre:'4×5'},
@@ -3951,7 +3954,7 @@ const NODE_EX_TYPE={
   p_w60:'pullup',p_w70:'pullup',p_w80:'pullup',p_w90:'pullup',p_w100:'pullup',
   p_oa_lean:'pullup',p_oa_neg:'pullup',p_oa_90bot:'pullup',p_oa_90top:'pullup',p_oa:'pullup',p_oa_w:'pullup',
   p_tuckfl:'frontlever',p_advfl:'frontlever',p_strfl:'frontlever',
-  p_fl:'frontlever',p_oafl:'frontlever',
+  p_fl:'frontlever',p_oatuckfl:'frontlever',p_oaadvfl:'frontlever',p_oastrfl:'frontlever',p_oafl:'frontlever',
   p_advfl_pull:'pullup',p_strfl_pull:'pullup',p_flpull:'pullup',
   // Push — HSPU family
   h_pike_elev:'hspu',h_whspu:'hspu',h_hspu_neg:'hspu',h_hspu:'hspu',
