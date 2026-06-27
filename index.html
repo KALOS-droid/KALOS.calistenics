@@ -3941,25 +3941,30 @@ function _score(type,lm){
       return Math.min(95,score);
     }
     case'hspu':{
-      // HSPU: INVERTED (ankles above nose), elbows bend
+      // MediaPipe is unreliable for inverted poses — use wrist+elbow detection instead
+      // HSPU: wrists near floor (high y) + elbow flexion during movement
       let score=20;
-      if(conf>0.4)score+=10;
-      if(_vis(lm,0,27,28)){
-        if(ankY<noseY-0.1)score+=35; // feet clearly above head = inverted
+      if(conf>0.3)score+=15;
+      if(conf>0.5)score+=10;
+      // Wrists near bottom of frame = hands on floor (inverted person's hands)
+      if(_vis(lm,15,16)){
+        if(wrY>0.65)score+=20;
+        if(wrY>0.80)score+=10;
       }
+      // Elbow movement = push rep happening
       if(el>0&&el<165)score+=15;
-      if(el<110)score+=10;
-      return Math.min(95,score);
+      if(el<120)score+=5;
+      return Math.min(92,score);
     }
     case'handstand':{
-      // Handstand: inverted + arms straight
+      // Handstand: wrists near floor + arms extended + person visible
       let score=20;
-      if(conf>0.4)score+=10;
-      if(_vis(lm,0,27,28)){
-        if(ankY<noseY-0.15)score+=35;
-      }
-      if(el>150)score+=20; // arms locked straight
-      return Math.min(95,score);
+      if(conf>0.3)score+=15;
+      if(conf>0.5)score+=10;
+      if(_vis(lm,15,16)&&wrY>0.65)score+=20;
+      if(el>145)score+=20; // arms locked straight
+      if(el>160)score+=10;
+      return Math.min(92,score);
     }
     case'pullup':{
       // Pull-up: wrists above head, elbows bend significantly
