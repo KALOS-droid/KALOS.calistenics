@@ -3524,8 +3524,8 @@ function render(){
           ?'display:grid;grid-template-columns:1fr 44px 104px 44px 1fr;gap:0;width:100%;align-items:center'
           :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
 
-        const _hspuSide=n0?hspuSideNodes.filter(s=>s.req.includes(n0.id)):[];
-        const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'))||_hspuSide.length>0;
+        const _hspuSide=n1?hspuSideNodes.filter(s=>s.req.includes(n1.id)):[];
+        const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'));
         const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(_needsSide?';position:relative;overflow:visible':'');
         if(n0)left.appendChild(_makeTreeNode(n0,null));
         if(n0&&n0.id==='h_str'&&straddleSideNodes.length>0){
@@ -3552,14 +3552,6 @@ function render(){
           });
           sw.appendChild(col);left.appendChild(sw);
         }
-        if(_hspuSide.length>0){
-          const sw=document.createElement('div');
-          sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row-reverse;align-items:center;pointer-events:auto;direction:rtl;gap:8px';
-          const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
-          sw.appendChild(ha);
-          _hspuSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
-          left.appendChild(sw);
-        }
         nodeRow.appendChild(left);
 
         if(showDiag){
@@ -3585,8 +3577,16 @@ function render(){
           nodeRow.appendChild(ra);
         }
 
-        const right=document.createElement('div');right.style.cssText='display:flex;justify-content:center';
+        const right=document.createElement('div');right.style.cssText='display:flex;justify-content:center'+(_hspuSide.length>0?';position:relative;overflow:visible':'');
         if(n1)right.appendChild(_makeTreeNode(n1,null));
+        if(_hspuSide.length>0){
+          const sw=document.createElement('div');
+          sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row-reverse;align-items:center;pointer-events:auto;gap:8px';
+          const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+          sw.appendChild(ha);
+          _hspuSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
+          right.appendChild(sw);
+        }
         nodeRow.appendChild(right);
 
         path.appendChild(nodeRow);
