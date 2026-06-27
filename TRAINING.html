@@ -1526,8 +1526,11 @@ const TREES={
     {id:'p_advfl', track:'frontlever',name:'אדוונס טאק פרונט לבר',icon:'➗',desc:'ברכיים פתוחות חלקית.',cond:'להחזיק 8 שניות.',req:['p_tuckfl'],xp:70,pre:'5×החזקת מקס'},
     {id:'p_strfl', track:'frontlever',name:'סטראדל פרונט לבר',icon:'✖️',desc:'רגליים פתוחות.',cond:'להחזיק 5 שניות.',req:['p_advfl'],xp:90,pre:'6×החזקת 3-5ש׳'},
     {id:'p_fl',    track:'frontlever',name:'פרונט לבר מלא',icon:'🛬',goal:true,desc:'הגוף מקביל לרצפה, ישר לגמרי.',cond:'להחזיק 5 שניות.',req:['p_strfl'],xp:160,pre:'6×החזקת מקס · גוף ישר ומתוח'},
-    {id:'p_flpull',track:'frontlever',name:'משיכות בפרונט לבר',icon:'🔃',desc:'דינמי מתוך פרונט לבר.',cond:'5 משיכות פרונט לבר.',req:['p_fl'],xp:200,pre:'4×3-5 משיכות'},
-    {id:'p_oafl',  track:'frontlever',name:'פרונט לבר על יד אחת',icon:'🌠',goal:true,desc:'הפסגה של המשיכה הסטטית.',cond:'להחזיק טאק פרונט לבר על יד אחת.',req:['p_flpull','p_oa'],xp:300,pre:'6×ניסיונות החזקה לכל צד'},
+    {id:'p_oafl',  track:'frontlever',name:'פרונט לבר על יד אחת',icon:'🌠',goal:true,desc:'הפסגה של המשיכה הסטטית.',cond:'להחזיק טאק פרונט לבר על יד אחת.',req:['p_fl','p_oa'],xp:300,pre:'6×ניסיונות החזקה לכל צד'},
+    /* ── פול אפ בפרונט (ענפים צד מהמסלול הראשי) ── */
+    {id:'p_advfl_pull',track:'fl_side',name:'פול אפ באדוונס טאק',icon:'🔃',desc:'משיכה דינמית מתוך אדוונס טאק פרונט.',cond:'5 פול אפ באדוונס טאק.',req:['p_advfl'],xp:90,pre:'4×5'},
+    {id:'p_strfl_pull',track:'fl_side',name:'פול אפ בסטראדל פרונט',icon:'🔃',desc:'משיכה דינמית מתוך סטראדל פרונט.',cond:'5 פול אפ בסטראדל פרונט.',req:['p_strfl'],xp:115,pre:'4×5'},
+    {id:'p_flpull',    track:'fl_side',name:'פול אפ בפרונט לבר',icon:'🔃',goal:true,desc:'משיכה דינמית מתוך פרונט לבר מלא.',cond:'5 פול אפ בפרונט לבר.',req:['p_fl'],xp:200,pre:'4×3-5'},
     /* ── ענף יד אחת (מתפצל מ-+20 ק"ג) ── */
     {id:'p_oa_lean', track:'oa',name:'השענות יד אחת',icon:'🤚',desc:'האצבעות של היד השנייה על המוט — מורידים עזרה.',cond:'5 חזרות כל צד.',req:['p_w20'],xp:100,pre:'4×5 לכל צד · הפחת עזרה כל שבוע'},
     {id:'p_oa_neg',  track:'oa',name:'מתח שלילי יד אחת',icon:'🖐️',desc:'ירידה איטית על יד אחת בלבד.',cond:'3 ירידות (5+ שניות) כל צד.',req:['p_oa_lean'],xp:130,pre:'5×ירידה אחת לכל צד'},
@@ -3374,6 +3377,7 @@ function render(){
       // ── 3-track symmetric layout ──
       const t2Nodes=tree.nodes.filter(n=>n.track===tree.tracks[2]);
       const t2Off=(tree.trackStartAt&&tree.trackStartAt[tree.tracks[2]])||0;
+      const flSideNodes=tree.nodes.filter(n=>n.track==='fl_side');
       const max3=Math.max(t0Nodes.length,t1Nodes.length,t2Nodes.length+t2Off);
 
       // label row: 3 columns
@@ -3417,8 +3421,22 @@ function render(){
         const nr=document.createElement('div');
         nr.style.cssText='display:grid;grid-template-columns:1fr 10px 1fr 10px 1fr;width:100%;align-items:center';
         [n0,null,n1,null,n2].forEach((n,idx)=>{
-          const cell=document.createElement('div');cell.style.cssText='display:flex;justify-content:center';
+          const cell=document.createElement('div');
+          const flSide=n&&idx===0?flSideNodes.filter(s=>s.req.includes(n.id)):[];
+          cell.style.cssText='display:flex;justify-content:center'+(flSide.length?';position:relative;overflow:visible':'');
           if(n&&idx!==1&&idx!==3)cell.appendChild(_makeTreeNode(n,null));
+          if(flSide.length>0){
+            const sw=document.createElement('div');
+            sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
+            const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+            sw.appendChild(ha);
+            const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
+            flSide.forEach((sn,si)=>{
+              col.appendChild(_makeTreeNode(sn,null));
+              if(si<flSide.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
+            });
+            sw.appendChild(col);cell.appendChild(sw);
+          }
           nr.appendChild(cell);
         });
         path.appendChild(nr);
@@ -3933,7 +3951,8 @@ const NODE_EX_TYPE={
   p_w60:'pullup',p_w70:'pullup',p_w80:'pullup',p_w90:'pullup',p_w100:'pullup',
   p_oa_lean:'pullup',p_oa_neg:'pullup',p_oa_90bot:'pullup',p_oa_90top:'pullup',p_oa:'pullup',p_oa_w:'pullup',
   p_tuckfl:'frontlever',p_advfl:'frontlever',p_strfl:'frontlever',
-  p_fl:'frontlever',p_flpull:'pullup',p_oafl:'frontlever',
+  p_fl:'frontlever',p_oafl:'frontlever',
+  p_advfl_pull:'pullup',p_strfl_pull:'pullup',p_flpull:'pullup',
   // Push — HSPU family
   h_pike_elev:'hspu',h_whspu:'hspu',h_hspu_neg:'hspu',h_hspu:'hspu',
   h_90neg:'hspu',h_90pushup:'hspu',h_90hold:'hspu',
