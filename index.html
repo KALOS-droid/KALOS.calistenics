@@ -1603,6 +1603,7 @@ const TREES={
     {id:'b_legoff',name:'ניתוק רגליים מהקיר',icon:'🦵',desc:'מציאת נקודת האיזון — מנתקים רגל-רגל מהקיר.',cond:'10 ניתוקי רגליים בשליטה.',req:['b_wall'],xp:40,pre:'5×10 ניתוקים · החזק את האיזון 1-2ש׳ כל פעם'},
     {id:'b_free5',name:'עמידת ידיים חופשית 5 שניות',icon:'🤸‍♂️',goal:true,desc:'בלי קיר — תחילת השליטה.',cond:'להחזיק 5 שניות חופשי.',req:['b_legoff'],xp:55,pre:'10-15 ניסיונות בעיטה לאיזון · 5×החזקת מקס'},
     {id:'b_free30',name:'עמידת ידיים חופשית 30 שניות',icon:'⏳',goal:true,desc:'יציבות מלאה בעמידה חופשית.',cond:'להחזיק 30 שניות חופשי.',req:['b_free5'],xp:90,pre:'6×החזקת מקס · עבוד על תיקוני אצבעות'},
+    {id:'b_forearm',track:'side',name:'עמידת ידיים על האמות',icon:'💪',desc:'החזקת עמידת ידיים על האמות — בסיס הקומבו.',cond:'להחזיק עמידת ידיים על האמות 5 שניות.',req:['b_free30'],xp:110,pre:'5×מקס · כתפיים מעל המרפקים'},
     {id:'b_forearm_hs',track:'side',name:'HS ↔ Forearm Stand',icon:'🦾',goal:true,desc:'ירידה מעמידת ידיים לאמות וחזרה — שליטה דינמית בכתפיים.',cond:'3 חזרות: ירידה לאמות → חזרה לעמידת ידיים בשליטה מלאה.',req:['b_free30'],xp:140,pre:'5×ניסיונות · ירד לאט, דחוף חזק'},
     {id:'b_full',name:'עמידת ידיים — וריאציות',icon:'🎯',goal:true,desc:'שליטה בוריאציות שונות — פייק, טאק, חצי פיסוק וסטראדל.',cond:'להחזיק 5 שניות בכל אחד מהוריאציות: פייק · טאק · סטראדל.',req:['b_free30'],xp:130,pre:'5×מקס לכל וריאציה · פייק → טאק → סטראדל'},
     {id:'b_press',name:'כניסה בכוח (Press to Handstand)',icon:'🛗',goal:true,desc:'עלייה לעמידת ידיים בלי קפיצה — דורש כוח דחיפה ישר-זרוע.',cond:'Press to handstand נקי (דורש עמידת ידיים + כוח דחיפה).',req:['b_full','h_lean'],xp:160,pre:'6×ניסיונות פראס · עבוד על סטראדל/פייק פראס'},
@@ -3627,10 +3628,13 @@ function render(){
         wr.style.cssText='position:relative;overflow:visible;display:flex;justify-content:center';
         wr.appendChild(_makeTreeNode(node,i));
         const sw=document.createElement('div');
-        sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row-reverse;align-items:center;pointer-events:auto;direction:rtl;gap:8px';
-        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+        sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row-reverse;align-items:center;pointer-events:auto;direction:rtl;gap:4px';
+        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(90deg);flex-shrink:0';
         sw.appendChild(ha);
-        side.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
+        side.forEach((sn,si)=>{
+          sw.appendChild(_makeTreeNode(sn,null));
+          if(si<side.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(90deg);flex-shrink:0';sw.appendChild(c);}
+        });
         wr.appendChild(sw);
         path.appendChild(wr);
       } else {
