@@ -1497,9 +1497,10 @@ function setSessionLen(n,el){profile1b.sessionLen=n;el.parentNode.querySelectorA
 
 const TREES={
   pull:{name:'PULL · מתח',color:'var(--pull)',sub:'גב · ביצפס · פרונט לבר · מתח עם משקל · יד אחת',
-    tracks:['weighted','frontlever'],
-    trackLabels:{weighted:'🏋️ מתח עם משקל',frontlever:'🛬 פרונט לבר'},
-    trackColors:{weighted:'var(--pull)',frontlever:'var(--cyan)'},
+    tracks:['frontlever','weighted','oa'],
+    trackStartAt:{oa:2},
+    trackLabels:{frontlever:'🛬 פרונט לבר',weighted:'🏋️ מתח עם משקל',oa:'☝️ יד אחת'},
+    trackColors:{frontlever:'var(--cyan)',weighted:'var(--pull)',oa:'var(--gold)'},
     nodes:[
     /* ── בסיס משותף ── */
     {id:'p_hang', track:'base',name:'תליה על המתח 30 שניות',icon:'🪢',desc:'בסיס האחיזה והכתף.',cond:'להחזיק תלייה 30 שניות.',req:[],xp:20,pre:'4×החזקת תלייה מקסימלית · מנוחה 60ש׳'},
@@ -1528,12 +1529,12 @@ const TREES={
     {id:'p_flpull',track:'frontlever',name:'משיכות בפרונט לבר',icon:'🔃',desc:'דינמי מתוך פרונט לבר.',cond:'5 משיכות פרונט לבר.',req:['p_fl'],xp:200,pre:'4×3-5 משיכות'},
     {id:'p_oafl',  track:'frontlever',name:'פרונט לבר על יד אחת',icon:'🌠',goal:true,desc:'הפסגה של המשיכה הסטטית.',cond:'להחזיק טאק פרונט לבר על יד אחת.',req:['p_flpull','p_oa'],xp:300,pre:'6×ניסיונות החזקה לכל צד'},
     /* ── ענף יד אחת (מתפצל מ-+20 ק"ג) ── */
-    {id:'p_oa_lean', track:'oa_side',name:'השענות יד אחת',icon:'🤚',desc:'האצבעות של היד השנייה על המוט — מורידים עזרה.',cond:'5 חזרות כל צד.',req:['p_w20'],xp:100,pre:'4×5 לכל צד · הפחת עזרה כל שבוע'},
-    {id:'p_oa_neg',  track:'oa_side',name:'מתח שלילי יד אחת',icon:'🖐️',desc:'ירידה איטית על יד אחת בלבד.',cond:'3 ירידות (5+ שניות) כל צד.',req:['p_oa_lean'],xp:130,pre:'5×ירידה אחת לכל צד'},
-    {id:'p_oa_90bot',track:'oa_side',name:'עצירת 90° תחתית',icon:'⏸️',desc:'עצירה בזווית 90° ולרדת — בונה כוח התחתית.',cond:'5 שניות בעצירה 90° לכל צד.',req:['p_oa_neg'],xp:160,pre:'5×עצור ורד לכל צד'},
-    {id:'p_oa_90top',track:'oa_side',name:'עצירת 90° ועלייה',icon:'⏩',desc:'עצירה בזווית 90° ולעלות עד למעלה.',cond:'3 חזרות מלאות כל צד.',req:['p_oa_90bot'],xp:195,pre:'4×3 לכל צד'},
-    {id:'p_oa',      track:'oa_side',name:'מתח יד אחת מלא',icon:'☝️',goal:true,desc:'הגביע הקדוש של המשיכה.',cond:'מתח יד אחת מלא לכל צד.',req:['p_oa_90top'],xp:250,pre:'מקס סטים × 1 לכל צד · מנוחה מלאה'},
-    {id:'p_oa_w',    track:'oa_side',name:'מתח יד אחת + משקל',icon:'👑',goal:true,desc:'5 חזרות יד אחת + משקל — שיא מוחלט.',cond:'5 חזרות יד אחת עם +5 ק"ג לכל צד.',req:['p_oa','p_w70'],xp:400,pre:'4×3-5 לכל צד'},
+    {id:'p_oa_lean', track:'oa',name:'השענות יד אחת',icon:'🤚',desc:'האצבעות של היד השנייה על המוט — מורידים עזרה.',cond:'5 חזרות כל צד.',req:['p_w20'],xp:100,pre:'4×5 לכל צד · הפחת עזרה כל שבוע'},
+    {id:'p_oa_neg',  track:'oa',name:'מתח שלילי יד אחת',icon:'🖐️',desc:'ירידה איטית על יד אחת בלבד.',cond:'3 ירידות (5+ שניות) כל צד.',req:['p_oa_lean'],xp:130,pre:'5×ירידה אחת לכל צד'},
+    {id:'p_oa_90bot',track:'oa',name:'עצירת 90° תחתית',icon:'⏸️',desc:'עצירה בזווית 90° ולרדת — בונה כוח התחתית.',cond:'5 שניות בעצירה 90° לכל צד.',req:['p_oa_neg'],xp:160,pre:'5×עצור ורד לכל צד'},
+    {id:'p_oa_90top',track:'oa',name:'עצירת 90° ועלייה',icon:'⏩',desc:'עצירה בזווית 90° ולעלות עד למעלה.',cond:'3 חזרות מלאות כל צד.',req:['p_oa_90bot'],xp:195,pre:'4×3 לכל צד'},
+    {id:'p_oa',      track:'oa',name:'מתח יד אחת מלא',icon:'☝️',goal:true,desc:'הגביע הקדוש של המשיכה.',cond:'מתח יד אחת מלא לכל צד.',req:['p_oa_90top'],xp:250,pre:'מקס סטים × 1 לכל צד · מנוחה מלאה'},
+    {id:'p_oa_w',    track:'oa',name:'מתח יד אחת + משקל',icon:'👑',goal:true,desc:'5 חזרות יד אחת + משקל — שיא מוחלט.',cond:'5 חזרות יד אחת עם +5 ק"ג לכל צד.',req:['p_oa','p_w70'],xp:400,pre:'4×3-5 לכל צד'},
   ]},
   push:{name:'PUSH · דחיפה',color:'var(--push)',sub:'חזה · כתף · פלאנץ · HSPU',
     tracks:['planche','hspu'],
@@ -3358,140 +3359,177 @@ function render(){
     const splitDiv=document.createElement('div');
     splitDiv.className='track-split-banner';
     const _tc=tree.tracks.map(t=>tree.trackColors[t]);
-    splitDiv.innerHTML=tree.tracks.map(tid=>`<span style="color:${tree.trackColors[tid]}">${tree.trackLabels[tid]}</span>`).join(`<span class="tsl" style="background:linear-gradient(90deg,${_tc[0]},${_tc[1]})"></span>`);
-    // connector from last base to split
+    if(tree.tracks.length===3){
+      splitDiv.innerHTML=`<span style="color:${_tc[0]}">${tree.trackLabels[tree.tracks[0]]}</span><span class="tsl" style="background:linear-gradient(90deg,${_tc[0]},${_tc[1]})"></span><span style="color:${_tc[1]}">${tree.trackLabels[tree.tracks[1]]}</span><span class="tsl" style="background:linear-gradient(90deg,${_tc[1]},${_tc[2]})"></span><span style="color:${_tc[2]}">${tree.trackLabels[tree.tracks[2]]}</span>`;
+    } else {
+      splitDiv.innerHTML=tree.tracks.map(tid=>`<span style="color:${tree.trackColors[tid]}">${tree.trackLabels[tid]}</span>`).join(`<span class="tsl" style="background:linear-gradient(90deg,${_tc[0]},${_tc[1]})"></span>`);
+    }
     if(lastBase) path.appendChild(_makeConnector(lastBase.id));
     path.appendChild(splitDiv);
 
-    // paired-row layout — both tracks advance row by row, center node appears inline
-    const centerNodes=tree.nodes.filter(n=>n.track==='center');
-    const centerReqIds=centerNodes.flatMap(cn=>cn.req);
-    const t0Nodes=tree.nodes.filter(n=>n.track===tree.tracks[0]); // planche
-    const t1Nodes=tree.nodes.filter(n=>n.track===tree.tracks[1]); // hspu
-    const plancheSideNodes=tree.nodes.filter(n=>n.track==='planche_side');
-    const straddleSideNodes=tree.nodes.filter(n=>n.track==='straddle_side');
-    const oaSideNodes=tree.nodes.filter(n=>n.track==='oa_side');
-    const maxLen=Math.max(t0Nodes.length,t1Nodes.length);
+    const t0Nodes=tree.nodes.filter(n=>n.track===tree.tracks[0]);
+    const t1Nodes=tree.nodes.filter(n=>n.track===tree.tracks[1]);
 
-    // track label row
-    const lblRow=document.createElement('div');
-    lblRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;margin-bottom:8px';
-    [tree.tracks[0],null,tree.tracks[1]].forEach(tid=>{
-      const cell=document.createElement('div');
-      cell.style.cssText='display:flex;justify-content:center';
-      if(tid){
-        const lbl=document.createElement('div');
-        lbl.className='track-label';
-        lbl.style.color=tree.trackColors[tid];
-        lbl.textContent=tree.trackLabels[tid];
-        cell.appendChild(lbl);
-      }
-      lblRow.appendChild(cell);
-    });
-    path.appendChild(lblRow);
+    if(tree.tracks.length===3){
+      // ── 3-track symmetric layout ──
+      const t2Nodes=tree.nodes.filter(n=>n.track===tree.tracks[2]);
+      const t2Off=(tree.trackStartAt&&tree.trackStartAt[tree.tracks[2]])||0;
+      const max3=Math.max(t0Nodes.length,t1Nodes.length,t2Nodes.length+t2Off);
 
-    // render row by row
-    for(let i=0;i<maxLen;i++){
-      const n0=t0Nodes[i]||null;
-      const n1=t1Nodes[i]||null;
+      // label row: 3 columns
+      const lb3=document.createElement('div');
+      lb3.style.cssText='display:grid;grid-template-columns:1fr 10px 1fr 10px 1fr;width:100%;margin-bottom:8px';
+      [tree.tracks[0],null,tree.tracks[1],null,tree.tracks[2]].forEach(tid=>{
+        const cell=document.createElement('div');cell.style.cssText='display:flex;justify-content:center';
+        if(tid){const lbl=document.createElement('div');lbl.className='track-label';lbl.style.color=tree.trackColors[tid];lbl.textContent=tree.trackLabels[tid];cell.appendChild(lbl);}
+        lb3.appendChild(cell);
+      });
+      path.appendChild(lb3);
 
-      const leftFeeds=n0&&centerReqIds.includes(n0.id);
-      const rightFeeds=n1&&centerReqIds.includes(n1.id);
-      const showDiag=(leftFeeds||rightFeeds)&&centerNodes.length;
+      for(let i=0;i<max3;i++){
+        const n0=t0Nodes[i]||null;
+        const n1=t1Nodes[i]||null;
+        const n2=(i>=t2Off)?t2Nodes[i-t2Off]||null:null;
+        const prevN2=(i>t2Off)?t2Nodes[i-t2Off-1]||null:null;
 
-      // connector row (after first row)
-      if(i>0){
-        const connRow=document.createElement('div');
-        connRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%';
-        const c0=document.createElement('div');c0.style.cssText='display:flex;justify-content:center';
-        if(n0&&t0Nodes[i-1])c0.appendChild(_makeConnector(t0Nodes[i-1].id));
-        const cMid=document.createElement('div');
-        const c1=document.createElement('div');c1.style.cssText='display:flex;justify-content:center';
-        if(n1&&t1Nodes[i-1])c1.appendChild(_makeConnector(t1Nodes[i-1].id));
-        connRow.appendChild(c0);connRow.appendChild(cMid);connRow.appendChild(c1);
-        path.appendChild(connRow);
-      }
+        if(i>0){
+          const cr=document.createElement('div');
+          cr.style.cssText='display:grid;grid-template-columns:1fr 10px 1fr 10px 1fr;width:100%;position:relative;overflow:visible';
+          const c0=document.createElement('div');c0.style.cssText='display:flex;justify-content:center';
+          if(n0&&t0Nodes[i-1])c0.appendChild(_makeConnector(t0Nodes[i-1].id));
+          const g1=document.createElement('div');
+          const c1=document.createElement('div');c1.style.cssText='display:flex;justify-content:center';
+          if(n1&&t1Nodes[i-1])c1.appendChild(_makeConnector(t1Nodes[i-1].id));
+          // gap between weighted and OA — diagonal arrow when OA track starts
+          const g2=document.createElement('div');g2.style.cssText='position:relative;overflow:visible';
+          if(i===t2Off&&t2Nodes.length>0){
+            const dc=document.createElement('div');
+            dc.className='connector'+(isDone(t1Nodes[t2Off-1]?.id)?' done':'');
+            dc.style.cssText='height:76px;margin:0;transform-origin:top center;transform:rotate(-45deg);position:absolute;top:0;left:50%;margin-left:-2.5px';
+            g2.appendChild(dc);
+          }
+          const c2=document.createElement('div');c2.style.cssText='display:flex;justify-content:center';
+          if(n2&&prevN2)c2.appendChild(_makeConnector(prevN2.id));
+          cr.appendChild(c0);cr.appendChild(g1);cr.appendChild(c1);cr.appendChild(g2);cr.appendChild(c2);
+          path.appendChild(cr);
+        }
 
-      // node row — 5 columns when showDiag (side nodes + h-arrows + center node)
-      const nodeRow=document.createElement('div');
-      nodeRow.style.cssText=showDiag
-        ?'display:grid;grid-template-columns:1fr 44px 104px 44px 1fr;gap:0;width:100%;align-items:center'
-        :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
-
-      const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'||n0.id==='p_w20'));
-      const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(_needsSide?';position:relative;overflow:visible':'');
-      if(n0)left.appendChild(_makeTreeNode(n0,null));
-      if(n0&&n0.id==='h_str'&&straddleSideNodes.length>0){
-        const sw=document.createElement('div');
-        sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
-        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
-        sw.appendChild(ha);
-        const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
-        straddleSideNodes.forEach((node,idx)=>{
-          col.appendChild(_makeTreeNode(node,null));
-          if(idx<straddleSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
+        const nr=document.createElement('div');
+        nr.style.cssText='display:grid;grid-template-columns:1fr 10px 1fr 10px 1fr;width:100%;align-items:center';
+        [n0,null,n1,null,n2].forEach((n,idx)=>{
+          const cell=document.createElement('div');cell.style.cssText='display:flex;justify-content:center';
+          if(n&&idx!==1&&idx!==3)cell.appendChild(_makeTreeNode(n,null));
+          nr.appendChild(cell);
         });
-        sw.appendChild(col);
-        left.appendChild(sw);
+        path.appendChild(nr);
       }
-      if(n0&&n0.id==='h_planche'&&plancheSideNodes.length>0){
-        const sw=document.createElement('div');
-        sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
-        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
-        sw.appendChild(ha);
-        const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
-        plancheSideNodes.forEach((node,idx)=>{
-          col.appendChild(_makeTreeNode(node,null));
-          if(idx<plancheSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
-        });
-        sw.appendChild(col);
-        left.appendChild(sw);
-      }
-      if(n0&&n0.id==='p_w20'&&oaSideNodes.length>0){
-        const sw=document.createElement('div');
-        sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
-        const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
-        sw.appendChild(ha);
-        const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
-        oaSideNodes.forEach((node,idx)=>{
-          col.appendChild(_makeTreeNode(node,null));
-          if(idx<oaSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
-        });
-        sw.appendChild(col);
-        left.appendChild(sw);
-      }
-      nodeRow.appendChild(left);
+    } else {
+      // ── 2-track layout (push tree) ──
+      const plancheSideNodes=tree.nodes.filter(n=>n.track==='planche_side');
+      const straddleSideNodes=tree.nodes.filter(n=>n.track==='straddle_side');
+      const centerNodes=tree.nodes.filter(n=>n.track==='center');
+      const centerReqIds=centerNodes.flatMap(cn=>cn.req);
+      const maxLen=Math.max(t0Nodes.length,t1Nodes.length);
 
-      if(showDiag){
-        // horizontal arrow: left node → center (connector rotated -90°, arrowhead points right)
-        const la=document.createElement('div');la.style.cssText='display:flex;align-items:center;justify-content:center';
-        if(leftFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:44px;margin:0;transform:rotate(-90deg)';la.appendChild(c);}
-        nodeRow.appendChild(la);
+      const lblRow=document.createElement('div');
+      lblRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;margin-bottom:8px';
+      [tree.tracks[0],null,tree.tracks[1]].forEach(tid=>{
+        const cell=document.createElement('div');
+        cell.style.cssText='display:flex;justify-content:center';
+        if(tid){
+          const lbl=document.createElement('div');
+          lbl.className='track-label';
+          lbl.style.color=tree.trackColors[tid];
+          lbl.textContent=tree.trackLabels[tid];
+          cell.appendChild(lbl);
+        }
+        lblRow.appendChild(cell);
+      });
+      path.appendChild(lblRow);
+
+      for(let i=0;i<maxLen;i++){
+        const n0=t0Nodes[i]||null;
+        const n1=t1Nodes[i]||null;
+
+        const leftFeeds=n0&&centerReqIds.includes(n0.id);
+        const rightFeeds=n1&&centerReqIds.includes(n1.id);
+        const showDiag=(leftFeeds||rightFeeds)&&centerNodes.length;
+
+        if(i>0){
+          const connRow=document.createElement('div');
+          connRow.style.cssText='display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%';
+          const c0=document.createElement('div');c0.style.cssText='display:flex;justify-content:center';
+          if(n0&&t0Nodes[i-1])c0.appendChild(_makeConnector(t0Nodes[i-1].id));
+          const cMid=document.createElement('div');
+          const c1=document.createElement('div');c1.style.cssText='display:flex;justify-content:center';
+          if(n1&&t1Nodes[i-1])c1.appendChild(_makeConnector(t1Nodes[i-1].id));
+          connRow.appendChild(c0);connRow.appendChild(cMid);connRow.appendChild(c1);
+          path.appendChild(connRow);
+        }
+
+        const nodeRow=document.createElement('div');
+        nodeRow.style.cssText=showDiag
+          ?'display:grid;grid-template-columns:1fr 44px 104px 44px 1fr;gap:0;width:100%;align-items:center'
+          :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
+
+        const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'));
+        const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(_needsSide?';position:relative;overflow:visible':'');
+        if(n0)left.appendChild(_makeTreeNode(n0,null));
+        if(n0&&n0.id==='h_str'&&straddleSideNodes.length>0){
+          const sw=document.createElement('div');
+          sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
+          const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+          sw.appendChild(ha);
+          const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
+          straddleSideNodes.forEach((node,idx)=>{
+            col.appendChild(_makeTreeNode(node,null));
+            if(idx<straddleSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
+          });
+          sw.appendChild(col);left.appendChild(sw);
+        }
+        if(n0&&n0.id==='h_planche'&&plancheSideNodes.length>0){
+          const sw=document.createElement('div');
+          sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
+          const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+          sw.appendChild(ha);
+          const col=document.createElement('div');col.style.cssText='display:flex;flex-direction:row;align-items:center;gap:8px';
+          plancheSideNodes.forEach((node,idx)=>{
+            col.appendChild(_makeTreeNode(node,null));
+            if(idx<plancheSideNodes.length-1){const c=document.createElement('div');c.className='connector';c.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';col.appendChild(c);}
+          });
+          sw.appendChild(col);left.appendChild(sw);
+        }
+        nodeRow.appendChild(left);
+
+        if(showDiag){
+          const la=document.createElement('div');la.style.cssText='display:flex;align-items:center;justify-content:center';
+          if(leftFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:44px;margin:0;transform:rotate(-90deg)';la.appendChild(c);}
+          nodeRow.appendChild(la);
+        }
+
+        const mid=document.createElement('div');
+        mid.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px';
+        if(showDiag){
+          centerNodes.forEach(cn=>mid.appendChild(_makeTreeNode(cn,null)));
+          const cnLabel=document.createElement('div');
+          cnLabel.style.cssText='font-family:"Share Tech Mono",monospace;font-size:8px;color:var(--gold);text-align:center;line-height:1.4;opacity:.7';
+          cnLabel.textContent='צומת מחבר';
+          mid.appendChild(cnLabel);
+        }
+        nodeRow.appendChild(mid);
+
+        if(showDiag){
+          const ra=document.createElement('div');ra.style.cssText='display:flex;align-items:center;justify-content:center';
+          if(rightFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:44px;margin:0;transform:rotate(90deg)';ra.appendChild(c);}
+          nodeRow.appendChild(ra);
+        }
+
+        const right=document.createElement('div');right.style.cssText='display:flex;justify-content:center';
+        if(n1)right.appendChild(_makeTreeNode(n1,null));
+        nodeRow.appendChild(right);
+
+        path.appendChild(nodeRow);
       }
-
-      const mid=document.createElement('div');
-      mid.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px';
-      if(showDiag){
-        centerNodes.forEach(cn=>mid.appendChild(_makeTreeNode(cn,null)));
-        const cnLabel=document.createElement('div');
-        cnLabel.style.cssText='font-family:"Share Tech Mono",monospace;font-size:8px;color:var(--gold);text-align:center;line-height:1.4;opacity:.7';
-        cnLabel.textContent='צומת מחבר';
-        mid.appendChild(cnLabel);
-      }
-      nodeRow.appendChild(mid);
-
-      if(showDiag){
-        // horizontal arrow: right node → center (connector rotated 90°, arrowhead points left)
-        const ra=document.createElement('div');ra.style.cssText='display:flex;align-items:center;justify-content:center';
-        if(rightFeeds){const c=document.createElement('div');c.className='connector';c.style.cssText='height:44px;margin:0;transform:rotate(90deg)';ra.appendChild(c);}
-        nodeRow.appendChild(ra);
-      }
-
-      const right=document.createElement('div');right.style.cssText='display:flex;justify-content:center';
-      if(n1)right.appendChild(_makeTreeNode(n1,null));
-      nodeRow.appendChild(right);
-
-      path.appendChild(nodeRow);
     }
 
     // merge nodes — diagonal connectors from both tracks converging to center
