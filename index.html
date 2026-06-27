@@ -3889,8 +3889,10 @@ function _vis(lm,...ii){return ii.every(i=>lm[i]&&(lm[i].visibility||0)>0.2);}
    Coordinates: y=0 top of frame, y=1 bottom. x=0 left.
 ── */
 function _score(type,lm){
-  const conf=lm.reduce((s,p)=>s+(p.visibility||0),0)/lm.length;
-  if(conf<0.25)return 10;
+  // Use only visible landmarks for confidence (handles partial-body videos)
+  const visLm=lm.filter(p=>(p.visibility||0)>0.15);
+  const conf=visLm.length>3?visLm.reduce((s,p)=>s+(p.visibility||0),0)/visLm.length:0;
+  if(conf<0.3||visLm.length<4)return 10;
 
   const nose=lm[0];
   const lSh=lm[11],rSh=lm[12];
@@ -4051,7 +4053,8 @@ async function analyzeProofVideo(nodeId, file){
     done=true;
     clearInterval(interval);
     const avg=scores.length?scores.reduce((a,b)=>a+b)/scores.length:0;
-    finishAnalysis(avg>=60);
+    const threshold=(exType==='hspu'||exType==='handstand')?50:60;
+    finishAnalysis(avg>=threshold);
   };
 
   vid.onloadeddata=()=>vid.play();
