@@ -738,10 +738,14 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
   <div id="treeBanner"></div>
   <div id="treePathWrap">
     <div class="path" id="path" data-tree="pull"></div>
-    <div id="skillsLockOverlay" style="display:none" class="skills-lock-overlay">
-      <div class="skills-lock-x">✕</div>
-      <div class="skills-lock-icon" onclick="openUnlockTreesModal()">🔒</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,193,77,.8);text-align:center;z-index:21;line-height:1.7">לחץ על המנעול<br>לפתיחת עצי המיומנויות</div>
+    <div id="skillsLockOverlay" style="display:none;direction:rtl;margin:14px auto 0;max-width:480px;border:1px solid rgba(255,193,77,.45);background:rgba(255,193,77,.06);border-radius:10px;padding:18px 20px;text-align:right">
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);letter-spacing:.08em;margin-bottom:8px">🔒 עצי המיומנויות נעולים</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#b8cfe8;line-height:1.9;margin-bottom:14px">
+        בחרת במטרה של <b style="color:var(--gold)">חיטוב גוף</b> — עצי המיומנויות לא נכללו.<br>
+        אם התחרטת ורוצה להשיג מיומנויות כמו פלאנץ, מתח יד אחת<br>
+        ועמידת ידיים — לחץ על הכפתור למטה לפתיחת גישה.
+      </div>
+      <button onclick="openUnlockTreesModal()" style="background:rgba(255,193,77,.18);border:1px solid rgba(255,193,77,.6);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:10px 22px;border-radius:7px;cursor:pointer;letter-spacing:.05em">🔓 פתח גישה למיומנויות</button>
     </div>
   </div>
   <div id="workout" class="hidden"></div>
@@ -2568,6 +2572,7 @@ function switchTree(t){
   document.getElementById('treeHead').style.display=(isWk||isLib)?'none':'';
   document.getElementById('treeBanner').style.display=(isWk||isLib)?'none':'';
   document.getElementById('path').style.display=(isWk||isLib)?'none':'';
+  const _slo=document.getElementById('skillsLockOverlay');if(_slo&&(isWk||isLib))_slo.style.display='none';
   document.getElementById('workout').classList.toggle('hidden',!isWk);
   document.getElementById('library').classList.toggle('hidden',!isLib);
   if(isWk){renderWorkout();renderXP();}
