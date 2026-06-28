@@ -2164,6 +2164,7 @@ const BASIC=[
   {k:'situps',t:'כפיפות בטן',opts:['10–20','21–40','41–60','60+']},
   {k:'plank',t:'פלאנק',opts:['10–30 ש׳','30–60 ש׳','1–2 דק׳','2+ דק׳']},
   {k:'lsit',t:'L-Sit',opts:['3–5 ש׳','6–10 ש׳','11–20 ש׳','20+ ש׳']},
+  {k:'squat',t:'🦵 סקוואט / רגליים',opts:['פחות מ-10','10–20 סקוואט','לאנג׳ בשליטה','פיסטול נגטיב']},
 ];
 const STAGES=['Tuck','Advanced Tuck','Half Straddle','Full Straddle','Full'];
 const ADV=[
@@ -2172,6 +2173,8 @@ const ADV=[
   {k:'planche',t:'Planche',type:'stage'},
   {k:'back',t:'Back Lever',type:'stage'},
   {k:'flag',t:'Human Flag',type:'time',opts:['1–5 ש׳','5–10 ש׳','10–30 ש׳','30+ ש׳']},
+  {k:'pistol',t:'🎯 פיסטול סקוואט',type:'stage',stages:['נגטיב','פיסטול מלא','Shrimp Squat','Dragon Squat']},
+  {k:'core_skill',t:'💪 כוח ליבה מתקדם',type:'stage',stages:['Windshield Wipers','Dragon Flag','Tuck V-Sit','V-Sit מלא']},
 ];
 function buildQuiz(){
   const lv=document.getElementById('q_level');
@@ -2217,9 +2220,10 @@ function pickLevel(v){
         <div class="row"><div class="opt" onclick="setAns('${ex.k}',0,this)"><span class="dot"></span>לא</div>
         ${ex.opts.map((o,i)=>`<div class="opt" onclick="setAns('${ex.k}',${i+1},this)"><span class="dot"></span>${o}</div>`).join('')}</div></div>`;
     }
+    const _stages=ex.stages||STAGES;
     return `<div class="qblock"><h3>${ex.t} — באיזה שלב?</h3>
-      <div class="row"><div class="opt" onclick="setStage('${ex.k}',0,this)"><span class="dot"></span>לא עושה</div>
-      ${STAGES.map((s,i)=>`<div class="opt" onclick="setStage('${ex.k}',${i+1},this)"><span class="dot"></span>${s==='Full'?'Full '+ex.t.split(' ')[0]:s}</div>`).join('')}</div></div>`;
+      <div class="row"><div class="opt" onclick="setStage('${ex.k}',0,this)"><span class="dot"></span>לא עושה / לא יודע</div>
+      ${_stages.map((s,i)=>`<div class="opt" onclick="setStage('${ex.k}',${i+1},this)"><span class="dot"></span>${s}</div>`).join('')}</div></div>`;
   }).join(''):'';
   goStep('2b');
 }
@@ -2265,7 +2269,32 @@ function _finishQuiz(){
     // planche → push planche track
     if((a.planche||0)>=1){mark('h_knee');mark('h_pushup');mark('h_dia');mark('h_dips');mark('h_pike');mark('h_pseudo');mark('h_lean');mark('h_leanpush');mark('h_tuck');}
     for(let i=2;i<=(a.planche||0);i++){mark(['','','h_adv','h_str','h_str','h_planche'][i]);}
+    // pistol/legs advanced
+    const _pistolNodes=[null,'l_pistol_neg','l_pistol','l_shrimp','l_dragon'];
+    if((a.pistol||0)>=1){['l_squat20','l_lunge','l_nordic','l_pistol_neg'].forEach(mark);}
+    for(let i=2;i<=(a.pistol||0);i++){if(_pistolNodes[i])mark(_pistolNodes[i]);}
+    if((a.pistol||0)>=4){mark('l_dragon_neg');mark('l_dragon');}
+    // core skill advanced
+    if((a.core_skill||0)>=1){['c_plank','c_hollow','c_legraise','c_tuck_lsit','c_lsit','c_lsit30','c_wiper'].forEach(mark);}
+    if((a.core_skill||0)>=2){mark('c_dragonflag');}
+    if((a.core_skill||0)>=3){mark('c_dragonflag');mark('c_tuck_vsit');}
+    if((a.core_skill||0)>=4){['c_tuck_vsit','c_advtuck_vsit','c_str_vsit','c_vsit'].forEach(mark);}
   }
+  // basic squat → legs tree
+  if((a.squat||0)>=1){mark('l_squat20');}
+  if((a.squat||0)>=2){mark('l_squat20');mark('l_lunge');}
+  if((a.squat||0)>=3){mark('l_squat20');mark('l_lunge');mark('l_nordic');}
+  if((a.squat||0)>=4){['l_squat20','l_lunge','l_nordic','l_pistol_neg'].forEach(mark);}
+  // lsit basic → core tree
+  if((a.lsit||0)>=1){['c_plank','c_hollow','c_legraise','c_tuck_lsit'].forEach(mark);}
+  if((a.lsit||0)>=2){mark('c_lsit');}
+  if((a.lsit||0)>=3){mark('c_lsit');}
+  if((a.lsit||0)>=4){mark('c_lsit');mark('c_lsit30');}
+  // plank basic → core tree
+  if((a.plank||0)>=1){mark('c_plank');}
+  if((a.plank||0)>=2){mark('c_plank');mark('c_hollow');}
+  if((a.plank||0)>=3){['c_plank','c_hollow','c_legraise'].forEach(mark);}
+  if((a.plank||0)>=4){['c_plank','c_hollow','c_legraise','c_tuck_lsit'].forEach(mark);}
   state.onboarded=true;
   state.workoutLog=state.workoutLog||[];
   state.weeklyCheckins=state.weeklyCheckins||[];
