@@ -632,7 +632,17 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 
       <!-- Progress photo (optional) -->
       <div style="border:1px solid rgba(0,168,255,.25);background:rgba(0,168,255,.04);padding:14px;margin:10px 0;border-radius:7px;text-align:right">
-        <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--cyan);letter-spacing:.1em;margin-bottom:6px">📸 תמונת נקודת ההתחלה (אופציונלי)</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--cyan);letter-spacing:.1em">📸 תמונת נקודת ההתחלה (אופציונלי)</div>
+          <button onclick="document.getElementById('photoInfoBox').style.display=document.getElementById('photoInfoBox').style.display==='none'?'block':'none'" style="background:rgba(0,168,255,.15);border:1px solid rgba(0,168,255,.5);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:700;width:22px;height:22px;border-radius:50%;cursor:pointer;padding:0;line-height:22px;text-align:center">?</button>
+        </div>
+        <div id="photoInfoBox" style="display:none;background:rgba(0,168,255,.08);border:1px solid rgba(0,168,255,.3);border-radius:6px;padding:10px 12px;margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:10px;color:#7dd3fc;line-height:1.9;text-align:right">
+          📷 <b>למה לצלם עכשיו?</b><br>
+          המוח שלנו מתרגל לשינויים איטיים ולא רואה אותם.<br>
+          תמונת לפני/אחרי היא ההוכחה הכי חזקה שיש —<br>
+          לעצמך ולאחרים — שהמאמץ שלך עשה הבדל אמיתי.<br><br>
+          🔒 התמונה נשמרת <b>על המכשיר שלך בלבד</b> ולא עולה לשום שרת.
+        </div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);line-height:1.8;margin-bottom:10px">
           עוד 200 יום נבקש ממך לצלם שוב — ונראה לך<br>עד כמה השתנית. שמור את הזיכרון הזה.
         </div>
