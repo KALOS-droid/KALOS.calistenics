@@ -2732,6 +2732,73 @@ function _renderSessionBlock(session,timeLabel,st,cnt){
   return h;
 }
 
+function showWeeklySchedule(){
+  const plan=getCurrentWeekPlan();
+  const todayIdx=new Date().getDay();
+  const wPlan=state.weeklyPlan||{};
+  const ph=wPlan.phase||{label:'FOUNDATION',desc:'בניית בסיס'};
+  const phColor={FOUNDATION:'var(--cyan)',PROGRESSIVE:'var(--gold)',OVERLOAD:'var(--push)',DELOAD:'var(--success)',RECOVERY:'var(--blue)'}[ph.label]||'var(--muted)';
+  const TYPE_ICON={rest:'💤',cardio:'🏃',train:'💪',double:'⚡'};
+  const FOCUS_COLOR={pull:'var(--pull)',push:'var(--push)',core:'var(--core)',legs:'var(--legs)',cardio:'#ff6b35',rest:'var(--muted)'};
+
+  function _sessionLine(s,prefix){
+    if(!s)return'';
+    if(s.type==='rest')return`<div style="color:var(--muted);font-size:11px">💤 מנוחה — ריקוברי</div>`;
+    if(s.type==='cardio'){
+      const CARDIO_LABELS={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'};
+      return`<div style="font-size:11px;color:#ff6b35">${prefix?prefix+' · ':''}🏃 קרדיו · ${CARDIO_LABELS[s.cardioType]||s.cardioType||''}</div>`;
+    }
+    if(s.type==='train'){
+      const fc=FOCUS_COLOR[s.muscleCat]||FOCUS_COLOR[s.ppType]||'var(--cyan)';
+      return`<div style="font-size:11px">${prefix?`<span style="color:var(--muted)">${prefix} · </span>`:''}
+        <span style="color:var(--gold)">${s.ppType==='push'?'PUSH':'PULL'}</span>
+        <span style="color:var(--muted)"> + </span>
+        <span style="color:${fc}">${s.muscleName||''} ${s.muscleEmoji||''}</span>
+        ${s.needsWeight?`<span style="color:var(--muted);font-size:10px"> · משקל</span>`:''}
+      </div>`;
+    }
+    return`<div style="font-size:11px;color:var(--muted)">${s.label||''}</div>`;
+  }
+
+  const rows=plan.map((day,idx)=>{
+    const isToday=idx===todayIdx;
+    const borderCol=isToday?'var(--gold)':'rgba(255,255,255,.07)';
+    const bg=isToday?'rgba(255,193,77,.06)':'rgba(255,255,255,.02)';
+    const icon=TYPE_ICON[day.type]||'📅';
+    let content='';
+    if(day.type==='double'){
+      content=_sessionLine(day.morning,'🌅 בוקר')+_sessionLine(day.evening,'🌙 ערב');
+    } else {
+      content=_sessionLine(day);
+    }
+    return`<div style="border:1px solid ${borderCol};background:${bg};border-radius:8px;padding:10px 12px;direction:rtl">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:${day.type==='rest'?'0':'6px'}">
+        <span style="font-size:14px">${icon}</span>
+        <span style="font-family:'Orbitron',monospace;font-size:11px;color:${isToday?'var(--gold)':'#b8cfe8'};font-weight:${isToday?700:400}">${day.day}</span>
+        ${isToday?`<span style="margin-right:auto;background:var(--gold);color:#000;font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700">היום</span>`:''}
+      </div>
+      ${content}
+    </div>`;
+  }).join('');
+
+  const sLen=state.profile?.sessionLen||60;
+  const modal=document.createElement('div');
+  modal.id='weeklyScheduleModal';
+  modal.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);display:flex;flex-direction:column;overflow:hidden';
+  modal.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0">
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:14px;color:var(--gold);letter-spacing:.1em">📅 מערכת שבועית</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px">
+          <span style="color:${phColor}">${ph.label}</span> · שבוע ${wPlan.weekNum||1} · ${wPlan.strengthDayCount||0} כוח + ${wPlan.cardioDayCount||0} קרדיו · ${sLen} דק׳ לאימון
+        </div>
+      </div>
+      <button onclick="document.getElementById('weeklyScheduleModal').remove()" style="background:none;border:1px solid var(--border);color:var(--muted);font-size:18px;width:32px;height:32px;border-radius:6px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div style="overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1">${rows}</div>`;
+  document.body.appendChild(modal);
+}
+
 function renderWorkout(){
   const wk=document.getElementById('workout');
   const plan=getCurrentWeekPlan();
@@ -2739,7 +2806,9 @@ function renderWorkout(){
   const ts=todayStr();
   const logged=state.workoutLog&&state.workoutLog.find(l=>l.date===ts);
 
-  let html=`<div class="tree-head"><div class="tree-name" style="color:var(--gold)">אימון היום · ${today.day}</div><div class="tree-sub">${today.label}</div></div>`;
+  let html=`<div class="tree-head" style="position:relative"><div class="tree-name" style="color:var(--gold)">אימון היום · ${today.day}</div><div class="tree-sub">${today.label}</div>
+    <button onclick="showWeeklySchedule()" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,193,77,.1);border:1px solid rgba(255,193,77,.35);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 10px;border-radius:5px;cursor:pointer;letter-spacing:.06em;white-space:nowrap">📅 השבוע</button>
+  </div>`;
 
   // Punishment banner
   const missedCount=countMissedWorkouts();
