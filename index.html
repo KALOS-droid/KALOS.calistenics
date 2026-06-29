@@ -2306,8 +2306,10 @@ function _finishQuiz(){
   if((a.pullups||0)>=2){mark('p_pull1');mark('p_pull5');}
   if((a.pullups||0)>=3){mark('p_pull1');mark('p_pull5');mark('p_pull10');}
   if(adv){
-    if((a.handstand||0)>=3){mark('b_wall');}
-    if((a.handstand||0)>=4){mark('b_free5');}
+    if((a.handstand||0)>=1){mark('b_wall');}
+    if((a.handstand||0)>=2){['b_wall','b_legoff','b_free5'].forEach(mark);}
+    if((a.handstand||0)>=3){['b_wall','b_legoff','b_free5'].forEach(mark);}
+    if((a.handstand||0)>=4){['b_wall','b_legoff','b_free5','b_free30'].forEach(mark);}
     // front lever → pull tree
     const fl=['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][a.front||0];
     if(fl){mark('p_pull10');for(let i=1;i<=(a.front);i++){mark(['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][i]);}}
