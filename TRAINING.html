@@ -2178,7 +2178,7 @@ const BASIC=[
   {k:'situps',t:'כפיפות בטן',opts:['10–20','21–40','41–60','60+']},
   {k:'plank',t:'פלאנק',opts:['10–30 ש׳','30–60 ש׳','1–2 דק׳','2+ דק׳']},
   {k:'lsit',t:'L-Sit',opts:['3–5 ש׳','6–10 ש׳','11–20 ש׳','20+ ש׳']},
-  {k:'squat',t:'🦵 סקוואט / רגליים',opts:['פחות מ-10','10–20 סקוואט','לאנג׳ בשליטה','פיסטול נגטיב']},
+  {k:'squat',t:'🦵 סקוואט / רגליים',opts:['פחות מ-10','10–20 סקוואט','פיסטול נגטיב','פיסטול מלא']},
   {k:'hspu_count',t:'💪 כמה HSPU חופשיים (שכיבות סמיכה בעמידת ידיים) אתה מצליח?',opts:['1–3','4–7','8–12','12+']},
   {k:'dips_weight',t:'🏋️ מקבילים עם משקל — כמה ל-10 חזרות?',opts:['5–10 ק"ג','15–25 ק"ג','30–50 ק"ג','60+ ק"ג']},
   {k:'weighted_pull',t:'🏋️ מתח עם משקל — כמה ל-12 חזרות? (משקל נוסף בלבד)',opts:['5–15 ק"ג','20–35 ק"ג','40–60 ק"ג','70–100 ק"ג']},
@@ -2343,8 +2343,8 @@ function _finishQuiz(){
   // basic squat → legs tree
   if((a.squat||0)>=1){mark('l_squat20');}
   if((a.squat||0)>=2){mark('l_squat20');mark('l_lunge');}
-  if((a.squat||0)>=3){mark('l_squat20');mark('l_lunge');mark('l_nordic');}
-  if((a.squat||0)>=4){['l_squat20','l_lunge','l_nordic','l_pistol_neg'].forEach(mark);}
+  if((a.squat||0)>=3){['l_squat20','l_lunge','l_nordic','l_pistol_neg'].forEach(mark);}
+  if((a.squat||0)>=4){['l_squat20','l_lunge','l_nordic','l_pistol_neg','l_pistol'].forEach(mark);}
   // nordic curls basic → legs tree
   if((a.nordic_count||0)>=1){mark('l_squat20');mark('l_lunge');mark('l_nordic');}
   if((a.nordic_count||0)>=2){mark('l_squat20');mark('l_lunge');mark('l_nordic');}
