@@ -689,7 +689,16 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 
   <!-- PRO Subscribe Modal -->
   <div id="proModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);align-items:center;justify-content:center;direction:rtl;overflow-y:auto">
-    <div style="background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(255,215,0,.4);border-radius:16px;padding:32px 28px;max-width:380px;width:92%;text-align:center;box-shadow:0 0 60px rgba(255,215,0,.15);margin:auto">
+    <div style="background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(255,215,0,.4);border-radius:16px;padding:32px 28px;max-width:380px;width:92%;text-align:center;box-shadow:0 0 60px rgba(255,215,0,.15);margin:auto;position:relative">
+      <!-- Subtle admin entry — top left, invisible to regular users -->
+      <div style="position:absolute;top:10px;left:12px">
+        <span id="adminCodeToggle" onclick="document.getElementById('adminCodeWrap').style.display=document.getElementById('adminCodeWrap').style.display==='none'?'flex':'none'" style="font-size:9px;color:rgba(255,255,255,.12);cursor:pointer;font-family:'Share Tech Mono',monospace;letter-spacing:.05em;user-select:none">·</span>
+        <div id="adminCodeWrap" style="display:none;flex-direction:row;gap:6px;margin-top:4px;align-items:center">
+          <input id="adminCodeInput" type="password" placeholder="קוד" style="width:100px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:5px 8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#eaf6ff;outline:none" onkeydown="if(event.key==='Enter')applyAdminCode()">
+          <button onclick="applyAdminCode()" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 8px;border-radius:4px;cursor:pointer">›</button>
+          <div id="adminCodeMsg" style="font-size:10px;display:none"></div>
+        </div>
+      </div>
       <div style="font-size:48px;margin-bottom:8px">🤖</div>
       <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:900;letter-spacing:.15em;color:#ffd700;margin-bottom:4px">KALOS AI COACH</div>
       <div style="font-size:11px;color:#4a5a7a;letter-spacing:.15em;margin-bottom:20px">מאמן אישי מבוסס בינה מלאכותית</div>
@@ -703,7 +712,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         </div>
       </div>
       <!-- Under construction notice -->
-      <div id="proConstructionBanner" style="background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.4);border-radius:10px;padding:14px 16px;margin-bottom:18px;text-align:center">
+      <div style="background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.4);border-radius:10px;padding:14px 16px;margin-bottom:18px;text-align:center">
         <div style="font-size:22px;margin-bottom:6px">🚧</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;color:#ff8c00;margin-bottom:4px">AI Coach בשיפוצים כרגע</div>
         <div style="font-size:11px;color:#8aa0c0;line-height:1.6">אנחנו עובדים קשה על השקת המאמן האישי.<br>השארו מעודכנים — נעדכן אתכם ברגע שיהיה מוכן!</div>
@@ -719,15 +728,6 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
           <button onclick="saveAINotify()" style="width:100%;background:rgba(139,61,255,.25);border:1px solid rgba(139,61,255,.5);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:9px;border-radius:5px;cursor:pointer;letter-spacing:.06em">🔔 שמור והודע לי</button>
         </div>
         <div id="aiNotifyMsg" style="display:none;margin-top:6px;font-size:11px;color:var(--success)">✅ נרשמת! נעדכן אותך כשה-AI Coach יושק.</div>
-      </div>
-      <!-- Admin code -->
-      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 14px;margin-bottom:16px;text-align:right">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#4a5a7a;margin-bottom:8px;letter-spacing:.06em">🔑 יש לך קוד מנהל?</div>
-        <div style="display:flex;gap:8px">
-          <input id="adminCodeInput" type="password" placeholder="הזן קוד..." style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;outline:none;letter-spacing:.1em" onkeydown="if(event.key==='Enter')applyAdminCode()">
-          <button onclick="applyAdminCode()" style="background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:#ffd700;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 12px;border-radius:5px;cursor:pointer;white-space:nowrap">כניסה ›</button>
-        </div>
-        <div id="adminCodeMsg" style="margin-top:6px;font-size:11px;display:none"></div>
       </div>
       <button onclick="closeProModal()" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#4a5a7a;font-family:'Share Tech Mono',monospace;font-size:12px;padding:11px;border-radius:7px;cursor:pointer">סגור</button>
       <div id="proModalStatus" style="margin-top:12px;font-size:11px;color:#4a5a7a;display:none"></div>
@@ -2120,7 +2120,7 @@ function applyAdminCode(){
     setTimeout(()=>{
       grantProAdmin();
       document.getElementById('proModal').style.display='none';
-      window.open('AI-COACH.html','_blank');
+      window.open('AI-COACH.html?fromJarvis=1','_blank');
     },700);
   }else{
     msg.style.display='block';
