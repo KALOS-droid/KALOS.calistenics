@@ -2981,6 +2981,42 @@ const SKILL_STRENGTH_POOLS={
   ],
 };
 
+/* Phase 3 — Fixed weekly muscle split (Sun=חזה, Mon=ידיים, Wed=רגליים, Thu=גב, Sat=בטן) */
+const MUSCLE_SPLIT={
+  0:{name:'חזה 💪',emoji:'💪',tier_key:'push',
+    beginner:[['שכיבות סמיכה רגילות','4×מקס · 60ש׳'],['שכיבות רחבות (Wide Push-up)','3×12 · 60ש׳'],['שכיבות Decline (רגליים על כיסא)','3×8-10 · 60ש׳']],
+    intermediate:[['שכיבות ארצ\'ר','4×5 לכל צד · 90ש׳'],['מקבילים (Dips)','4×10-12 · 90ש׳'],['שכיבות Decline','4×12 · 60ש׳'],['שכיבות פיצוץ (Clap)','3×6-8 · 90ש׳']],
+    advanced:[['שכיבות פיצוץ כפולה','4×6-8 · 90ש׳'],['PPPU (Pseudo Planche PU)','4×10 · 90ש׳'],['מקבילים עם משקל','4×8 · 120ש׳'],['שכיבות ארצ\'ר','3×6 לכל צד · 90ש׳']]},
+  1:{name:'ידיים 💪 (ביצפס + טריצפס)',emoji:'💪',tier_key:'pull',
+    beginner:[['מתח אנדרהאנד נגטיב (Chin-up neg)','4×3-5 · 90ש׳'],['שכיבות דיימונד (Tricep PU)','4×10-12 · 60ש׳'],['תליה + עצירה 3ש׳ בזווית 90°','3×5 · 60ש׳'],['מקבילים על ספסל','3×12 · 60ש׳']],
+    intermediate:[['מתח אנדרהאנד (Chin-up)','4×מקס · 90ש׳'],['מתח + עצירה 3ש׳ בקצה עליון','3×5-6 · 90ש׳'],['מקבילים (Dips)','4×10 · 90ש׳'],['שכיבות דיימונד','4×12 · 60ש׳']],
+    advanced:[['מתח אנדרהאנד עם משקל','4×6-8 · 120ש׳'],['L-Sit Chin-up','3×5-6 · 90ש׳'],['מקבילים עם משקל','4×8 · 120ש׳'],['שכיבות דיימונד + משקל','3×10 · 90ש׳']]},
+  3:{name:'רגליים 🦵',emoji:'🦵',tier_key:'legs',
+    beginner:[['סקוואט','4×20 · 60ש׳'],['לאנג׳','3×12 לכל רגל · 60ש׳'],['קפיצות סקוואט (Jump Squat)','3×10 · 60ש׳'],['גשר בשכיבה (Glute Bridge)','3×15 · 45ש׳']],
+    intermediate:[['פיסטול נגטיב','4×5 לכל רגל · 90ש׳'],['Nordic Curl','3×5-8 · 90ש׳'],['ג׳אמפ לאנג׳','3×10 לכל רגל · 90ש׳'],['סקוואט בולגרי','3×10 לכל רגל · 90ש׳']],
+    advanced:[['פיסטול','4×5 לכל רגל · 90ש׳'],['Shrimp Squat','3×4-6 לכל רגל · 90ש׳'],['Nordic Curl','4×6-8 · 90ש׳'],['קפיצת רגל אחת','3×5 לכל רגל · 90ש׳']]},
+  4:{name:'גב 🔗',emoji:'🔗',tier_key:'pull',
+    beginner:[['מתח אוסטרלי (Rows)','4×12 · 60ש׳'],['נגטיב מתח (5ש׳)','4×3-5 · 90ש׳'],['תליה אקטיבית (Scapular Pull)','3×10 · 60ש׳'],['מתח אוסטרלי — רגליים מורמות','3×8 · 60ש׳']],
+    intermediate:[['מתח','4×מקס · 90ש׳'],['מתח + עצירה 3ש׳ בראש','3×5 · 90ש׳'],['מתח L-Sit','3×5-6 · 90ש׳'],['מתח אוסטרלי כבד','3×10 · 90ש׳']],
+    advanced:[['מתח עם משקל','5×4-5 · 120ש׳'],['FL Rows — טאק פרונט לבר','4×4-5 · 90ש׳'],['L-Sit Chin-up / Pull-up','3×5-6 · 90ש׳'],['נגטיב מתח 6ש׳','4×3 · 90ש׳']]},
+  6:{name:'בטן 🔥',emoji:'🔥',tier_key:'core',
+    beginner:[['פלאנק','4×30-45ש׳ · 60ש׳'],['כפיפות בטן','4×20 · 45ש׳'],['הרמות רגליים שכוב','3×12 · 60ש׳'],['Hollow Body Hold','3×20ש׳ · 45ש׳']],
+    intermediate:[['הרמות רגליים בתלייה','4×12 · 90ש׳'],['L-Sit אחיזה','4×מקס · 90ש׳'],['Hollow Body Hold','4×30ש׳ · 60ש׳'],['Russian Twist עם משקל גוף','3×20 · 60ש׳']],
+    advanced:[['Dragon Flag נגטיב','4×4-6 · 90ש׳'],['Toes-to-Bar','4×10 · 90ש׳'],['V-Sit Tuck','3×מקס · 90ש׳'],['L-Sit על מקבילים','3×מקס · 90ש׳']]},
+};
+const MUSCLE_REST_DAYS=new Set([2,5]); // Tuesday, Friday
+
+function buildMuscleDay(){
+  const day=new Date().getDay(); // 0=Sun..6=Sat
+  if(MUSCLE_REST_DAYS.has(day))return null;
+  const split=MUSCLE_SPLIT[day];
+  if(!split)return null;
+  const tiers=state.profile.tiers||{};
+  const tier=tiers[split.tier_key]||tierFromLevel(state.level);
+  const exs=split[tier]||split.intermediate;
+  return{name:split.name,emoji:split.emoji,exs};
+}
+
 function buildSkillStrengthBlock(goals){
   const treeMap={};
   goals.forEach(gid=>{
@@ -3125,10 +3161,16 @@ function renderWorkout(){
       html+=`</div>`;
     }
 
-    // Phase 3 — Muscle-specific volume
-    if(today.strengthBlock?.length){
-      html+=`<div class="wk-block"><div class="wk-h">🏋️ שלב 3 · שריר · ${today.muscleName||'כוח'} · ${muscleMin} דקות</div>`;
-      today.strengthBlock.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+    // Phase 3 — Fixed weekly muscle split
+    const _muscleDay=buildMuscleDay();
+    if(_muscleDay){
+      html+=`<div class="wk-block"><div class="wk-h">🏋️ שלב 3 · נפח שריר · ${_muscleDay.name} · ${muscleMin} דקות</div>`;
+      html+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.05em">💡 אימון ממוקד לקבוצת השריר של היום — עוצמה מותאמת לרמה שלך</div>`;
+      _muscleDay.exs.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+      html+=`</div>`;
+    } else {
+      html+=`<div class="wk-block"><div class="wk-h" style="color:var(--muted)">😴 שלב 3 · מנוחה פעילה</div>`;
+      html+=`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);padding:8px 0;line-height:1.7">הגוף מתחזק בזמן המנוחה.<br>מתיחות קלות · הליכה · שינה טובה.</div>`;
       html+=`</div>`;
     }
   } // end strength day
