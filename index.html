@@ -2198,6 +2198,10 @@ const ADV=[
   {k:'handstand',t:'עמידת ידיים',type:'time',opts:['1–5 ש׳','5–10 ש׳','10–30 ש׳','30+ ש׳'],followups:[
     {minStage:4,k:'forearm_stand',t:'🤸 עמידת אמות (Forearm Stand) — כמה זמן מחזיק?',opts:['1–5 ש׳','5–15 ש׳','15–30 ש׳','30+ ש׳']},
     {minStage:4,k:'hs_forearm_trans',t:'🔄 מעבר בין עמידת אמות לעמידת ידיים (HS ↔ Forearm Stand) — מצליח?'},
+    {minStage:4,k:'hs_full',t:'🎯 עמידת ידיים בוריאציות — מחזיק טאק / פייק / סטראדל HS?'},
+    {minStage:4,k:'hs_press',t:'🛗 כניסה לעמידת ידיים בכוח (Press to Handstand) — מצליח ללא קפיצה?'},
+    {minStage:4,k:'hs_oa_assist',t:'☝️ עמידת ידיים על יד אחת — בעזרת קיר (אצבעות נוגעות)?'},
+    {minStage:4,k:'hs_oa',t:'☝️ עמידת ידיים על יד אחת — חופשי לחלוטין?'},
   ]},
   {k:'hspu_count',t:'💪 HSPU חופשי — כמה שכיבות סמיכה בעמידת ידיים ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
   {k:'hspu_adv',t:'📐 90° Push-up בעמידת ידיים — כמה חזרות ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
@@ -2398,9 +2402,27 @@ function _finishQuiz(){
   if((a.weighted_pull||0)>=2){mark('p_w20');mark('p_w30');}
   if((a.weighted_pull||0)>=3){mark('p_w20');mark('p_w30');mark('p_w40');mark('p_w50');}
   if((a.weighted_pull||0)>=4){mark('p_w50');mark('p_w60');mark('p_w70');mark('p_w80');}
+  // dips (plain) → push base
+  if((a.dips||0)>=1){['h_knee','h_pushup','h_dia','h_dips'].forEach(mark);}
+  if((a.dips||0)>=2){mark('h_pike');}
   // dips with weight
   if((a.dips_weight||0)>=1){['h_knee','h_pushup','h_dia','h_dips'].forEach(mark);}
   if((a.dips_weight||0)>=2){mark('h_pike');}
+  // plank → core base
+  if((a.plank||0)>=1){mark('c_plank');}
+  if((a.plank||0)>=2){mark('c_plank');mark('c_hollow');}
+  // lsit → core tree
+  if((a.lsit||0)>=1){['c_plank','c_hollow','c_legraise','c_tuck_lsit'].forEach(mark);}
+  if((a.lsit||0)>=2){mark('c_lsit');}
+  if((a.lsit||0)>=4){mark('c_lsit30');}
+  // forearm stand followup → balance tree
+  if((a.forearm_stand||0)>=1){['b_wall','b_legoff','b_free5','b_free30','b_forearm'].forEach(mark);}
+  if((a.hs_forearm_trans||0)===1){['b_forearm','b_forearm_hs'].forEach(mark);}
+  // hs variations / press / OA → balance tree
+  if((a.hs_full||0)===1){['b_wall','b_legoff','b_free5','b_free30','b_full'].forEach(mark);}
+  if((a.hs_press||0)===1){['b_wall','b_legoff','b_free5','b_free30','b_full','b_press'].forEach(mark);}
+  if((a.hs_oa_assist||0)===1){['b_press','b_oa_assist'].forEach(mark);}
+  if((a.hs_oa||0)===1){['b_press','b_oa_assist','b_oa'].forEach(mark);}
   if((a.dips_weight||0)>=3){mark('h_pike');mark('h_lean');mark('h_pseudo');}
   // hspu count (basic) → push hspu track
   // lsit basic → core tree
