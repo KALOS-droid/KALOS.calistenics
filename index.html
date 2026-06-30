@@ -2763,24 +2763,72 @@ function currentStep(goalId){
   }
   return actionable(goalId);
 }
-function _renderSessionBlock(session,timeLabel,st,cnt){
+function _renderSessionBlock(session,timeLabel,st,cnt,partnerSession){
   const sLen=st.profile.sessionLen||60;
-  const skillMin=Math.ceil(sLen*40/90);
-  const ppMin=Math.ceil(sLen*20/90);
-  const muscleMin=Math.ceil(sLen*30/90);
-  let h=`<div style="padding:8px 14px 2px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em">${timeLabel} · ${session.label}</div>`;
+  const _pm={30:[13,9,8],45:[20,13,12],60:[27,17,16],90:[40,25,25]}[sLen]||[Math.round(sLen*8/18),Math.round(sLen*5/18),sLen-Math.round(sLen*8/18)-Math.round(sLen*5/18)];
+  const skillMin=_pm[0],ppMin=_pm[1],muscleMin=_pm[2];
+  const CARDIO_HE={running:'ריצה 🏃',walking:'הליכה 🚶',stairs:'מדרגות 🪜',bike:'אופניים 🚴',pool:'שחייה 🏊',jump:'קפיצה בחבל 🪢',tennis:'טניס 🎾'};
+
+  let h='';
+
+  // Header for this session block
+  h+=`<div style="padding:8px 14px 4px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:.1em;font-weight:700">${timeLabel} · ${session.type==='cardio'?'קרדיו 🏃':'כוח 💪'}</div>`;
+
+  // Partner session reminder
+  if(partnerSession){
+    const partnerType=partnerSession.type==='cardio'?`קרדיו · ${CARDIO_HE[partnerSession.cardioType]||''}`:' אימון כוח 💪';
+    const partnerTime=timeLabel.includes('בוקר')?'🌙 ערב':'🌅 בוקר';
+    h+=`<div style="margin:0 14px 8px;padding:8px 12px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:6px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--gold);display:flex;align-items:center;gap:8px">
+      <span style="opacity:.6">ℹ️ ${partnerTime}:</span>
+      <span>${partnerType}</span>
+    </div>`;
+  }
+
   if(session.type==='cardio'){
-    h+=`<div class="wk-block"><div class="wk-h" style="color:#ff6b35">🏃 קרדיו · ${session.label.split('·')[1]?.trim()||''}</div>`;
+    // Warm-up for cardio
+    const _warmMin=sLen<=30?5:sLen<=45?7:8;
+    h+=`<div class="wk-block"><div class="wk-h" style="color:var(--success)">🔥 חימום · ${_warmMin} דקות</div>`;
+    WARMUP_GENERAL.slice(0,4).forEach(([n,s])=>h+=`<div class="wk-ex" style="opacity:.9"><span>${n}</span><span class="wk-sets" style="color:var(--success);opacity:.8">${s}</span></div>`);
+    h+=`</div>`;
+    h+=`<div class="wk-block"><div class="wk-h" style="color:#ff6b35">🏃 קרדיו · ${CARDIO_HE[session.cardioType]||session.label}</div>`;
     (session.cardioBlock||[]).forEach(([n,s])=>h+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
     h+=`</div>`;
   } else {
+    // Warm-up
+    const _muscleDayIdx=new Date().getDay();
+    const _warmItems=buildWarmup(MUSCLE_REST_DAYS.has(_muscleDayIdx)?null:_muscleDayIdx,st.goals||[]);
+    const _warmMin=sLen<=30?5:sLen<=45?7:sLen<=60?8:10;
+    h+=`<div class="wk-block"><div class="wk-h" style="color:var(--success)">🔥 חימום · ${_warmMin} דקות</div>`;
+    h+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">💡 מפרקים + הפעלה ספציפית לאימון — לא לדלג!</div>`;
+    _warmItems.forEach(([n,s])=>h+=`<div class="wk-ex" style="opacity:.9"><span>${n}</span><span class="wk-sets" style="color:var(--success);opacity:.8">${s}</span></div>`);
+    h+=`</div>`;
     // Phase 1: skills
     h+=`<div class="wk-block"><div class="wk-h">🎯 שלב 1 · מיומנות · ${skillMin} דקות</div>`;
     if(!st.goals.length){h+=`<div class="wk-empty">בחר מטרה מהעצים.</div>`;}
-    else st.goals.forEach(gid=>{const goal=nodeById(gid),step=currentStep(gid);if(!step){h+=`<div class="wk-ex done">✓ ${goal.name} — הושג!</div>`;}else{const vid=cnt.videos[step.id];h+=`<div class="wk-ex skill" onclick="openNode(nodeById('${step.id}'))"><div><div class="wk-ex-name">${step.icon} ${step.name}${vid?' 🎬':''}</div><div class="wk-ex-sub">לקראת: ${goal.name}</div></div><span class="wk-sets">${step.pre||step.cond}</span></div>`;}});
+    else st.goals.forEach(gid=>{
+      const goal=nodeById(gid),step=currentStep(gid);
+      if(!step){h+=`<div class="wk-ex done">✓ ${goal.name} — הושג!</div>`;}
+      else{
+        const acc=SKILL_ACCESSORIES[step.id]||[];
+        const vid=cnt.videos[step.id];
+        h+=`<div class="wk-ex skill" onclick="openNode(nodeById('${step.id}'))"><div><div class="wk-ex-name">${step.icon} ${step.name}${vid?' 🎬':''}</div><div class="wk-ex-sub">לקראת: ${goal.name}</div></div><span class="wk-sets">${step.pre||step.cond}</span></div>`;
+        if(acc.length){
+          h+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin:6px 0 4px;letter-spacing:.08em">📎 תמיכה</div>`;
+          acc.forEach(([n,s])=>h+=`<div class="wk-ex" style="margin:3px 0;opacity:.85"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+        }
+      }
+    });
     h+=`</div>`;
-    // Phase 2: push/pull
-    if(session.ppBlock?.length){
+    // Phase 2: skill strength
+    if(st.goals&&st.goals.length){
+      const s2exs=buildSkillStrengthBlock(st.goals);
+      if(s2exs.length){
+        h+=`<div class="wk-block"><div class="wk-h" style="color:var(--accent)">⚡ שלב 2 · כוח בסיס למיומנות · ${ppMin} דקות</div>`;
+        h+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">💡 תרגילים ממוקדים לשרירים הדרושים לאימוני המיומנות</div>`;
+        s2exs.forEach(([n,s])=>h+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+        h+=`</div>`;
+      }
+    } else if(session.ppBlock?.length){
       const ppLabel=session.ppType==='push'?'PUSH · דחיפה 💪':'PULL · משיכה 🔗';
       h+=`<div class="wk-block"><div class="wk-h" style="color:${session.ppType==='push'?'var(--push)':'var(--pull)'}">⚡ שלב 2 · ${ppLabel} · ${ppMin} דקות`;
       if(session.needsWeight)h+=` <span style="font-size:10px;background:rgba(139,61,255,.25);color:#c8a4ff;padding:2px 7px;border-radius:3px">HYBRID</span>`;
@@ -2788,10 +2836,12 @@ function _renderSessionBlock(session,timeLabel,st,cnt){
       session.ppBlock.forEach(([n,s])=>h+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
       h+=`</div>`;
     }
-    // Phase 3: muscle
-    if(session.strengthBlock?.length){
-      h+=`<div class="wk-block"><div class="wk-h">🏋️ שלב 3 · שריר · ${session.muscleName||'כוח'} · ${muscleMin} דקות</div>`;
-      session.strengthBlock.forEach(([n,s])=>h+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+    // Phase 3: weekly muscle split
+    const _md=buildMuscleDay();
+    if(_md){
+      h+=`<div class="wk-block"><div class="wk-h">🏋️ שלב 3 · נפח שריר · ${_md.name} · ${muscleMin} דקות</div>`;
+      h+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">💡 אימון ממוקד לקבוצת השריר של היום</div>`;
+      _md.exs.forEach(([n,s])=>h+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
       h+=`</div>`;
     }
   }
@@ -3164,10 +3214,16 @@ function renderWorkout(){
 
   // Double day: render morning + evening as separate blocks
   if(today.type==='double'){
-    html+=`<div style="margin:0 14px 10px;padding:8px 12px;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.25);border-radius:7px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);line-height:1.6">📅 יום כפול — ${today.label.split('·')[1]?.trim()||'2 אימונים'}</div>`;
-    html+=_renderSessionBlock(today.morning,'🌅 בוקר',state,content);
+    const CARDIO_HE_D={running:'ריצה 🏃',walking:'הליכה 🚶',stairs:'מדרגות 🪜',bike:'אופניים 🚴',pool:'שחייה 🏊',jump:'קפיצה בחבל 🪢',tennis:'טניס 🎾'};
+    const mType=today.morning?.type==='cardio'?`קרדיו · ${CARDIO_HE_D[today.morning?.cardioType]||''}`:' כוח 💪';
+    const eType=today.evening?.type==='cardio'?`קרדיו · ${CARDIO_HE_D[today.evening?.cardioType]||''}`:' כוח 💪';
+    html+=`<div style="margin:0 14px 12px;padding:10px 14px;background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.3);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);line-height:1.9">
+      📅 <b>יום כפול · 2 אימונים</b><br>
+      <span style="color:var(--muted)">🌅 בוקר:</span> ${mType}&nbsp;&nbsp;<span style="color:var(--muted)">🌙 ערב:</span> ${eType}
+    </div>`;
+    html+=_renderSessionBlock(today.morning,'🌅 בוקר',state,content,today.evening);
     html+=`<div style="height:2px;background:linear-gradient(90deg,transparent,rgba(139,61,255,.4),transparent);margin:8px 14px"></div>`;
-    html+=_renderSessionBlock(today.evening,'🌙 ערב',state,content);
+    html+=_renderSessionBlock(today.evening,'🌙 ערב',state,content,today.morning);
     // Buttons apply to the whole day
     if(logged){
       html+=`<div style="text-align:center;padding:16px"><div style="border:1px solid var(--success);background:rgba(0,255,170,.08);padding:12px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--success)">✅ יום זה הוגש · כל הכבוד!</div></div>`;
