@@ -2981,6 +2981,103 @@ const SKILL_STRENGTH_POOLS={
   ],
 };
 
+/* ── WARM-UP ── */
+const WARMUP_GENERAL=[
+  ['סיבובי צוואר עדינים','10 × כל כיוון'],
+  ['סיבובי כתפיים (קדימה + אחורה)','15 × כל כיוון'],
+  ['סיבובי שורש כף יד','15 × כל כיוון'],
+  ['סיבובי ירך (Hip Circles)','10 × כל רגל'],
+  ['סיבובי קרסול','10 × כל רגל'],
+  ['נדנוד ידיים (Arm Swings)','20 × קדימה ואחורה'],
+  ['קפיצות קלות במקום','30 שניות — להתחמם'],
+];
+// Muscle-day specific warm-up
+const WARMUP_MUSCLE={
+  0:[ // חזה
+    ['מעגלי חזה (Chest Openers)','10 × פתיחה נרחבת'],
+    ['מתיחת חזה בקיר','20ש׳ × 2 לכל צד'],
+    ['שכיבות סמיכה קלות — חימום','2×10 · לא עד כישלון'],
+    ['מתיחת טריצפס מעל הראש','15ש׳ × 2 לכל צד'],
+  ],
+  1:[ // ידיים
+    ['מתיחת ביצפס בקיר (זרוע ישרה)','20ש׳ × 2 לכל צד'],
+    ['מתיחת טריצפס — מרפק מעל ראש','20ש׳ × 2 לכל צד'],
+    ['כיפופי שורש כף יד — חימום','15 × קדימה ואחורה'],
+    ['מתח אנדרהאנד קל (תנועה מלאה)','2×8 · עדין'],
+  ],
+  3:[ // רגליים
+    ['מתיחת כוסית (Hip Flexor Stretch)','30ש׳ × 2 לכל צד'],
+    ['מתיחת ירך — Pigeon Pose','30ש׳ × 2 לכל צד'],
+    ['מתיחת ארכובה (Hamstring Stretch)','20ש׳ × 2 לכל רגל'],
+    ['הגמשת קרסול (Ankle Mob.) — טיפים','10 × כל כיוון'],
+    ['סקוואט עמוק — חימום','2×10 · עדין'],
+  ],
+  4:[ // גב
+    ['Cat-Cow — כפיפה ויישור עמוד שדרה','10 × לאט'],
+    ['מתיחת לאטיסימוס בקיר','20ש׳ × 2 לכל צד'],
+    ['Shoulder Dislocates (מגבת/חבל)','10 × מעבר ישר'],
+    ['סיבוב תחתית גב (Thoracic Rotation)','10 × כל כיוון'],
+    ['תליה קלה על המתח','2 × 20ש׳'],
+  ],
+  6:[ // בטן
+    ['Cobra Stretch — מתיחת בטן','20ש׳ × 2'],
+    ['סיבוב מותניים (Hip Rotation)','10 × כל כיוון'],
+    ['Child Pose — מתיחת גב תחתון','30ש׳ × 2'],
+    ['Hollow Body קל — הפעלה','3 × 10ש׳'],
+  ],
+};
+// Skill-goal specific warm-up (by tree)
+const WARMUP_SKILL={
+  balance:[ // Handstand
+    ['בעיטות קלות לקיר (kick-up to wall)','5 × עדין, לא לעצור'],
+    ['מתיחת כף יד — אצבעות לרצפה','20ש׳ × 2'],
+    ['עמידת ידיים בקיר — החזקה קלה','2 × 15ש׳'],
+  ],
+  pull:[ // Front Lever / Muscle-Up / OA
+    ['Scapular Pull-up — הפעלת שכמות','2×8'],
+    ['מתח קל (3-5 חזרות) — חימום','2 × 5 · לא עד כישלון'],
+    ['מתיחת לאט בתלייה','2 × 15ש׳'],
+  ],
+  push:[ // Planche / HSPU
+    ['Pseudo Planche Lean — עדין','2 × 10ש׳'],
+    ['שכיבות סמיכה קלות','2×8'],
+    ['מתיחת שורש כף יד — אינטנסיבית','15ש׳ × 3 כיוונים'],
+  ],
+  core:[
+    ['Hollow Body עדין','2 × 15ש׳'],
+    ['L-Sit Tuck — ניסיון קל','2 × 5ש׳'],
+  ],
+  legs:[
+    ['פיסטול מ-Squat — תנועה קלה','5 × לכל רגל'],
+    ['Nordic Curl partial — הפעלה','2×5 · טווח קצר'],
+  ],
+};
+
+function buildWarmup(muscleDay,goals){
+  const items=[...WARMUP_GENERAL];
+  // Add muscle-specific items
+  if(muscleDay!=null&&WARMUP_MUSCLE[muscleDay]){
+    WARMUP_MUSCLE[muscleDay].forEach(ex=>{
+      if(!items.find(i=>i[0]===ex[0]))items.push(ex);
+    });
+  }
+  // Add skill-specific items (by tree, max 1 tree)
+  const treesSeen=new Set();
+  (goals||[]).forEach(gid=>{
+    for(const t in TREES){
+      if(!treesSeen.has(t)&&TREES[t].nodes.find(n=>n.id===gid)){
+        treesSeen.add(t);
+        if(WARMUP_SKILL[t]){
+          WARMUP_SKILL[t].forEach(ex=>{
+            if(!items.find(i=>i[0]===ex[0]))items.push(ex);
+          });
+        }
+      }
+    }
+  });
+  return items;
+}
+
 /* Phase 3 — Fixed weekly muscle split (Sun=חזה, Mon=ידיים, Wed=רגליים, Thu=גב, Sat=בטן) */
 const MUSCLE_SPLIT={
   0:{name:'חזה 💪',emoji:'💪',tier_key:'push',
@@ -3103,6 +3200,17 @@ function renderWorkout(){
   // Injury warning for high-frequency plans
   if(wPlan.injuryWarning){
     html+=`<div style="margin:0 14px 10px;padding:9px 12px;background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.35);border-radius:7px;font-family:'Share Tech Mono',monospace;font-size:10px;color:#ff6b35;line-height:1.6">⚠️ ${(wPlan.strengthDayCount||0)+(wPlan.cardioDayCount||0)} אימונים בשבוע — הקשב/י לגוף. יום מנוחה בחינם תמיד.</div>`;
+  }
+
+  // ===== WARM-UP (all days) =====
+  {
+    const _muscleDayIdx=new Date().getDay();
+    const _warmItems=buildWarmup(MUSCLE_REST_DAYS.has(_muscleDayIdx)?null:_muscleDayIdx, state.goals||[]);
+    const _warmMin=sLen<=30?5:sLen<=45?7:sLen<=60?8:10;
+    html+=`<div class="wk-block"><div class="wk-h" style="color:var(--success)">🔥 חימום · ${_warmMin} דקות</div>`;
+    html+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.05em">💡 מפרקים + הפעלה ספציפית לאימון של היום — לא לדלג!</div>`;
+    _warmItems.forEach(([n,s])=>html+=`<div class="wk-ex" style="opacity:.9"><span>${n}</span><span class="wk-sets" style="color:var(--success);opacity:.8">${s}</span></div>`);
+    html+=`</div>`;
   }
 
   if(today.type==='cardio'){
