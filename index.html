@@ -2178,8 +2178,13 @@ const quiz={level:null,answers:{}};
 function save(){
   const {admin,...toSave}=state;
   localStorage.setItem(window._TK||'jarvis_training',JSON.stringify(toSave));
-  // sync level to users list
-  if(currentUser){getUsers().then(us=>{const u=us.find(x=>x.email===currentUser.email);if(u){u.level=state.level;u.lastActive=new Date().toISOString();saveUser(u);}});}
+  // sync level to Firebase — restore currentUser from sessionStorage if null
+  const _cu=currentUser||(()=>{try{return JSON.parse(sessionStorage.getItem('kalos_session'));}catch(e){return null;}})();
+  if(_cu?.email){
+    try{
+      _db.collection('users').doc(btoa(_cu.email)).update({level:state.level,lastActive:new Date().toISOString()});
+    }catch(e){}
+  }
 }
 function saveContent(){
   localStorage.setItem(window._CK||'jarvis_training_content',JSON.stringify(content));
