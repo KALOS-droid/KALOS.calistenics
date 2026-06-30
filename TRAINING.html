@@ -2494,6 +2494,8 @@ function _finishQuiz(){
     cardioDays:profile1b.cardioDays,
     cardioPerType:profile1b.cardioPerType||{},
     tiers:_computedTiers,
+    quizAnswers:{...quiz.answers},
+    quizLevel:quiz.level,
   };
   generateWeeklyPlan();
   save();
