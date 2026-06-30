@@ -444,11 +444,20 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
           <div class="opt" data-cardio="tennis" onclick="toggleCardio('tennis',this)"><span class="dot"></span>🎾 טניס</div>
           <div class="opt" data-cardio="none" onclick="toggleCardio('none',this)"><span class="dot"></span>❌ אין קרדיו זמין</div>
         </div>
-        <div class="qblock">
-          <h3>האם אתה פנוי להתאמן בבוקר? (קרדיו בוקר)</h3>
-          <div class="row">
-            <div class="opt" onclick="setMorning(true,this)"><span class="dot"></span>✅ כן, אני מתאמן/ת בבוקר</div>
-            <div class="opt" onclick="setMorning(false,this)"><span class="dot"></span>❌ לא, רק בערב</div>
+        <div id="cardioDaysPrefSection" class="hidden">
+          <div class="qblock">
+            <h3>באיזה ימים אתה רוצה לקבל אימוני קרדיו?</h3>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px">בחר את הימים המועדפים עליך לאימוני קרדיו</div>
+            <div class="row" style="flex-wrap:wrap;gap:6px">
+              <div class="opt" onclick="toggleCardioPrefDay(0,this)"><span class="dot"></span>ראשון</div>
+              <div class="opt" onclick="toggleCardioPrefDay(1,this)"><span class="dot"></span>שני</div>
+              <div class="opt" onclick="toggleCardioPrefDay(2,this)"><span class="dot"></span>שלישי</div>
+              <div class="opt" onclick="toggleCardioPrefDay(3,this)"><span class="dot"></span>רביעי</div>
+              <div class="opt" onclick="toggleCardioPrefDay(4,this)"><span class="dot"></span>חמישי</div>
+              <div class="opt" onclick="toggleCardioPrefDay(5,this)"><span class="dot"></span>שישי</div>
+              <div class="opt" onclick="toggleCardioPrefDay(6,this)"><span class="dot"></span>שבת</div>
+            </div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px">💡 אם יום קרדיו חופף ליום כוח — יתווסף כסשן בוקר/ערב באותו יום.</div>
           </div>
         </div>
       </div>
@@ -1435,7 +1444,7 @@ function exByCategory(cat,maxLvl){return EX.filter(e=>e.cat===cat&&e.lvl<=(maxLv
 /* ============================================================
    STEP 1B — Goals & Schedule helpers
    ============================================================ */
-const profile1b={goal:null,cardio:[],days:3,sessionLen:60,morningCardio:false,morningType:'evening',femFocus:null,strengthDays:null,cardioDays:null,cardioPerType:{}};
+const profile1b={goal:null,cardio:[],days:3,sessionLen:60,morningCardio:false,morningType:'evening',femFocus:null,strengthDays:null,cardioDays:null,cardioPerType:{},cardioPreferredDays:[]};
 function setFemFocus(v,el){profile1b.femFocus=v;document.querySelectorAll('[data-femfocus]').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function setGoalType(g,el){
   profile1b.goal=g;
@@ -1457,12 +1466,20 @@ function toggleCardio(type,el){
     el.classList.toggle('sel',profile1b.cardio.includes(type));
     document.querySelector('[data-cardio=none]')?.classList.remove('sel');
   }
-  // refresh split + dist sections
+  // refresh split + dist sections + preferred days picker
   const n=profile1b.days;
   const needsSplit=n>5&&['body','both'].includes(profile1b.goal)&&profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
   document.getElementById('splitSection').classList.toggle('hidden',!needsSplit);
   if(needsSplit)_buildSplitRows(n);
   _buildCardioDistSection();
+  const hasCardio=profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
+  document.getElementById('cardioDaysPrefSection').classList.toggle('hidden',!hasCardio);
+}
+function toggleCardioPrefDay(dayIdx,el){
+  const i=profile1b.cardioPreferredDays.indexOf(dayIdx);
+  if(i>=0)profile1b.cardioPreferredDays.splice(i,1);
+  else profile1b.cardioPreferredDays.push(dayIdx);
+  el.classList.toggle('sel',profile1b.cardioPreferredDays.includes(dayIdx));
 }
 function setMorning(v,el){profile1b.morningCardio=v;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function setMorningType(v,el){profile1b.morningType=v;profile1b.morningCardio=(v==='cardio');el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
@@ -1897,14 +1914,29 @@ function generateWeeklyPlan(){
   }
 
   // ---------- Assign sessions to days ----------
-  // Strength occupies its own days; extra cardio becomes morning sessions on strength days
+  // Strength occupies its own days; cardio gets assigned per user preference or auto
   const strengthDays=ALL_DAY_MAP[Math.min(strengthDayCount,7)]||ALL_DAY_MAP[3];
-  const freeDays=[0,1,2,3,4,5,6].filter(d=>!strengthDays.includes(d));
-  // Cardio-only days come from free days first, then morning doubles on strength days
-  const cardioOnlyDays=freeDays.slice(0,cardioDayCount);
-  const extraCardio=Math.max(0,cardioDayCount-cardioOnlyDays.length);
-  // Which strength days get a morning cardio session?
-  const morningCardioDays=strengthDays.slice(0,extraCardio);
+  const preferred=(p.cardioPreferredDays||[]).slice().sort((a,b)=>a-b);
+  let cardioOnlyDays,morningCardioDays;
+  if(preferred.length>0&&cardioDayCount>0){
+    // Preferred days that are free → cardio-only
+    cardioOnlyDays=preferred.filter(d=>!strengthDays.includes(d)).slice(0,cardioDayCount);
+    // Preferred days that overlap strength → double (morning cardio)
+    const extraNeeded=Math.max(0,cardioDayCount-cardioOnlyDays.length);
+    morningCardioDays=preferred.filter(d=>strengthDays.includes(d)).slice(0,extraNeeded);
+    // If still not enough, fill from remaining free days
+    const stillNeeded=cardioDayCount-cardioOnlyDays.length-morningCardioDays.length;
+    if(stillNeeded>0){
+      const remainFree=[0,1,2,3,4,5,6].filter(d=>!strengthDays.includes(d)&&!cardioOnlyDays.includes(d));
+      cardioOnlyDays=[...cardioOnlyDays,...remainFree.slice(0,stillNeeded)];
+    }
+  } else {
+    // Auto-assign: free days first, then morning doubles on strength days
+    const freeDays=[0,1,2,3,4,5,6].filter(d=>!strengthDays.includes(d));
+    cardioOnlyDays=freeDays.slice(0,cardioDayCount);
+    const extraCardio=Math.max(0,cardioDayCount-cardioOnlyDays.length);
+    morningCardioDays=strengthDays.slice(0,extraCardio);
+  }
 
   const weekPlan=DAYS_HE.map((dayName,idx)=>{
     const isStrengthDay=strengthDays.includes(idx);
@@ -2493,6 +2525,7 @@ function _finishQuiz(){
     strengthDays:profile1b.strengthDays,
     cardioDays:profile1b.cardioDays,
     cardioPerType:profile1b.cardioPerType||{},
+    cardioPreferredDays:[...profile1b.cardioPreferredDays],
     tiers:_computedTiers,
     quizAnswers:{...quiz.answers},
     quizLevel:quiz.level,
