@@ -738,14 +738,18 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
   <div id="treeBanner"></div>
   <div id="treePathWrap">
     <div class="path" id="path" data-tree="pull"></div>
-    <div id="skillsLockOverlay" style="display:none;direction:rtl;margin:14px auto 0;max-width:480px;border:1px solid rgba(255,193,77,.45);background:rgba(255,193,77,.06);border-radius:10px;padding:18px 20px;text-align:right">
-      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--gold);letter-spacing:.08em;margin-bottom:8px">🔒 עצי המיומנויות נעולים</div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#b8cfe8;line-height:1.9;margin-bottom:14px">
-        בחרת במטרה של <b style="color:var(--gold)">חיטוב גוף</b> — עצי המיומנויות לא נכללו.<br>
-        אם התחרטת ורוצה להשיג מיומנויות כמו פלאנץ, מתח יד אחת<br>
-        ועמידת ידיים — לחץ על הכפתור למטה לפתיחת גישה.
+    <div id="skillsLockOverlay" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(2,3,10,0.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;direction:rtl">
+      <div style="max-width:420px;width:90%;text-align:center;padding:36px 28px;border:1px solid rgba(255,193,77,.35);background:rgba(6,10,22,.92);clip-path:polygon(16px 0,calc(100% - 16px) 0,100% 16px,100% calc(100% - 16px),calc(100% - 16px) 100%,16px 100%,0 calc(100% - 16px),0 16px)">
+        <div style="font-size:52px;margin-bottom:12px;filter:drop-shadow(0 0 22px rgba(255,193,77,.8));animation:dia 1.6s ease-in-out infinite">🔒</div>
+        <div style="font-family:'Orbitron',monospace;font-size:15px;color:var(--gold);letter-spacing:.1em;margin-bottom:10px">עצי המיומנויות נעולים</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#9ab8d4;line-height:1.9;margin-bottom:22px">
+          בחרת במטרה של <b style="color:var(--gold)">חיטוב גוף</b>.<br>
+          אזור זה נעול — הוא מיועד למי שרוצה לפתח<br>
+          מיומנויות כמו פלאנץ, מתח יד אחת ועמידת ידיים.<br><br>
+          <span style="color:#c8dfef">אם התחרטת — ניתן לפתוח גישה מלאה.</span>
+        </div>
+        <button onclick="openUnlockTreesModal()" style="background:rgba(255,193,77,.18);border:1px solid rgba(255,193,77,.6);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:12px 28px;cursor:pointer;letter-spacing:.06em;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)">🔓 פתח גישה למיומנויות</button>
       </div>
-      <button onclick="openUnlockTreesModal()" style="background:rgba(255,193,77,.18);border:1px solid rgba(255,193,77,.6);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:10px 22px;border-radius:7px;cursor:pointer;letter-spacing:.05em">🔓 פתח גישה למיומנויות</button>
     </div>
   </div>
   <div id="workout" class="hidden"></div>
@@ -3907,6 +3911,9 @@ function render(){
   const _treeLocked=(state.profile.goalType==='body')&&!state.profile.treesUnlocked;
   const _overlay=document.getElementById('skillsLockOverlay');
   if(_overlay)_overlay.style.display=_treeLocked?'flex':'none';
+  const _pathEl=document.getElementById('path');
+  if(_pathEl)_pathEl.style.filter=_treeLocked?'blur(4px)':'';
+  if(_pathEl)_pathEl.style.pointerEvents=_treeLocked?'none':'';
 
   renderXP();
 }
