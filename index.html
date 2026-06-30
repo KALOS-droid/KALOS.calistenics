@@ -2187,7 +2187,9 @@ const BASIC=[
   {k:'pushups',t:'שכיבות סמיכה',opts:['5–10','11–20','21–30','30+']},
   {k:'situps',t:'כפיפות בטן',opts:['10–20','21–40','41–60','60+']},
   {k:'plank',t:'פלאנק',opts:['10–30 ש׳','30–60 ש׳','1–2 דק׳','2+ דק׳']},
-  {k:'lsit',t:'L-Sit',opts:['3–5 ש׳','6–10 ש׳','11–20 ש׳','20+ ש׳']},
+  {k:'lsit',t:'L-Sit',opts:['3–5 ש׳','6–10 ש׳','11–20 ש׳','20+ ש׳'],followups:[
+    {minStage:4,k:'lsit_hs_press',t:'🌟 L-Sit Press to Handstand — עולה לעמידת ידיים ישירות מ-L-Sit ללא קפיצה?'},
+  ]},
   {k:'squat',t:'🦵 סקוואט / רגליים',opts:['פחות מ-10','10–20 סקוואט','פיסטול נגטיב','פיסטול מלא']},
   {k:'dips_weight',t:'🏋️ מקבילים עם משקל — כמה ל-10 חזרות?',opts:['5–10 ק"ג','15–25 ק"ג','30–50 ק"ג','60+ ק"ג']},
   {k:'weighted_pull',t:'🏋️ מתח עם משקל — כמה ל-12 חזרות? (משקל נוסף בלבד)',opts:['5–15 ק"ג','20–35 ק"ג','40–60 ק"ג','70–100 ק"ג']},
@@ -2214,6 +2216,10 @@ const ADV=[
     {minStage:3,k:'planche_str_push',t:'פוש אפ בסטראדל פלאנץ?',node:'h_str_push'},
     {minStage:4,k:'planche_str_press',t:'פרס בסטראדל פלאנץ?',node:'h_str_press'},
     {minStage:5,k:'planche_push',t:'שכיבות בפלאנץ מלא?',node:'h_planchepush'},
+    {minStage:5,k:'p_90hold',t:'📐 90° Hold — מחזיק עמידת ידיים עם מרפקים כפופים ב-90°?'},
+    {minStage:5,k:'p_maltese',t:'✝️ Maltese — מצליח להחזיק 3 שניות?'},
+    {minStage:5,k:'p_maltese_push',t:'💪 Maltese Push-Up — מצליח חזרה אחת נקייה?'},
+    {minStage:5,k:'p_maltese_press',t:'🏆 Maltese Press — מצליח לחיצה ישרה מתוך מלטיז?'},
   ]},
   {k:'back',t:'Back Lever',type:'stage'},
   {k:'flag',t:'Human Flag',type:'time',opts:['1–5 ש׳','5–10 ש׳','10–30 ש׳','30+ ש׳']},
@@ -2365,6 +2371,11 @@ function _finishQuiz(){
     if(a.planche_str_push===1)mark('h_str_push');
     if(a.planche_str_press===1)mark('h_str_press');
     if(a.planche_push===1)mark('h_planchepush');
+    // maltese / 90hold followups (from planche stage 5)
+    if(a.p_90hold===1){['h_planche','b_full','b_free30','h_90'].forEach(mark);}
+    if(a.p_maltese===1){['h_90','h_planchepush','h_maltese'].forEach(mark);}
+    if(a.p_maltese_push===1){['h_maltese','h_maltese_push'].forEach(mark);}
+    if(a.p_maltese_press===1){['h_maltese','h_maltese_push','h_maltese_press'].forEach(mark);}
     // 90° push-up follow-up
     // hspu_count (free HSPU reps) → unlock HSPU track
     if((a.hspu_count||0)>=1){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu'].forEach(mark);}
@@ -2423,6 +2434,8 @@ function _finishQuiz(){
   if((a.hs_press||0)===1){['b_wall','b_legoff','b_free5','b_free30','b_full','b_press'].forEach(mark);}
   if((a.hs_oa_assist||0)===1){['b_press','b_oa_assist'].forEach(mark);}
   if((a.hs_oa||0)===1){['b_press','b_oa_assist','b_oa'].forEach(mark);}
+  // L-Sit Press to Handstand
+  if(a.lsit_hs_press===1){['c_lsit30','h_hspu','b_lsit_hs'].forEach(mark);}
   if((a.dips_weight||0)>=3){mark('h_pike');mark('h_lean');mark('h_pseudo');}
   // hspu count (basic) → push hspu track
   // lsit basic → core tree
