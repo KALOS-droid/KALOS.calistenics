@@ -4567,8 +4567,8 @@ function openNode(node){
     if(state.admin)html+=`<button class="mbtn mbtn-photo" style="margin-top:6px" onclick="setNote('${node.id}')">📝 ${note?'ערוך':'הוסף'} הערה (מנהל)</button>`;
     html+=`</div>`;
   }
-  // goal toggle
-  if(node.goal){const isGoal=state.goals.includes(node.id);
+  // goal toggle — available on every node
+  {const isGoal=state.goals.includes(node.id);
     html+=`<div style="text-align:center;margin:8px 0"><button class="mbtn mbtn-goal" onclick="toggleGoal('${node.id}')">${isGoal?'★ מטרה פעילה — הסר':'🎯 הגדר כמטרה'}</button></div>`;}
   if(done){html+=`<div class="m-desc" style="color:var(--success)">✓ הושלם! כל הכבוד.</div><div class="m-btns"><button class="mbtn" onclick="closeModal()">סגור</button>`;
     if(state.admin)html+=`<button class="mbtn" onclick="undoNode('${node.id}')">בטל (מנהל)</button>`;html+=`</div>`;}
