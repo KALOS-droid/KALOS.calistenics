@@ -688,8 +688,8 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
   </header>
 
   <!-- PRO Subscribe Modal -->
-  <div id="proModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);align-items:center;justify-content:center;direction:rtl">
-    <div style="background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(255,215,0,.4);border-radius:16px;padding:32px 28px;max-width:380px;width:92%;text-align:center;box-shadow:0 0 60px rgba(255,215,0,.15)">
+  <div id="proModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);align-items:center;justify-content:center;direction:rtl;overflow-y:auto">
+    <div style="background:linear-gradient(160deg,#0a0620,#04081a);border:1px solid rgba(255,215,0,.4);border-radius:16px;padding:32px 28px;max-width:380px;width:92%;text-align:center;box-shadow:0 0 60px rgba(255,215,0,.15);margin:auto">
       <div style="font-size:48px;margin-bottom:8px">🤖</div>
       <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:900;letter-spacing:.15em;color:#ffd700;margin-bottom:4px">KALOS AI COACH</div>
       <div style="font-size:11px;color:#4a5a7a;letter-spacing:.15em;margin-bottom:20px">מאמן אישי מבוסס בינה מלאכותית</div>
@@ -702,18 +702,34 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
           ✅ גישה לכל חיים כל עוד המנוי פעיל
         </div>
       </div>
-      <div style="margin-bottom:20px">
-        <div style="font-family:'Orbitron',monospace;font-size:36px;font-weight:900;color:#ffd700">$9.99</div>
-        <div style="font-size:11px;color:#4a5a7a;letter-spacing:.1em">לחודש · חידוש אוטומטי</div>
+      <!-- Under construction notice -->
+      <div id="proConstructionBanner" style="background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.4);border-radius:10px;padding:14px 16px;margin-bottom:18px;text-align:center">
+        <div style="font-size:22px;margin-bottom:6px">🚧</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;color:#ff8c00;margin-bottom:4px">AI Coach בשיפוצים כרגע</div>
+        <div style="font-size:11px;color:#8aa0c0;line-height:1.6">אנחנו עובדים קשה על השקת המאמן האישי.<br>השארו מעודכנים — נעדכן אתכם ברגע שיהיה מוכן!</div>
       </div>
-      <label style="display:flex;align-items:center;gap:8px;justify-content:center;font-size:12px;color:#8aa0c0;margin-bottom:18px;cursor:pointer">
-        <input type="checkbox" id="autoRenewCheck" checked style="accent-color:#ffd700;width:15px;height:15px">
-        חידוש אוטומטי — אישור לחיוב $9.99 כל חודש
-      </label>
-      <div style="display:flex;gap:8px">
-        <button onclick="startSubscription()" style="flex:1;background:linear-gradient(135deg,#ffd700,#ff8c00);border:none;color:#000;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:700;padding:13px;border-radius:7px;cursor:pointer;letter-spacing:.08em">💳 הצטרף עכשיו</button>
-        <button onclick="closeProModal()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#4a5a7a;font-family:'Share Tech Mono',monospace;font-size:12px;padding:13px 16px;border-radius:7px;cursor:pointer">סגור</button>
+      <!-- Notify opt-in -->
+      <div style="background:rgba(139,61,255,.08);border:1px solid rgba(139,61,255,.3);border-radius:10px;padding:14px 16px;margin-bottom:18px;text-align:right">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px">
+          <input type="checkbox" id="aiNotifyCheck" style="accent-color:#c8a4ff;width:16px;height:16px;flex-shrink:0" onchange="document.getElementById('aiNotifyEmailWrap').style.display=this.checked?'block':'none'">
+          <span style="font-size:12px;color:#c8a4ff;line-height:1.5">עדכן אותי כשה-AI Coach מוכן</span>
+        </label>
+        <div id="aiNotifyEmailWrap" style="display:none">
+          <input id="aiNotifyEmail" type="email" placeholder="האימייל שלך" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(139,61,255,.35);border-radius:5px;padding:9px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;outline:none;direction:ltr;margin-bottom:8px">
+          <button onclick="saveAINotify()" style="width:100%;background:rgba(139,61,255,.25);border:1px solid rgba(139,61,255,.5);color:#c8a4ff;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:9px;border-radius:5px;cursor:pointer;letter-spacing:.06em">🔔 שמור והודע לי</button>
+        </div>
+        <div id="aiNotifyMsg" style="display:none;margin-top:6px;font-size:11px;color:var(--success)">✅ נרשמת! נעדכן אותך כשה-AI Coach יושק.</div>
       </div>
+      <!-- Admin code -->
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 14px;margin-bottom:16px;text-align:right">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#4a5a7a;margin-bottom:8px;letter-spacing:.06em">🔑 יש לך קוד מנהל?</div>
+        <div style="display:flex;gap:8px">
+          <input id="adminCodeInput" type="password" placeholder="הזן קוד..." style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;outline:none;letter-spacing:.1em" onkeydown="if(event.key==='Enter')applyAdminCode()">
+          <button onclick="applyAdminCode()" style="background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:#ffd700;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 12px;border-radius:5px;cursor:pointer;white-space:nowrap">כניסה ›</button>
+        </div>
+        <div id="adminCodeMsg" style="margin-top:6px;font-size:11px;display:none"></div>
+      </div>
+      <button onclick="closeProModal()" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#4a5a7a;font-family:'Share Tech Mono',monospace;font-size:12px;padding:11px;border-radius:7px;cursor:pointer">סגור</button>
       <div id="proModalStatus" style="margin-top:12px;font-size:11px;color:#4a5a7a;display:none"></div>
     </div>
   </div>
@@ -1698,6 +1714,10 @@ const TREES={
     {id:'b_press',name:'כניסה בכוח (Press to Handstand)',icon:'🛗',goal:true,desc:'עלייה לעמידת ידיים בלי קפיצה — דורש כוח דחיפה ישר-זרוע.',cond:'Press to handstand נקי (דורש עמידת ידיים + כוח דחיפה).',req:['b_full','h_lean'],xp:160,pre:'6×ניסיונות פראס · עבוד על סטראדל/פייק פראס'},
     {id:'b_oa_assist',name:'עמידת ידיים יד אחת — בעזרת קיר',icon:'🧗',desc:'מעבר משקל ליד אחת ליד הקיר.',cond:'להחזיק 5 שניות עם אצבעות על הקיר.',req:['b_press'],xp:200,pre:'6×החזקת מקס לכל צד'},
     {id:'b_oa',name:'עמידת ידיים על יד אחת',icon:'🙌',goal:true,desc:'הפסגה של שיווי המשקל — דורש גם כוח דחיפה (HSPU) ליציבות הכתף.',cond:'להחזיק עמידת ידיים על יד אחת (דורש איזון יד-אחת + כוח HSPU).',req:['b_oa_assist','h_whspu'],xp:300,pre:'8×ניסיונות החזקה לכל צד'},
+    {id:'b_oa30',name:'עמידת יד אחת — 30 שניות',icon:'⏳',goal:true,desc:'עמידת ידיים על יד אחת בשליטה מלאה ויציבה — החזקה ממושכת.',cond:'להחזיק עמידת ידיים על יד אחת 30 שניות ברציפות.',req:['b_oa'],xp:380,pre:'6×החזקת מקס לכל צד · עבוד על אצבעות ותיקונים עדינים'},
+    {id:'b_oa_btil',name:'עמידת יד בטיל',icon:'🤚',goal:true,desc:'עמידת ידיים על יד אחת כשהיד החופשית שלוחה לצד הגוף — ללא אפשרות איזון ביד השנייה.',cond:'להחזיק עמידת יד בטיל 5 שניות — יד חופשית בצד גוף.',req:['b_oa30'],xp:440,pre:'8×ניסיונות לכל צד · יד חופשית על הבטן → הזזה הדרגתית הצידה'},
+    {id:'b_oa_hip',name:'עמידת יד בטיל — יד בקצה הגוף',icon:'☝️',goal:true,desc:'עמידת יד אחת עם היד החופשית שטוחה על ירך — מרכז כובד מאתגר יותר.',cond:'להחזיק 5 שניות עם היד החופשית שטוחה על הירך (קצה הגוף).',req:['b_oa_btil'],xp:490,pre:'6×ניסיונות לכל צד · עלה בהדרגה: בטן → צלעות → ירך'},
+    {id:'b_oa_hspu',name:'HSPU על יד אחת',icon:'👑',goal:true,desc:'שכיבת סמיכה בעמידת ידיים על יד אחת — אחד התרגילים הנדירים ביותר בקאליסתניקס. כמעט אף אחד בעולם לא מצליח.',cond:'HSPU אחד נקי על יד אחת — טווח תנועה מלא, בשליטה.',req:['b_oa_hip','h_hspu'],xp:700,pre:'10×ניסיונות ירידה בלבד (negative) על יד אחת · בניית כוח דחיפה יחיד-כתף'},
   ]},
   core:{name:'CORE · ליבה',color:'var(--core)',sub:'פלאנק · L-Sit · Dragon Flag · V-Sit',nodes:[
     {id:'c_plank',name:'פלאנק 60 שניות',icon:'🏋️',desc:'בסיס יציבות הליבה.',cond:'להחזיק פלאנק 60 שניות ישר.',req:[],xp:20,pre:'4×מקס · גוף ישר כמו קרש'},
@@ -2082,25 +2102,44 @@ function openAICoach(){
 }
 function closeProModal(){document.getElementById('proModal').style.display='none';}
 function startSubscription(){
-  // For now: demo activation (real Stripe integration needs backend + 18+)
-  // In production, replace with payment link redirect
-  const autoRenew=document.getElementById('autoRenewCheck').checked;
+  // AI Coach is under construction — show info message
   const st=document.getElementById('proModalStatus');
   st.style.display='block';
-  st.style.color='#ffd700';
-  st.textContent='מעביר לדף תשלום מאובטח...';
-  // Redirect to payment page (placeholder — replace with real Stripe link)
-  setTimeout(()=>{
-    const payUrl=`https://buy.stripe.com/KALOS_PRO_PLACEHOLDER?client_reference_id=${encodeURIComponent(state.name||'user')}&prefilled_email=`;
-    // For dev/demo: activate directly
-    if(state.admin||window.location.hostname==='localhost'||window.location.protocol==='file:'){
-      activateProDemo();
-    }else{
-      window.open(payUrl,'_blank');
-      st.textContent='השלם את התשלום בחלון שנפתח. לאחר אישור — לחץ "כבר שילמתי"';
-      st.innerHTML+=`<br><button onclick="activateProDemo()" style="margin-top:8px;background:rgba(0,255,170,.15);border:1px solid rgba(0,255,170,.3);color:var(--success);font-family:'Share Tech Mono',monospace;font-size:11px;padding:6px 14px;border-radius:5px;cursor:pointer">✅ כבר שילמתי</button>`;
-    }
-  },800);
+  st.style.color='#ff8c00';
+  st.textContent='🚧 AI Coach בשיפוצים — נחזור בקרוב!';
+}
+function applyAdminCode(){
+  const input=document.getElementById('adminCodeInput');
+  const msg=document.getElementById('adminCodeMsg');
+  const code=(input.value||'').trim();
+  const ADMIN_CODES=['AJ@Ffd&@34'];
+  if(ADMIN_CODES.includes(code)){
+    msg.style.display='block';
+    msg.style.color='var(--success)';
+    msg.textContent='✅ גישת מנהל אושרה!';
+    setTimeout(()=>{
+      grantProAdmin();
+      document.getElementById('proModal').style.display='none';
+      window.open('AI-COACH.html','_blank');
+    },700);
+  }else{
+    msg.style.display='block';
+    msg.style.color='#ff4a4a';
+    msg.textContent='❌ קוד שגוי';
+    input.value='';
+  }
+}
+function saveAINotify(){
+  const email=(document.getElementById('aiNotifyEmail').value||'').trim();
+  if(!email||!email.includes('@')){
+    document.getElementById('aiNotifyEmail').style.borderColor='#ff4a4a';
+    return;
+  }
+  const list=JSON.parse(localStorage.getItem('kalos_ai_notify_list')||'[]');
+  if(!list.includes(email))list.push(email);
+  localStorage.setItem('kalos_ai_notify_list',JSON.stringify(list));
+  document.getElementById('aiNotifyEmailWrap').style.display='none';
+  document.getElementById('aiNotifyMsg').style.display='block';
 }
 function activateProDemo(){
   const autoRenew=document.getElementById('autoRenewCheck')?.checked??true;
@@ -2924,7 +2963,7 @@ function showWeeklySchedule(){
 
   function _sessionLine(s,prefix){
     if(!s)return'';
-    if(s.type==='rest')return`<div style="color:var(--muted);font-size:11px">💤 מנוחה — ריקוברי</div>`;
+    if(s.type==='rest')return`<div style="color:#a78bfa;font-size:11px">🧘 מתיחות · באלנס רשות</div>`;
     if(s.type==='cardio'){
       const CARDIO_LABELS={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'};
       return`<div style="font-size:11px;color:#ff6b35">${prefix?prefix+' · ':''}🏃 קרדיו · ${CARDIO_LABELS[s.cardioType]||s.cardioType||''}</div>`;
@@ -2943,7 +2982,10 @@ function showWeeklySchedule(){
 
   const CARDIO_HE3={running:'ריצה 🏃',walking:'הליכה 🚶',stairs:'מדרגות 🪜',bike:'אופניים 🚴',pool:'שחייה 🏊',jump:'קפיצה בחבל 🪢',tennis:'טניס 🎾'};
   function _dayDetails(day,idx){
-    if(day.type==='rest')return`<div style="color:var(--muted);font-size:11px;font-family:'Share Tech Mono',monospace">😴 מנוחה — ריקוברי</div>`;
+    if(day.type==='rest')return`<div style="display:flex;flex-wrap:wrap;gap:5px;font-family:'Share Tech Mono',monospace;font-size:10px">
+      <span style="background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.35);color:#a78bfa;padding:2px 8px;border-radius:4px">🧘 מתיחות</span>
+      <span style="background:rgba(var(--balance-rgb,99,179,237),.1);border:1px solid rgba(99,179,237,.25);color:var(--balance);padding:2px 8px;border-radius:4px">🤸 באלנס רשות</span>
+    </div>`;
     if(day.type==='cardio'){
       return`<div style="display:flex;flex-wrap:wrap;gap:5px;font-family:'Share Tech Mono',monospace;font-size:10px">
         <span style="background:rgba(255,107,53,.15);border:1px solid rgba(255,107,53,.3);color:#ff6b35;padding:2px 8px;border-radius:4px">🏃 ${CARDIO_HE3[day.cardioType]||'קרדיו'}</span>
@@ -3250,6 +3292,25 @@ const MUSCLE_SPLIT={
     advanced:[['Dragon Flag נגטיב','4×4-6 · 90ש׳'],['Toes-to-Bar','4×10 · 90ש׳'],['V-Sit Tuck','3×מקס · 90ש׳'],['L-Sit על מקבילים','3×מקס · 90ש׳']]},
 };
 const MUSCLE_REST_DAYS=new Set([2,5]); // Tuesday, Friday
+const REST_DAY_STRETCH=[
+  ['מתיחת כתפיים קדמיות','3×30 שניות לכל צד · זרוע שטוחה על הקיר'],
+  ['מתיחת חזה (דלת / קיר)','3×30 שניות · פתח את הלך'],
+  ['Cat-Cow נייד','2×12 חזרות · עמוד 4 גפיים'],
+  ['מתיחת פלקסור ירך (Lunge Stretch)','3×30 שניות לכל צד · ברך בקרקע'],
+  ['המסטרינג — ישיבה ישרה','3×40 שניות · גב ישר, השען קדימה'],
+  ['World\'s Greatest Stretch','3×5 לכל צד · לאט ובשליטה'],
+  ['פיסוק פרפר (Butterfly)','3×40 שניות · לחץ ברכיים לרצפה'],
+  ['מתיחת גב תחתון — ברכיים לחזה','3×30 שניות שכיבה'],
+  ['Child\'s Pose','3×40 שניות · ידיים מתוחות'],
+  ['מתיחת עגל על המדרגה / קיר','3×30 שניות לכל צד'],
+  ['Hip 90/90','3×30 שניות לכל צד · ישיבה על הרצפה'],
+];
+const REST_DAY_BALANCE_OPT=[
+  ['עמידת ידיים על הקיר','5×30-45 שניות · גוף ישר'],
+  ['Kick-up לעמידת ידיים חופשית','5×10 ניסיונות · לא להתאמץ'],
+  ['L-Sit בין כיסאות','4×מקס שניות · 90ש׳ בין סטים'],
+  ['עמידת ראש (Headstand)','4×20-30 שניות · גוף ישר'],
+];
 
 function buildMuscleDay(dayIdx){
   const day=(dayIdx!=null)?dayIdx:new Date().getDay();
@@ -3267,7 +3328,29 @@ function showDayWorkout(dayIdx){
   document.getElementById('dayWorkoutModal')?.remove();
   const plan=getCurrentWeekPlan();
   const day=plan[dayIdx];
-  if(!day||day.type==='rest')return;
+  if(!day)return;
+  if(day.type==='rest'){
+    const DAYS_F2=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+    let rh=`<div style="padding:14px 14px 6px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#a78bfa;letter-spacing:.1em;font-weight:700">🧘 יום ${DAYS_F2[dayIdx]} · מנוחה פעילה</div>`;
+    rh+=`<div class="wk-block"><div class="wk-h" style="color:#a78bfa">🧘 מתיחות וגמישות · 20-30 דקות</div>`;
+    rh+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">💜 ללא כוח — ריקוברי מלא. גמישות = ביצועים טובים יותר.</div>`;
+    REST_DAY_STRETCH.forEach(([n,s])=>rh+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets" style="color:#a78bfa">${s}</span></div>`);
+    rh+=`</div>`;
+    rh+=`<div class="wk-block"><div class="wk-h" style="color:var(--balance)">🤸 רשות · באלנס קל · 10-15 דקות</div>`;
+    rh+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">✋ תרגילי שיווי משקל בלבד — רק אם מרגיש/ה טוב.</div>`;
+    REST_DAY_BALANCE_OPT.forEach(([n,s])=>rh+=`<div class="wk-ex" style="opacity:.8"><span>${n}</span><span class="wk-sets" style="color:var(--balance)">${s}</span></div>`);
+    rh+=`</div>`;
+    const m=document.createElement('div');
+    m.id='dayWorkoutModal';
+    m.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);display:flex;align-items:flex-end;justify-content:center;direction:rtl';
+    m.innerHTML=`<div style="width:min(520px,100%);max-height:85vh;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-bottom:none;border-radius:14px 14px 0 0;padding-bottom:20px">
+      ${rh}
+      <div style="padding:12px 14px"><button onclick="document.getElementById('dayWorkoutModal').remove()" style="width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px;border-radius:6px;cursor:pointer">סגור ✕</button></div>
+    </div>`;
+    m.onclick=e=>{if(e.target===m)m.remove();};
+    document.body.appendChild(m);
+    return;
+  }
   const DAYS_FULL=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
   const CARDIO_HE2={running:'ריצה 🏃',walking:'הליכה 🚶',stairs:'מדרגות 🪜',bike:'אופניים 🚴',pool:'שחייה 🏊',jump:'קפיצה בחבל 🪢',tennis:'טניס 🎾'};
   let bodyHtml='';
@@ -3378,7 +3461,14 @@ function renderWorkout(){
   }
 
   if(today.type==='rest'){
-    html+=`<div class="wk-rest">🛌 היום יום מנוחה — ${today.day}.<br>התאוששות = צמיחה. שינה טובה, תזונה, מתיחות קלות.<br>השרירים נבנים במנוחה. 💪</div>`;
+    html+=`<div class="wk-block"><div class="wk-h" style="color:#a78bfa">🧘 מתיחות וגמישות · 20-30 דקות</div>`;
+    html+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">💜 יום מנוחה פעילה — ללא כוח. גמישות = ריקוברי = ביצועים טובים יותר.</div>`;
+    REST_DAY_STRETCH.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets" style="color:#a78bfa">${s}</span></div>`);
+    html+=`</div>`;
+    html+=`<div class="wk-block"><div class="wk-h" style="color:var(--balance)">🤸 רשות · באלנס קל · 10-15 דקות</div>`;
+    html+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">✋ תרגילי שיווי משקל בלבד — ללא עומס שרירי. רק אם מרגיש/ה טוב.</div>`;
+    REST_DAY_BALANCE_OPT.forEach(([n,s])=>html+=`<div class="wk-ex" style="opacity:.8"><span>${n}</span><span class="wk-sets" style="color:var(--balance)">${s}</span></div>`);
+    html+=`</div>`;
     wk.innerHTML=html;return;
   }
 
