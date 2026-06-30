@@ -3642,10 +3642,10 @@ function render(){
         }
         if(lSide.length){
           const sw=document.createElement('div');
-          sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;direction:ltr;gap:8px';
-          lSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
+          sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;gap:8px';
           const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(90deg);flex-shrink:0';
           sw.appendChild(ha);
+          lSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
           wr.appendChild(sw);
         }
         path.appendChild(wr);
