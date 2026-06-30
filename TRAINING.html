@@ -2865,6 +2865,50 @@ function showWeeklySchedule(){
   document.body.appendChild(modal);
 }
 
+/* ---- Skill accessories: maps node ID → supporting exercises ---- */
+const SKILL_ACCESSORIES={
+  // ── BALANCE · Handstand ──
+  b_wall:       [['טפיחות כתפיים על הקיר','3×10 לכל יד · 60ש׳'],['שכיבות פייק','3×12 · 60ש׳']],
+  b_legoff:     [['ניסיונות כניסה חופשית (בעיטה)','6×5-8 · 60ש׳'],['עמידת ידיים בקיר + עצירה 2ש׳','3×30ש׳ · 90ש׳']],
+  b_free5:      [['ניסיונות כניסה לעמידת ידיים','8×ניסיונות · 60ש׳'],['עמידת ידיים טאק','4×מקס · 90ש׳']],
+  b_free30:     [['עמידת ידיים בסטראדל','5×מקס · 90ש׳'],['בעיטה + כיוונון אצבעות','6×5-8 · 60ש׳']],
+  b_forearm:    [['עמידת ידיים חופשית','4×מקס · 90ש׳'],['מעבר: אמות→ידיים (קיר)','5×ניסיונות · 90ש׳']],
+  b_forearm_hs: [['עמידת אמות — אחיזה','4×מקס · 90ש׳'],['עמידת ידיים חופשית','4×מקס · 90ש׳']],
+  b_full:       [['עמידת ידיים בטאק','3×מקס · 90ש׳'],['עמידת ידיים בפייק','3×מקס · 90ש׳'],['עמידת ידיים בסטראדל','3×מקס · 90ש׳']],
+  b_press:      [['L-Sit לניסיון פרס','5×ניסיונות · 90ש׳'],['סטראדל פרס מהרצפה','5×ניסיונות · 90ש׳']],
+  b_oa_assist:  [['העברת משקל ליד אחת בעמידת ידיים','5×10ש׳ לכל צד · 90ש׳'],['עמידת ידיים חופשית','4×מקס · 90ש׳']],
+  b_oa:         [['עמידת ידיים יד אחת + קיר','5×מקס לכל צד · 90ש׳'],['HSPU על קיר','4×מקס · 90ש׳']],
+  // ── PULL · Front Lever ──
+  p_tuckfl:     [['FL Rows — טאק','4×5 · 90ש׳'],['מתח עם עצירה 3ש׳','3×5 · 90ש׳']],
+  p_advfl:      [['FL Rows — אדוונס טאק','5×4-5 · 90ש׳'],['נגטיב לאדוונס טאק (5ש׳)','4×3 · 90ש׳'],['מתח עם משקל','4×5-6 · 120ש׳']],
+  p_strfl:      [['נגטיב בסטראדל פרונט לבר (5ש׳)','5×3 · 90ש׳'],['FL Rows — סטראדל','4×3-5 · 120ש׳'],['מתח עם משקל','4×5 · 120ש׳']],
+  p_fl:         [['נגטיב פרונט לבר מלא (5-7ש׳)','6×1 · 90ש׳'],['פול אפ בסטראדל פרונט לבר','4×3-5 · 120ש׳'],['מתח עם משקל','4×5 · 120ש׳']],
+  // ── PULL · Muscle-Up ──
+  p_muscleup:   [['מתח גבוה (עד החזה)','4×5-6 · 90ש׳'],['מקבילים (Dips)','4×8-10 · 90ש׳'],['מתח עם משקל','4×5 · 120ש׳']],
+  // ── PULL · One-Arm Pull-up ──
+  p_oa_lean:    [['מתח עם משקל','4×5-6 · 120ש׳'],['מתח ארצ\'ר','4×3-4 לכל צד · 90ש׳']],
+  p_oa_neg:     [['מתח ארצ\'ר כבד','4×4-5 לכל צד · 90ש׳'],['מתח עם משקל','4×4-5 · 120ש׳']],
+  p_oa_90bot:   [['נגטיב יד אחת (5ש׳)','5×2-3 לכל צד · 120ש׳'],['מתח ארצ\'ר','4×4 לכל צד · 90ש׳']],
+  p_oa_90top:   [['נגטיב יד אחת','5×2-3 לכל צד · 120ש׳'],['עצירה 90° + עלייה','5×ניסיונות לכל צד · 120ש׳']],
+  p_oa:         [['נגטיב יד אחת (5-7ש׳)','6×1-2 לכל צד · 120ש׳'],['מתח עם +40 ק"ג','4×3 · 120ש׳']],
+  // ── PUSH · Planche ──
+  h_lean:       [['Pseudo Planche Push-up','4×8-10 · 90ש׳'],['שכיבות דיימונד','3×12 · 60ש׳']],
+  h_pseudo:     [['הישענות לפלאנץ — אחיזה','5×15-20ש׳ · 90ש׳'],['שכיבות מקפצות + מחיאה','3×6-8 · 90ש׳']],
+  h_leanpush:   [['הישענות לפלאנץ','5×15ש׳ · 90ש׳'],['PPPU עם נטייה מקסימלית','4×6-8 · 90ש׳']],
+  h_tuck:       [['PPPU עם נטייה מקסימלית','4×8-10 · 90ש׳'],['שכיבות בטאק פלאנץ (1-3)','5×ניסיונות · 120ש׳']],
+  h_adv:        [['שכיבות בטאק פלאנץ','5×3-5 · 120ש׳'],['PPPU כבד','4×6-8 · 90ש׳']],
+  h_str:        [['נגטיב בסטראדל פלאנץ (5ש׳)','5×2-3 · 120ש׳'],['שכיבות באדוונס טאק פלאנץ','4×3-5 · 120ש׳']],
+  h_planche:    [['נגטיב פלאנץ מלא','6×1-2 · 120ש׳'],['שכיבות בסטראדל פלאנץ','4×3-5 · 120ש׳']],
+  // ── PUSH · HSPU ──
+  h_pike_elev:  [['שכיבות פייק רגילות','4×12 · 60ש׳'],['PPPU','3×8 · 90ש׳']],
+  h_whspu:      [['שכיבות פייק — רגליים גבוהות','4×10-12 · 90ש׳'],['HSPU נגטיב על קיר (3-5ש׳)','4×3-5 · 90ש׳']],
+  h_hspu_neg:   [['HSPU על קיר','4×מקס · 90ש׳'],['עמידת ידיים חופשית','4×מקס · 90ש׳']],
+  h_hspu:       [['Negative HSPU חופשי (5ש׳)','5×2-3 · 120ש׳'],['HSPU על קיר','3×מקס · 90ש׳']],
+  h_90hold:     [['HSPU חופשי','4×1-3 · 120ש׳'],['PPPU כבד','3×8 · 90ש׳']],
+  h_90neg:      [['90° Hold חופשי','5×5-8ש׳ · 120ש׳'],['HSPU חופשי','3×מקס · 120ש׳']],
+  h_90pushup:   [['Negative 90° HSPU','5×3 · 120ש׳'],['90° Hold','4×5ש׳ · 90ש׳']],
+};
+
 function renderWorkout(){
   const wk=document.getElementById('workout');
   const plan=getCurrentWeekPlan();
@@ -2945,11 +2989,21 @@ function renderWorkout(){
     } else {
       state.goals.forEach(gid=>{
         const goal=nodeById(gid),step=currentStep(gid);
-        if(!step){html+=`<div class="wk-ex done">✓ ${goal.name} — הושג! בחר מטרה חדשה.</div>`;}
-        else{const vid=content.videos[step.id];
-          html+=`<div class="wk-ex skill" onclick="openNode(nodeById('${step.id}'))">
-            <div><div class="wk-ex-name">${step.icon} ${step.name} ${vid?'🎬':''}</div><div class="wk-ex-sub">לקראת: ${goal.name}</div></div>
-            <span class="wk-sets">${step.pre||step.cond}</span></div>`;}
+        if(!step){
+          html+=`<div class="wk-ex done" style="margin-bottom:6px">✅ ${goal.icon||'🏆'} ${goal.name} — הושג! בחר מטרה חדשה.</div>`;
+          return;
+        }
+        const acc=SKILL_ACCESSORIES[step.id]||[];
+        const vid=content.videos[step.id];
+        html+=`<div style="border:1px solid rgba(0,255,213,.2);background:rgba(0,255,213,.04);margin:8px 0 14px;padding:12px 14px;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:.12em;margin-bottom:8px">🎯 לקראת: ${goal.name}</div>
+          <div class="wk-ex skill" onclick="openNode(nodeById('${step.id}'))" style="margin:0 0 8px;background:rgba(0,255,213,.08);border-color:rgba(0,255,213,.35)">
+            <div><div class="wk-ex-name">${step.icon||'●'} ${step.name}${vid?' 🎬':''}</div><div class="wk-ex-sub" style="color:var(--cyan)">תרגיל מטרה ראשי</div></div>
+            <span class="wk-sets">${step.pre||step.cond}</span>
+          </div>
+          ${acc.length?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em;margin:6px 0 4px">📎 תמיכה</div>`:''}
+          ${acc.map(([n,s])=>`<div class="wk-ex" style="margin:3px 0;opacity:.85"><span>${n}</span><span class="wk-sets">${s}</span></div>`).join('')}
+        </div>`;
       });
     }
     html+=`</div>`;
