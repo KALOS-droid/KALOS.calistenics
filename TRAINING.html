@@ -729,8 +729,40 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <button onclick="closePromo()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0">✕</button>
     </div>
     <div style="display:flex;gap:8px;margin-top:12px">
-      <button onclick="openStore();closePromo()" style="flex:1;background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px;border-radius:4px;cursor:pointer;letter-spacing:.06em">🛒 לחנות</button>
+      <button onclick="openCouponPanel();closePromo()" style="flex:1;background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px;border-radius:4px;cursor:pointer;letter-spacing:.06em">🛒 חנות KALOS</button>
       <button onclick="closePromo()" style="background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 14px;border-radius:4px;cursor:pointer">אחר כך</button>
+    </div>
+  </div>
+
+  <!-- Coupon Panel — simple store popup with code input -->
+  <div id="couponPanel" style="display:none;position:fixed;inset:0;z-index:350;background:rgba(0,0,0,.7);display:none;align-items:flex-end;justify-content:center" onclick="if(event.target===this)closeCouponPanel()">
+    <div style="width:min(480px,100%);background:linear-gradient(160deg,rgba(10,6,32,.99),rgba(4,8,26,.99));border:1px solid rgba(255,193,77,.45);border-bottom:none;border-radius:14px 14px 0 0;padding:24px 20px 32px;direction:rtl;animation:slideUp .3s ease">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:900;letter-spacing:.2em;color:var(--gold);text-shadow:0 0 18px rgba(255,193,77,.5)">🛒 KALOS STORE</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:.1em">COMING SOON · ציוד · בגדים · פרסים</div>
+        </div>
+        <button onclick="closeCouponPanel()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--muted);font-size:16px;width:30px;height:30px;border-radius:6px;cursor:pointer;line-height:1">✕</button>
+      </div>
+      <!-- Coupon input -->
+      <div style="background:rgba(255,193,77,.06);border:1px solid rgba(255,193,77,.3);border-radius:8px;padding:16px;margin-bottom:14px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);margin-bottom:10px;letter-spacing:.06em">🏷️ יש לך קוד הנחה? הזן כאן:</div>
+        <div style="display:flex;gap:8px">
+          <input id="couponCodeInput" type="text" placeholder="הזן קוד..." style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,193,77,.4);border-radius:5px;padding:9px 12px;font-family:'Share Tech Mono',monospace;font-size:13px;color:#eaf6ff;outline:none;letter-spacing:.1em;text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+          <button onclick="applyCouponCode()" style="background:rgba(255,193,77,.2);border:1px solid rgba(255,193,77,.5);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:11px;padding:9px 14px;border-radius:5px;cursor:pointer;letter-spacing:.06em;white-space:nowrap">החל ›</button>
+        </div>
+        <div id="couponMsg" style="margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:11px;display:none"></div>
+      </div>
+      <!-- Notify -->
+      <div style="background:rgba(139,61,255,.07);border:1px solid rgba(139,61,255,.25);border-radius:8px;padding:14px 16px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#c8a4ff;margin-bottom:10px;letter-spacing:.04em">🔔 רוצה לדעת ראשון כשנפתח?</div>
+        <div style="display:flex;gap:8px">
+          <input id="couponNotifyEmail" type="email" placeholder="האימייל שלך" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(139,61,255,.3);border-radius:4px;padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;outline:none;direction:ltr">
+          <button onclick="couponPanelNotify()" style="background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:11px;padding:8px 14px;border-radius:4px;cursor:pointer;white-space:nowrap">שלח ›</button>
+        </div>
+        <div id="couponNotifyMsg" style="margin-top:6px;font-size:11px;color:var(--success);display:none">✅ נרשמת! נעדכן אותך כשנפתח.</div>
+      </div>
     </div>
   </div>
 
@@ -3459,7 +3491,7 @@ function renderWorkout(){
       if(today.needsWeight){
         html+=`<div style="margin:10px 0 4px;padding:10px 12px;background:linear-gradient(135deg,rgba(139,61,255,.15),rgba(0,168,255,.1));border:1px solid rgba(139,61,255,.4);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:10px">
           <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#c8a4ff;line-height:1.6">🏋️ <b>הגעת לתקרת משקל הגוף</b><br><span style="color:var(--muted);font-size:10px">כדי להמשיך — צריך חגורת משקל / קטלבל</span></div>
-          <a href="#store" style="flex-shrink:0;background:var(--violet2);color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px 12px;border-radius:4px;text-decoration:none;letter-spacing:.08em;white-space:nowrap">🛒 חנות KALOS</a>
+          <button onclick="openCouponPanel()" style="flex-shrink:0;background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px 12px;border-radius:4px;cursor:pointer;letter-spacing:.08em;white-space:nowrap">🛒 חנות KALOS</button>
         </div>`;
       }
       html+=`</div>`;
@@ -4603,6 +4635,35 @@ function openStore(tab){
 function closeStore(){
   document.getElementById('storeScreen').style.display='none';
   document.body.style.overflow='';
+}
+function openCouponPanel(){
+  const p=document.getElementById('couponPanel');
+  p.style.display='flex';
+  document.getElementById('couponMsg').style.display='none';
+  document.getElementById('couponNotifyMsg').style.display='none';
+  document.getElementById('couponCodeInput').value='';
+}
+function closeCouponPanel(){
+  document.getElementById('couponPanel').style.display='none';
+}
+function applyCouponCode(){
+  const code=document.getElementById('couponCodeInput').value.trim().toUpperCase();
+  const msg=document.getElementById('couponMsg');
+  if(!code){msg.style.cssText='display:block;color:var(--hp)';msg.textContent='⚠️ הזן קוד לפני אישור.';return;}
+  // Save code locally for when store goes live
+  const codes=JSON.parse(localStorage.getItem('kalos_coupons')||'[]');
+  if(!codes.includes(code)){codes.push(code);localStorage.setItem('kalos_coupons',JSON.stringify(codes));}
+  msg.style.cssText='display:block;color:var(--success)';
+  msg.textContent=`✅ הקוד "${code}" נשמר! יופעל אוטומטית כשהחנות תיפתח.`;
+}
+function couponPanelNotify(){
+  const inp=document.getElementById('couponNotifyEmail');
+  const email=inp.value.trim();
+  if(!email||!email.includes('@')){inp.style.borderColor='var(--hp)';return;}
+  const wl=JSON.parse(localStorage.getItem('kalos_waitlist')||'[]');
+  if(!wl.includes(email)){wl.push(email);localStorage.setItem('kalos_waitlist',JSON.stringify(wl));}
+  inp.value='';inp.style.borderColor='';
+  document.getElementById('couponNotifyMsg').style.display='block';
 }
 function storeNotify(){
   const inp=document.getElementById('storeNotifyEmail');
