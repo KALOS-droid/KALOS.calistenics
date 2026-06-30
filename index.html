@@ -2175,8 +2175,9 @@ function goStep(n){
 const LEVELS=[['beginner','מתחיל'],['intermediate','בינוני'],['advanced','מתקדם'],['crazy','מטורף']];
 const BASIC=[
   {k:'pullups',t:'מתח',opts:['1–3','4–6','7–10','15+'],followups:[
+    {minStage:3,k:'pull_over',t:'🌀 Pull Over — מצליח לבצע? (סיבוב הגוף מעל המוט מתוך תלייה)'},
     {minStage:4,k:'oa_pull',t:'☝️ מתח יד אחת — עד איפה הגעת?',stages:['ירידה איטית (נגטיב)','× 1 מלא','2–4 חזרות','5+ חזרות']},
-    {minStage:4,k:'muscle_up',t:'🔄 עליות כוח (Muscle-Up) — כמה?',opts:['1–2','3–5','6–10','10+']},
+    {minStage:4,k:'muscle_up',t:'🔄 עליות כוח (Muscle-Up) — כמה מצליח ברצף?',opts:['1–3','4–6','7–10','10+']},
   ]},
   {k:'dips',t:'מקבילים',opts:['1–5','6–10','11–15','15+']},
   {k:'pushups',t:'שכיבות סמיכה',opts:['5–10','11–20','21–30','30+']},
@@ -2315,17 +2316,19 @@ function _finishQuiz(){
   if((a.pullups||0)>=1){mark('p_hang');mark('p_scap');mark('p_rows');mark('p_neg');}
   if((a.pullups||0)>=2){mark('p_pull1');mark('p_pull5');}
   if((a.pullups||0)>=3){mark('p_pull1');mark('p_pull5');mark('p_pull10');}
-  if((a.pullups||0)>=4){mark('p_pull1');mark('p_pull5');mark('p_pull10');mark('p_w10');}
+  if((a.pullups||0)>=4){['p_hang','p_scap','p_rows','p_neg','p_pull1','p_pull5','p_pull10'].forEach(mark);}
+  // pull over follow-up
+  if((a.pull_over||0)===1)mark('p_pullover');
   // one-arm pull-up follow-up
   if((a.oa_pull||0)>=1){['p_pull10','p_w10','p_w20','p_oa_lean','p_oa_neg'].forEach(mark);}
   if((a.oa_pull||0)>=2){['p_pull10','p_w10','p_w20','p_oa_lean','p_oa_neg','p_oa_90bot','p_oa_90top','p_oa'].forEach(mark);}
   if((a.oa_pull||0)>=3){['p_pull10','p_w10','p_w20','p_oa_lean','p_oa_neg','p_oa_90bot','p_oa_90top','p_oa'].forEach(mark);}
   if((a.oa_pull||0)>=4){['p_pull10','p_w10','p_w20','p_w30','p_oa_lean','p_oa_neg','p_oa_90bot','p_oa_90top','p_oa','p_oa_w10'].forEach(mark);}
-  // muscle-up → marks high pull strength
-  if((a.muscle_up||0)>=1){['p_pull10','p_w10'].forEach(mark);}
-  if((a.muscle_up||0)>=2){['p_pull10','p_w10','p_w20'].forEach(mark);}
-  if((a.muscle_up||0)>=3){['p_pull10','p_w10','p_w20','p_w30'].forEach(mark);}
-  if((a.muscle_up||0)>=4){['p_pull10','p_w10','p_w20','p_w30','p_w40'].forEach(mark);}
+  // muscle-up → marks pull strength + muscle-up node
+  if((a.muscle_up||0)>=1){['p_pull10','p_muscleup'].forEach(mark);}
+  if((a.muscle_up||0)>=2){['p_pull10','p_muscleup','p_w10','p_w20'].forEach(mark);}
+  if((a.muscle_up||0)>=3){['p_pull10','p_muscleup','p_w10','p_w20','p_w30'].forEach(mark);}
+  if((a.muscle_up||0)>=4){['p_pull10','p_muscleup','p_w10','p_w20','p_w30','p_w40'].forEach(mark);}
   if(adv){
     if((a.handstand||0)>=1){mark('b_wall');}
     if((a.handstand||0)>=2){['b_wall','b_legoff','b_free5'].forEach(mark);}
