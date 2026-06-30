@@ -1551,7 +1551,7 @@ const TREES={
     {id:'p_pull5',track:'base',name:'5 מתח',icon:'💪',desc:'מתח מלא, שליטה.',cond:'5 מתחים מלאים ברצף.',req:['p_pull1'],xp:40,pre:'4×מקס (שאף ל-5) · מנוחה 2 דק׳'},
     {id:'p_pull10',track:'base',name:'15 מתח',icon:'🔥',desc:'נפח וכוח — שלב הפיצול.',cond:'15 מתחים מלאים ברצף.',req:['p_pull5'],xp:50,pre:'4×6-10 · אם קל — הוסף עצירה למעלה'},
     {id:'p_muscleup',track:'base_right',name:'עליות כוח',icon:'🔄',goal:true,desc:'מתח + דחיפה מעל המוט — מיומנות קרב.',cond:'5 עליות כוח נקיות.',req:['p_pull10'],xp:90,pre:'4×3-5 · שמור מהירות בחלק העליון'},
-    {id:'p_pullover',track:'base_left',name:'Pull Over',icon:'🌀',desc:'סיבוב הגוף מעל המוט מתוך תלייה — כוח ליבה ומשיכה.',cond:'Pull Over נקי × 5.',req:['p_pull10'],xp:80,pre:'4×5 · שמור על ידיים ישרות'},
+    {id:'p_pullover',track:'base_left',name:'Pull Over',icon:'🌀',desc:'סיבוב הגוף מעל המוט מתוך תלייה — כוח ליבה ומשיכה.',cond:'Pull Over נקי × 5.',req:['p_pull10','c_legraise'],xp:80,pre:'4×5 · שמור על ידיים ישרות'},
     /* ── מסלול מתח עם משקל ── */
     {id:'p_w10', track:'weighted',name:'מתח +10 ק"ג',icon:'🏋️',desc:'התחלת עומס חיצוני.',cond:'5 מתחים עם +10 ק"ג.',req:['p_pull10'],xp:65,pre:'4×5 · שמור טכניקה מלאה'},
     {id:'p_w20', track:'weighted',name:'מתח +20 ק"ג',icon:'🏋️',desc:'כוח מתחיל להיבנות.',cond:'5 מתחים עם +20 ק"ג.',req:['p_w10'],xp:80,pre:'4×5 · פותח מסלול יד אחת'},
@@ -3642,10 +3642,10 @@ function render(){
         }
         if(lSide.length){
           const sw=document.createElement('div');
-          sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row-reverse;align-items:center;pointer-events:auto;direction:rtl;gap:8px';
+          sw.style.cssText='position:absolute;top:50%;right:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;gap:8px';
+          lSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
           const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(90deg);flex-shrink:0';
           sw.appendChild(ha);
-          lSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
           wr.appendChild(sw);
         }
         path.appendChild(wr);
