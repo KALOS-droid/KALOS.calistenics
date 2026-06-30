@@ -2307,6 +2307,10 @@ const ADV=[
     {minStage:4,k:'hs_press',t:'🛗 כניסה לעמידת ידיים בכוח (Press to Handstand) — מצליח ללא קפיצה?'},
     {minStage:4,k:'hs_oa_assist',t:'☝️ עמידת ידיים על יד אחת — בעזרת קיר (אצבעות נוגעות)?'},
     {minStage:4,k:'hs_oa',t:'☝️ עמידת ידיים על יד אחת — חופשי לחלוטין?'},
+    {minStage:5,k:'hs_oa30',t:'⏳ עמידת יד אחת — 30 שניות ברציפות?'},
+    {minStage:5,k:'hs_oa_btil',t:'🤚 עמידת יד בטיל — יד חופשית בצד הגוף (5 שניות)?'},
+    {minStage:5,k:'hs_oa_hip',t:'☝️ עמידת יד בטיל — יד חופשית על הירך (קצה הגוף)?'},
+    {minStage:5,k:'hs_oa_hspu',t:'👑 HSPU על יד אחת — שכיבת סמיכה בעמידת ידיים על יד אחת?'},
   ]},
   {k:'hspu_count',t:'💪 HSPU חופשי — כמה שכיבות סמיכה בעמידת ידיים ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
   {k:'hspu_adv',t:'📐 90° Push-up בעמידת ידיים — כמה חזרות ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
@@ -2537,6 +2541,10 @@ function _finishQuiz(){
   if((a.hs_press||0)===1){['b_wall','b_legoff','b_free5','b_free30','b_full','b_press'].forEach(mark);}
   if((a.hs_oa_assist||0)===1){['b_press','b_oa_assist'].forEach(mark);}
   if((a.hs_oa||0)===1){['b_press','b_oa_assist','b_oa'].forEach(mark);}
+  if((a.hs_oa30||0)===1){['b_press','b_oa_assist','b_oa','b_oa30'].forEach(mark);}
+  if((a.hs_oa_btil||0)===1){['b_press','b_oa_assist','b_oa','b_oa30','b_oa_btil'].forEach(mark);}
+  if((a.hs_oa_hip||0)===1){['b_press','b_oa_assist','b_oa','b_oa30','b_oa_btil','b_oa_hip'].forEach(mark);}
+  if((a.hs_oa_hspu||0)===1){['b_press','b_oa_assist','b_oa','b_oa30','b_oa_btil','b_oa_hip','b_oa_hspu'].forEach(mark);}
   // L-Sit Press to Handstand
   if(a.lsit_hs_press===1){['c_lsit30','h_hspu','b_lsit_hs'].forEach(mark);}
   if((a.dips_weight||0)>=3){mark('h_pike');mark('h_lean');mark('h_pseudo');}
