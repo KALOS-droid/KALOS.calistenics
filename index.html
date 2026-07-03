@@ -35,8 +35,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 @keyframes gridP{0%,100%{opacity:.5}50%{opacity:1}}
 #fx{position:fixed;inset:0;z-index:0;pointer-events:none}
 .scanline{position:fixed;left:0;right:0;top:-3px;height:3px;z-index:60;opacity:.3;pointer-events:none;
-  background:linear-gradient(90deg,transparent,var(--violet),var(--blue),transparent);animation:scan 7s linear infinite}
-@keyframes scan{0%{top:-3px;opacity:0}6%{opacity:.3}94%{opacity:.3}100%{top:100vh;opacity:0}}
+  background:linear-gradient(90deg,transparent,var(--violet),var(--blue),transparent);animation:scan 120s linear infinite}
+@keyframes scan{0%{top:-3px;opacity:0}3%{opacity:.3}5%{opacity:.3}8%{top:100vh;opacity:0}100%{top:100vh;opacity:0}}
 
 /* blue flames at bottom (homage to original) */
 .flames{position:fixed;bottom:0;left:0;width:100%;height:130px;z-index:1;pointer-events:none;opacity:.55}
@@ -303,7 +303,18 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <!-- email + password -->
       <div id="authFormFields">
         <div class="field"><label>אימייל</label><input id="authEmail" type="email" placeholder="you@email.com" dir="ltr"></div>
-        <div class="field"><label>סיסמא</label><input id="authPass" type="password" placeholder="לפחות 6 תווים" dir="ltr" onkeydown="if(event.key==='Enter')authAction()"></div>
+        <div class="field"><label>סיסמא</label><div style="position:relative">
+          <input id="authPass" type="password" placeholder="לפחות 6 תווים" dir="ltr" onkeydown="if(event.key==='Enter')authAction()" oninput="checkPassMatch()" style="width:100%;padding-left:36px">
+          <button type="button" onclick="const i=document.getElementById('authPass');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;color:var(--muted);padding:0;line-height:1">👁</button>
+        </div></div>
+        <!-- confirm password — register only -->
+        <div id="authConfirmWrap" class="field hidden"><label>אימות סיסמא</label><div style="position:relative">
+          <input id="authPassConfirm" type="password" placeholder="הכנס סיסמא שוב" dir="ltr" onkeydown="if(event.key==='Enter')authAction()" oninput="checkPassMatch()" style="width:100%;padding-left:36px">
+          <button type="button" onclick="const i=document.getElementById('authPassConfirm');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;color:var(--muted);padding:0;line-height:1">👁</button>
+        </div>
+        <div id="passMismatch" style="display:none;font-size:11px;color:var(--danger);margin-top:4px;font-family:'Share Tech Mono',monospace">❌ הסיסמאות לא תואמות</div>
+        <div id="passMatch" style="display:none;font-size:11px;color:var(--success);margin-top:4px;font-family:'Share Tech Mono',monospace">✅ הסיסמאות תואמות</div>
+        </div>
       </div>
       <!-- OTP step (register only, shown after sending code) -->
       <div id="otpStep" class="hidden">
@@ -1151,6 +1162,8 @@ function authTab(mode){
   document.getElementById('tabReg').style.cssText=isReg?'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;background:rgba(0,168,255,.15);color:#bfe6ff;border-right:2px solid var(--cyan)':'flex:1;text-align:center;padding:10px;font-family:Orbitron,monospace;font-size:11px;letter-spacing:.12em;cursor:pointer;transition:all .2s;color:var(--muted)';
   document.getElementById('authNameWrap').classList.toggle('hidden',!isReg);
   document.getElementById('authPhoneWrap').classList.toggle('hidden',!isReg);
+  document.getElementById('authConfirmWrap').classList.toggle('hidden',!isReg);
+  if(!isReg){document.getElementById('passMismatch').style.display='none';document.getElementById('passMatch').style.display='none';}
   document.getElementById('authSubmitBtn').textContent=isReg?'המשך →':'כניסה ›';
   document.getElementById('otpStep').classList.add('hidden');
   document.getElementById('authFormFields').classList.remove('hidden');
@@ -1211,6 +1224,18 @@ function startOTPTimer(sec=300){
 
 function normalizePhone(p){return p.replace(/[\s\-\(\)]/g,'').replace(/^0/,'+972');}
 
+function checkPassMatch(){
+  if(authMode!=='register')return;
+  const p1=document.getElementById('authPass').value;
+  const p2=document.getElementById('authPassConfirm').value;
+  const mismatch=document.getElementById('passMismatch');
+  const match=document.getElementById('passMatch');
+  if(!p2){mismatch.style.display='none';match.style.display='none';return;}
+  const ok=p1===p2;
+  mismatch.style.display=ok?'none':'block';
+  match.style.display=ok?'block':'none';
+}
+
 function authAction(){
   if(authMode==='register') initiateRegistration();
   else submitLogin();
@@ -1219,12 +1244,14 @@ function authAction(){
 async function initiateRegistration(){
   const email=document.getElementById('authEmail').value.trim().toLowerCase();
   const pass=document.getElementById('authPass').value;
+  const confirm=document.getElementById('authPassConfirm').value;
   const name=document.getElementById('authName').value.trim();
   const phoneRaw=document.getElementById('authPhone').value.trim();
   const err=t=>{document.getElementById('authErr').textContent=t;};
   if(!name){err('הכנס שם פרטי');return;}
   if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
+  if(pass!==confirm){err('הסיסמאות לא תואמות — בדוק שוב');document.getElementById('authPassConfirm').focus();return;}
   if(!phoneRaw){err('הכנס מספר טלפון');return;}
   const phone=normalizePhone(phoneRaw);
   if(!/^\+\d{10,14}$/.test(phone)){err('מספר טלפון לא תקין (לדוגמה: 050-1234567)');return;}
