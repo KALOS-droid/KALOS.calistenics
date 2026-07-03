@@ -337,12 +337,36 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       </div>
       <div id="authErr" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger);text-align:center;min-height:18px;margin:4px 0 10px"></div>
       <div id="forgotLink" style="text-align:center;margin:-4px 0 10px">
-        <span onclick="showForgotMsg()" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;letter-spacing:.05em;text-decoration:underline">שכחתי סיסמא</span>
+        <span onclick="showForgotFlow()" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;letter-spacing:.05em;text-decoration:underline">שכחתי סיסמא</span>
       </div>
-      <div id="forgotMsg" style="display:none;background:rgba(0,168,255,.08);border:1px solid rgba(0,168,255,.2);border-radius:4px;padding:12px;margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text);text-align:center;line-height:1.7">
-        לאיפוס סיסמא צור קשר:<br>
-        📧 <span style="color:var(--cyan)">eladgo55@gmail.com</span><br>
-        💬 וואטסאפ: <span style="color:var(--cyan)">נשלח לך קישור איפוס תוך 24 שעות</span>
+      <!-- Forgot password flow -->
+      <div id="forgotFlow" style="display:none;background:rgba(0,168,255,.06);border:1px solid rgba(0,168,255,.2);border-radius:8px;padding:14px;margin-bottom:10px;direction:rtl">
+        <!-- Step 1: enter email -->
+        <div id="forgotS1">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);margin-bottom:10px;text-align:center">🔑 איפוס סיסמא</div>
+          <input id="forgotEmail" type="email" placeholder="הכנס את האימייל הרשום" dir="ltr" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(0,168,255,.3);border-radius:5px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;outline:none;margin-bottom:8px" onkeydown="if(event.key==='Enter')forgotSendOTP()">
+          <button onclick="forgotSendOTP()" style="width:100%;background:rgba(0,168,255,.15);border:1px solid rgba(0,168,255,.4);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px;border-radius:5px;cursor:pointer">שלח קוד לאימייל ›</button>
+          <div style="text-align:center;margin-top:8px"><span onclick="hideForgotFlow()" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline">ביטול</span></div>
+          <div id="forgotS1Err" style="display:none;margin-top:6px;font-size:11px;color:var(--danger);font-family:'Share Tech Mono',monospace;text-align:center"></div>
+        </div>
+        <!-- Step 2: enter OTP -->
+        <div id="forgotS2" style="display:none">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--cyan);margin-bottom:6px;text-align:center">📧 שלחנו קוד לאימייל שלך</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-bottom:10px" id="forgotEmailHint"></div>
+          <input id="forgotOTP" type="text" maxlength="6" placeholder="קוד 6 ספרות" dir="ltr" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(0,168,255,.3);border-radius:5px;padding:8px 10px;font-family:'Orbitron',monospace;font-size:16px;color:#eaf6ff;outline:none;text-align:center;letter-spacing:.3em;margin-bottom:8px" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')forgotVerifyOTP()">
+          <button onclick="forgotVerifyOTP()" style="width:100%;background:rgba(0,168,255,.15);border:1px solid rgba(0,168,255,.4);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px;border-radius:5px;cursor:pointer">אמת קוד ›</button>
+          <div id="forgotS2Err" style="display:none;margin-top:6px;font-size:11px;color:var(--danger);font-family:'Share Tech Mono',monospace;text-align:center"></div>
+        </div>
+        <!-- Step 3: new password -->
+        <div id="forgotS3" style="display:none">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--success);margin-bottom:10px;text-align:center">✅ זהות אומתה — הכנס סיסמא חדשה</div>
+          <div style="position:relative;margin-bottom:8px">
+            <input id="forgotNewPass" type="password" placeholder="סיסמא חדשה (6+ תווים)" dir="ltr" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(0,168,255,.3);border-radius:5px;padding:8px 36px 8px 10px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;outline:none" onkeydown="if(event.key==='Enter')forgotSetPass()">
+            <button type="button" onclick="const i=document.getElementById('forgotNewPass');i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁':'🙈'" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);padding:0">👁</button>
+          </div>
+          <button onclick="forgotSetPass()" style="width:100%;background:rgba(0,255,170,.15);border:1px solid rgba(0,255,170,.4);color:var(--success);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px;border-radius:5px;cursor:pointer">שמור סיסמא חדשה ›</button>
+          <div id="forgotS3Err" style="display:none;margin-top:6px;font-size:11px;color:var(--danger);font-family:'Share Tech Mono',monospace;text-align:center"></div>
+        </div>
       </div>
       <button class="btn" onclick="authAction()" id="authSubmitBtn" style="margin-top:4px">כניסה ›</button>
     </div>
@@ -1181,9 +1205,63 @@ function checkRateLimit(email){
   return null;
 }
 
-function showForgotMsg(){
-  document.getElementById("forgotMsg").style.display="block";
-  document.getElementById("forgotLink").style.display="none";
+let _forgotUser=null;
+
+function showForgotFlow(){
+  document.getElementById('forgotFlow').style.display='block';
+  document.getElementById('forgotLink').style.display='none';
+  document.getElementById('forgotS1').style.display='block';
+  document.getElementById('forgotS2').style.display='none';
+  document.getElementById('forgotS3').style.display='none';
+  document.getElementById('forgotEmail').value='';
+  document.getElementById('forgotS1Err').style.display='none';
+}
+function hideForgotFlow(){
+  document.getElementById('forgotFlow').style.display='none';
+  document.getElementById('forgotLink').style.display='block';
+}
+async function forgotSendOTP(){
+  const email=document.getElementById('forgotEmail').value.trim().toLowerCase();
+  const errEl=document.getElementById('forgotS1Err');
+  errEl.style.display='none';
+  if(!email||!email.includes('@')){errEl.textContent='אימייל לא תקין';errEl.style.display='block';return;}
+  const users=await getUsers();
+  const u=users.find(x=>x.email===email);
+  if(!u){errEl.textContent='אימייל לא נמצא במערכת';errEl.style.display='block';return;}
+  _forgotUser=u;
+  _otpCode=genOTP();
+  _otpExpiry=Date.now()+10*60*1000;
+  const ok=await sendOTPEmail(email,u.name||'שחקן',_otpCode);
+  if(!ok){errEl.textContent='שגיאה בשליחת המייל — נסה שוב';errEl.style.display='block';return;}
+  document.getElementById('forgotEmailHint').textContent=email;
+  document.getElementById('forgotS1').style.display='none';
+  document.getElementById('forgotS2').style.display='block';
+  document.getElementById('forgotOTP').value='';
+  document.getElementById('forgotS2Err').style.display='none';
+}
+function forgotVerifyOTP(){
+  const code=document.getElementById('forgotOTP').value.trim();
+  const errEl=document.getElementById('forgotS2Err');
+  errEl.style.display='none';
+  if(Date.now()>_otpExpiry){errEl.textContent='הקוד פג תוקף — חזור ושלח שוב';errEl.style.display='block';return;}
+  if(code!==_otpCode){errEl.textContent='קוד שגוי — נסה שוב';errEl.style.display='block';return;}
+  document.getElementById('forgotS2').style.display='none';
+  document.getElementById('forgotS3').style.display='block';
+  document.getElementById('forgotNewPass').value='';
+  document.getElementById('forgotS3Err').style.display='none';
+}
+async function forgotSetPass(){
+  const pass=document.getElementById('forgotNewPass').value;
+  const errEl=document.getElementById('forgotS3Err');
+  errEl.style.display='none';
+  if(pass.length<6){errEl.textContent='סיסמא חייבת להיות לפחות 6 תווים';errEl.style.display='block';return;}
+  const hash=await hashPass(pass);
+  _forgotUser.hash=hash;
+  await saveUser(_forgotUser);
+  _forgotUser=null;_otpCode=null;
+  hideForgotFlow();
+  document.getElementById('authErr').style.color='var(--success)';
+  document.getElementById('authErr').textContent='✅ סיסמא עודכנה! כנס עם הסיסמא החדשה.';
 }
 
 /* ── EmailJS config (fill in after setup at emailjs.com) ── */
