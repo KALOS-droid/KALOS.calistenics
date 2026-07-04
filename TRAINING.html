@@ -460,6 +460,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <div class="sys-diamonds"><span class="diamond"></span><span class="sys-title">TRAINING PROFILE</span><span class="diamond"></span></div>
       <div class="sys-divider"></div>
 
+      <!-- 1. Goal -->
       <div class="qblock">
         <h3>מה המטרה העיקרית שלך?</h3>
         <div class="opt" data-goal="skills" onclick="setGoalType('skills',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">🏆 תרגילים מגניבים</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">פלאנץ, מתח יד אחת, עמידת ידיים — הדברים שגורמים לאנשים לצלם אותך</div></div></div>
@@ -467,41 +468,12 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         <div class="opt" data-goal="both" onclick="setGoalType('both',this)"><span class="dot"></span><div><div style="font-size:15px;font-weight:700">⚡ גם וגם</div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted)">תרגילים מגניבים + גוף חטוב + ירידה בשומן — הכל</div></div></div>
       </div>
 
-      <div id="cardioSection" class="hidden">
-        <div class="qblock">
-          <h3>איזה קרדיו זמין לך? (אפשר לבחור כמה)</h3>
-          <div class="opt" data-cardio="running" onclick="toggleCardio('running',this)"><span class="dot"></span>🏃 ריצה</div>
-          <div class="opt" data-cardio="walking" onclick="toggleCardio('walking',this)"><span class="dot"></span>🚶 הליכה מהירה</div>
-          <div class="opt" data-cardio="stairs" onclick="toggleCardio('stairs',this)"><span class="dot"></span>🪜 מדרגות / סטפר</div>
-          <div class="opt" data-cardio="bike" onclick="toggleCardio('bike',this)"><span class="dot"></span>🚴 אופניים</div>
-          <div class="opt" data-cardio="pool" onclick="toggleCardio('pool',this)"><span class="dot"></span>🏊 בריכת שחייה</div>
-          <div class="opt" data-cardio="jump" onclick="toggleCardio('jump',this)"><span class="dot"></span>🪢 קפיצה בחבל</div>
-          <div class="opt" data-cardio="tennis" onclick="toggleCardio('tennis',this)"><span class="dot"></span>🎾 טניס</div>
-          <div class="opt" data-cardio="none" onclick="toggleCardio('none',this)"><span class="dot"></span>❌ אין קרדיו זמין</div>
-        </div>
-        <div id="cardioDaysPrefSection" class="hidden">
-          <div class="qblock">
-            <h3>באיזה ימים אתה רוצה לקבל אימוני קרדיו?</h3>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px">בחר את הימים המועדפים עליך לאימוני קרדיו</div>
-            <div class="row" style="flex-wrap:wrap;gap:6px">
-              <div class="opt" onclick="toggleCardioPrefDay(0,this)"><span class="dot"></span>ראשון</div>
-              <div class="opt" onclick="toggleCardioPrefDay(1,this)"><span class="dot"></span>שני</div>
-              <div class="opt" onclick="toggleCardioPrefDay(2,this)"><span class="dot"></span>שלישי</div>
-              <div class="opt" onclick="toggleCardioPrefDay(3,this)"><span class="dot"></span>רביעי</div>
-              <div class="opt" onclick="toggleCardioPrefDay(4,this)"><span class="dot"></span>חמישי</div>
-              <div class="opt" onclick="toggleCardioPrefDay(5,this)"><span class="dot"></span>שישי</div>
-              <div class="opt" onclick="toggleCardioPrefDay(6,this)"><span class="dot"></span>שבת</div>
-            </div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px">💡 אם יום קרדיו חופף ליום כוח — יתווסף כסשן בוקר/ערב באותו יום.</div>
-          </div>
-        </div>
-      </div>
-
+      <!-- 2. Total sessions per week -->
       <div class="qblock">
-        <h3>כמה אימונים בשבוע?</h3>
+        <h3>כמה אימונים כוללים בשבוע?</h3>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">מתחילים — מומלץ 3. אפשר עד 10 (כוח + קרדיו ביחד).</div>
         <div id="beginnerDaysNote" class="hidden" style="padding:9px 12px;margin-bottom:10px;background:rgba(0,168,255,.07);border:1px solid rgba(0,168,255,.3);border-radius:7px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#7dd3fc;line-height:1.7">
-          💡 <b>למתחילים</b> — גם אם בחרת יותר, נתחיל אותך ב-<b>3 אימונים בשבוע</b> לחודש הראשון כדי להרגיל את הגוף. אחרי כן נעלה בהדרגה למה שבחרת.
+          💡 <b>למתחילים</b> — גם אם בחרת יותר, נתחיל אותך ב-<b>3 אימונים בשבוע</b> לחודש הראשון. אחרי כן נעלה בהדרגה.
         </div>
         <div class="row" style="flex-wrap:wrap;gap:6px">
           <div class="opt" onclick="setDays(2,this)"><span class="dot"></span>2</div>
@@ -516,24 +488,35 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         </div>
       </div>
 
-      <!-- shown when >5 sessions AND cardio goal -->
-      <div id="splitSection" class="hidden">
-        <div style="padding:10px 14px;margin-bottom:8px;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.3);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;line-height:1.6">
-          ⚠️ <b>מעל 6 אימונים בשבוע</b> — חשוב להקשיב לגוף. אם אתה מרגיש עייפות חריגה, קח יום מנוחה. הסיכון לפציעה עולה. KALOS אינה אחראית לפציעות.
+      <!-- 3. Strength split — shown when cardio goal -->
+      <div id="strengthSplitSection" class="hidden">
+        <div id="highVolumeWarning" class="hidden" style="padding:10px 14px;margin-bottom:8px;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.3);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;line-height:1.6">
+          ⚠️ <b>מעל 6 אימונים בשבוע</b> — חשוב להקשיב לגוף. אם אתה מרגיש עייפות חריגה, קח יום מנוחה. KALOS אינה אחראית לפציעות.
         </div>
         <div class="qblock">
-          <h3>כמה מתוכם אימוני <span style="color:var(--pull)">כוח</span>?</h3>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">מקסימום 5 אימוני כוח בשבוע.</div>
+          <h3>כמה מהם אימוני <span style="color:var(--pull)">כוח</span>?</h3>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">השאר יהיו אימוני קרדיו.</div>
           <div class="row" style="flex-wrap:wrap;gap:6px" id="strengthDaysRow"></div>
-        </div>
-        <div class="qblock">
-          <h3>כמה מתוכם אימוני <span style="color:#ff6b35">קרדיו</span>?</h3>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px" id="cardioDaysNote">לפחות 2 קרדיו.</div>
-          <div class="row" style="flex-wrap:wrap;gap:6px" id="cardioDaysRow"></div>
+          <div id="cardioDaysNote" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;margin-top:8px"></div>
         </div>
       </div>
 
-      <!-- cardio per-type distribution (shown when multiple cardio types chosen) -->
+      <!-- 4. Cardio types — shown when body/both goal -->
+      <div id="cardioSection" class="hidden">
+        <div class="qblock">
+          <h3>איזה קרדיו זמין לך? (אפשר לבחור כמה)</h3>
+          <div class="opt" data-cardio="running" onclick="toggleCardio('running',this)"><span class="dot"></span>🏃 ריצה</div>
+          <div class="opt" data-cardio="walking" onclick="toggleCardio('walking',this)"><span class="dot"></span>🚶 הליכה מהירה</div>
+          <div class="opt" data-cardio="stairs" onclick="toggleCardio('stairs',this)"><span class="dot"></span>🪜 מדרגות / סטפר</div>
+          <div class="opt" data-cardio="bike" onclick="toggleCardio('bike',this)"><span class="dot"></span>🚴 אופניים</div>
+          <div class="opt" data-cardio="pool" onclick="toggleCardio('pool',this)"><span class="dot"></span>🏊 בריכת שחייה</div>
+          <div class="opt" data-cardio="jump" onclick="toggleCardio('jump',this)"><span class="dot"></span>🪢 קפיצה בחבל</div>
+          <div class="opt" data-cardio="tennis" onclick="toggleCardio('tennis',this)"><span class="dot"></span>🎾 טניס</div>
+          <div class="opt" data-cardio="none" onclick="toggleCardio('none',this)"><span class="dot"></span>❌ אין קרדיו זמין</div>
+        </div>
+      </div>
+
+      <!-- 5. Cardio per-type distribution (shown when multiple cardio types chosen) -->
       <div id="cardioDistSection" class="hidden">
         <div class="qblock">
           <h3>כמה אימונים לכל סוג קרדיו?</h3>
@@ -542,15 +525,34 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         </div>
       </div>
 
+      <!-- 6. Cardio preferred days — shown after picking cardio types -->
+      <div id="cardioDaysPrefSection" class="hidden">
+        <div class="qblock">
+          <h3>באיזה ימים אתה מעדיף לעשות קרדיו?</h3>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px">אם יום קרדיו חופף ליום כוח — יתווסף כסשן בוקר/ערב באותו יום.</div>
+          <div class="row" style="flex-wrap:wrap;gap:6px">
+            <div class="opt" onclick="toggleCardioPrefDay(0,this)"><span class="dot"></span>ראשון</div>
+            <div class="opt" onclick="toggleCardioPrefDay(1,this)"><span class="dot"></span>שני</div>
+            <div class="opt" onclick="toggleCardioPrefDay(2,this)"><span class="dot"></span>שלישי</div>
+            <div class="opt" onclick="toggleCardioPrefDay(3,this)"><span class="dot"></span>רביעי</div>
+            <div class="opt" onclick="toggleCardioPrefDay(4,this)"><span class="dot"></span>חמישי</div>
+            <div class="opt" onclick="toggleCardioPrefDay(5,this)"><span class="dot"></span>שישי</div>
+            <div class="opt" onclick="toggleCardioPrefDay(6,this)"><span class="dot"></span>שבת</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Morning preference -->
       <div class="qblock">
         <h3>מה אתה מעדיף בבוקר?</h3>
         <div class="row">
           <div class="opt" onclick="setMorningType('strength',this)"><span class="dot"></span>💪 כוח בבוקר</div>
           <div class="opt" onclick="setMorningType('cardio',this)"><span class="dot"></span>🏃 קרדיו בבוקר</div>
-          <div class="opt" onclick="setMorningType('evening',this)"><span class="dot"></span>🌙 הכל בערב</div>
+          <div class="opt" id="morningEveningOpt" onclick="setMorningType('evening',this)"><span class="dot"></span>🌙 הכל בערב</div>
         </div>
       </div>
 
+      <!-- 8. Session length -->
       <div class="qblock">
         <h3>כמה זמן יש לך לכל אימון?</h3>
         <div class="row">
@@ -1607,11 +1609,7 @@ function setGoalType(g,el){
   document.getElementById('cardioSection').classList.toggle('hidden',!needsCardio);
   document.querySelectorAll('[data-goal]').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
-  // refresh split section
-  const n=profile1b.days;
-  const needsSplit=n>5&&needsCardio&&profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
-  document.getElementById('splitSection').classList.toggle('hidden',!needsSplit);
-  if(needsSplit)_buildSplitRows(n);
+  _refreshStrengthSplit();
 }
 function toggleCardio(type,el){
   if(type==='none'){profile1b.cardio=[];document.querySelectorAll('[data-cardio]').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
@@ -1621,14 +1619,9 @@ function toggleCardio(type,el){
     el.classList.toggle('sel',profile1b.cardio.includes(type));
     document.querySelector('[data-cardio=none]')?.classList.remove('sel');
   }
-  // refresh split + dist sections + preferred days picker
-  const n=profile1b.days;
-  const needsSplit=n>5&&['body','both'].includes(profile1b.goal)&&profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
-  document.getElementById('splitSection').classList.toggle('hidden',!needsSplit);
-  if(needsSplit)_buildSplitRows(n);
-  _buildCardioDistSection();
   const hasCardio=profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
   document.getElementById('cardioDaysPrefSection').classList.toggle('hidden',!hasCardio);
+  _buildCardioDistSection();
 }
 function toggleCardioPrefDay(dayIdx,el){
   const i=profile1b.cardioPreferredDays.indexOf(dayIdx);
@@ -1642,39 +1635,53 @@ function setDays(n,el){
   profile1b.days=n;
   el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
-  // Beginner note: show when >3 selected
   document.getElementById('beginnerDaysNote').classList.toggle('hidden',n<=3);
-  // Show split section only if >5 days AND cardio-capable goal
-  const needsSplit=n>5&&['body','both'].includes(profile1b.goal)&&profile1b.cardio.length>0&&!profile1b.cardio.includes('none');
-  const splitEl=document.getElementById('splitSection');
-  splitEl.classList.toggle('hidden',!needsSplit);
-  if(needsSplit)_buildSplitRows(n);
+  // Hide "הכל בערב" when >6 sessions (must have morning session)
+  const eveningOpt=document.getElementById('morningEveningOpt');
+  if(eveningOpt){
+    eveningOpt.classList.toggle('hidden',n>6);
+    if(n>6&&profile1b.morningType==='evening'){profile1b.morningType='cardio';}
+  }
+  _refreshStrengthSplit();
   _buildCardioDistSection();
 }
+function _refreshStrengthSplit(){
+  const needsCardio=['body','both','weightloss'].includes(profile1b.goal);
+  const n=profile1b.days;
+  const show=needsCardio&&n>=2;
+  document.getElementById('strengthSplitSection').classList.toggle('hidden',!show);
+  document.getElementById('highVolumeWarning').classList.toggle('hidden',n<=6);
+  if(show)_buildSplitRows(n);
+}
 function _buildSplitRows(total){
-  const maxStr=Math.min(5,total-2); // at least 2 cardio
-  const minStr=Math.max(1,total-7); // at most 7 cardio (one per day)
-  // Strength row
+  const maxStr=Math.min(5,total-1);
+  const minStr=Math.max(1,total-7);
   const sr=document.getElementById('strengthDaysRow');
+  if(!sr)return;
   sr.innerHTML='';
   for(let i=minStr;i<=maxStr;i++){
     const d=document.createElement('div');
     d.className='opt'+(profile1b.strengthDays===i?' sel':'');
     d.innerHTML=`<span class="dot"></span>${i}`;
-    d.onclick=(function(n,el){return()=>{profile1b.strengthDays=n;profile1b.cardioDays=profile1b.days-n;sr.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');_updateCardioDaysRow(profile1b.days);_buildCardioDistSection();};})(i,d);
+    d.onclick=(function(n,el){return()=>{
+      profile1b.strengthDays=n;
+      profile1b.cardioDays=profile1b.days-n;
+      sr.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+      el.classList.add('sel');
+      _updateCardioDaysNote(profile1b.days);
+      _buildCardioDistSection();
+    };})(i,d);
     sr.appendChild(d);
   }
-  _updateCardioDaysRow(total);
+  _updateCardioDaysNote(total);
 }
-function _updateCardioDaysRow(total){
-  const cr=document.getElementById('cardioDaysRow');
+function _updateCardioDaysNote(total){
   const note=document.getElementById('cardioDaysNote');
-  if(!cr)return;
-  const sdays=profile1b.strengthDays||Math.min(5,total-2);
+  if(!note)return;
+  const sdays=profile1b.strengthDays||Math.min(5,total-1);
   const cdays=total-sdays;
   profile1b.cardioDays=cdays;
-  note.textContent=`קרדיו: ${cdays} אימונים (סה"כ ${total})`;
-  cr.innerHTML=`<div class="opt sel" style="pointer-events:none"><span class="dot"></span>${cdays} קרדיו</div>`;
+  note.textContent=cdays>0?`🏃 קרדיו: ${cdays} אימונים בשבוע`:'';
 }
 function _buildCardioDistSection(){
   const sec=document.getElementById('cardioDistSection');
