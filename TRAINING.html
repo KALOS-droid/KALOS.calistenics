@@ -1474,7 +1474,7 @@ function startApp(email){
     switchTree('workout');
     if(fromJarvis){setTimeout(()=>renderXP(),100);}
     loadGlobalContent().then(()=>switchTree(currentTree||'workout'));
-    setTimeout(()=>{checkPunishment();if(shouldShowCheckin())openCheckin();check200DayPhoto();},600);
+    setTimeout(()=>{checkPunishment();if(shouldShowCheckin()){openCheckin();setTimeout(showCheckinBanner,400);}check200DayPhoto();},600);
     setTimeout(maybeShowTutorial, 1400);
   }else{loadGlobalContent();runBoot();}
 }
@@ -2917,7 +2917,7 @@ function enterApp(){
   // Checks (slight delay so app renders first)
   setTimeout(()=>{
     checkPunishment();
-    if(shouldShowCheckin())openCheckin();
+    if(shouldShowCheckin()){openCheckin();setTimeout(showCheckinBanner,400);}
     check200DayPhoto();
   },400);
   // Tutorial popup — after other modals settle
@@ -4245,13 +4245,23 @@ function shouldShowCheckin(){
   if(!state.onboarded||fromJarvis)return false;
   const checkins=state.weeklyCheckins||[];
   if(!checkins.length){
-    // Show 7 days after onboarding
     if(!state.profile.joinDate)return false;
     const joined=new Date(state.profile.joinDate);
     return(Date.now()-joined.getTime())>7*24*3600*1000;
   }
   const last=new Date(checkins[checkins.length-1].date);
   return(Date.now()-last.getTime())>7*24*3600*1000;
+}
+function showCheckinBanner(){
+  if(document.getElementById('checkinBanner'))return;
+  const b=document.createElement('div');
+  b.id='checkinBanner';
+  b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:490;background:linear-gradient(90deg,rgba(0,168,255,.18),rgba(139,61,255,.18));border-bottom:1px solid rgba(0,168,255,.4);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;font-family:"Share Tech Mono",monospace;font-size:12px;color:#7dd3fc;backdrop-filter:blur(6px)';
+  b.innerHTML=`<span>📊 <b style="color:#00a8ff">הגיע הזמן לדוח השבועי!</b> — עדכן את האימונים שלך כדי שנבנה לך תוכנית מדויקת יותר.</span><div style="display:flex;gap:8px"><button onclick="b=document.getElementById('checkinBanner');b&&b.remove();openCheckin()" style="background:rgba(0,168,255,.25);border:1px solid rgba(0,168,255,.5);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:11px;padding:5px 12px;border-radius:5px;cursor:pointer">מלא דוח ›</button><button onclick="document.getElementById('checkinBanner').remove()" style="background:none;border:1px solid rgba(255,255,255,.15);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:11px;padding:5px 10px;border-radius:5px;cursor:pointer">✕</button></div>`;
+  document.body.prepend(b);
+  // pulse the header button
+  const btn=document.querySelector('button[onclick="openCheckin()"]');
+  if(btn)btn.style.boxShadow='0 0 10px rgba(0,168,255,.7)';
 }
 
 function openCheckin(){
