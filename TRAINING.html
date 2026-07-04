@@ -512,6 +512,12 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
           <div class="opt" data-cardio="pool" onclick="toggleCardio('pool',this)"><span class="dot"></span>🏊 בריכת שחייה</div>
           <div class="opt" data-cardio="jump" onclick="toggleCardio('jump',this)"><span class="dot"></span>🪢 קפיצה בחבל</div>
           <div class="opt" data-cardio="tennis" onclick="toggleCardio('tennis',this)"><span class="dot"></span>🎾 טניס</div>
+          <div class="opt" data-cardio="soccer" onclick="toggleCardio('soccer',this)"><span class="dot"></span>⚽ כדורגל</div>
+          <div class="opt" data-cardio="basketball" onclick="toggleCardio('basketball',this)"><span class="dot"></span>🏀 כדורסל</div>
+          <div class="opt" data-cardio="volleyball" onclick="toggleCardio('volleyball',this)"><span class="dot"></span>🏐 כדורעף</div>
+          <div class="opt" data-cardio="boxing" onclick="toggleCardio('boxing',this)"><span class="dot"></span>🥊 אגרוף / קיקבוקס</div>
+          <div class="opt" data-cardio="rowing" onclick="toggleCardio('rowing',this)"><span class="dot"></span>🚣 חתירה / ארגומטר</div>
+          <div class="opt" data-cardio="hiit" onclick="toggleCardio('hiit',this)"><span class="dot"></span>⚡ HIIT</div>
           <div class="opt" data-cardio="none" onclick="toggleCardio('none',this)"><span class="dot"></span>❌ אין קרדיו זמין</div>
         </div>
       </div>
@@ -528,17 +534,18 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <!-- 6. Cardio preferred days — shown after picking cardio types -->
       <div id="cardioDaysPrefSection" class="hidden">
         <div class="qblock">
-          <h3>באיזה ימים אתה מעדיף לעשות קרדיו?</h3>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px">אם יום קרדיו חופף ליום כוח — יתווסף כסשן בוקר/ערב באותו יום.</div>
+          <h3 id="cardioDaysPrefTitle">באיזה ימים אתה מעדיף לעשות קרדיו?</h3>
+          <div id="cardioDaysPrefHint" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px">אם יום קרדיו חופף ליום כוח — יתווסף כסשן בוקר/ערב באותו יום.</div>
           <div class="row" style="flex-wrap:wrap;gap:6px">
-            <div class="opt" onclick="toggleCardioPrefDay(0,this)"><span class="dot"></span>ראשון</div>
-            <div class="opt" onclick="toggleCardioPrefDay(1,this)"><span class="dot"></span>שני</div>
-            <div class="opt" onclick="toggleCardioPrefDay(2,this)"><span class="dot"></span>שלישי</div>
-            <div class="opt" onclick="toggleCardioPrefDay(3,this)"><span class="dot"></span>רביעי</div>
-            <div class="opt" onclick="toggleCardioPrefDay(4,this)"><span class="dot"></span>חמישי</div>
-            <div class="opt" onclick="toggleCardioPrefDay(5,this)"><span class="dot"></span>שישי</div>
-            <div class="opt" onclick="toggleCardioPrefDay(6,this)"><span class="dot"></span>שבת</div>
+            <div class="opt" data-prefday="0" onclick="toggleCardioPrefDay(0,this)"><span class="dot"></span>ראשון</div>
+            <div class="opt" data-prefday="1" onclick="toggleCardioPrefDay(1,this)"><span class="dot"></span>שני</div>
+            <div class="opt" data-prefday="2" onclick="toggleCardioPrefDay(2,this)"><span class="dot"></span>שלישי</div>
+            <div class="opt" data-prefday="3" onclick="toggleCardioPrefDay(3,this)"><span class="dot"></span>רביעי</div>
+            <div class="opt" data-prefday="4" onclick="toggleCardioPrefDay(4,this)"><span class="dot"></span>חמישי</div>
+            <div class="opt" data-prefday="5" onclick="toggleCardioPrefDay(5,this)"><span class="dot"></span>שישי</div>
+            <div class="opt" data-prefday="6" onclick="toggleCardioPrefDay(6,this)"><span class="dot"></span>שבת</div>
           </div>
+          <div id="cardioDaysPrefErr" style="display:none;margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger)"></div>
         </div>
       </div>
 
@@ -1624,10 +1631,30 @@ function toggleCardio(type,el){
   _buildCardioDistSection();
 }
 function toggleCardioPrefDay(dayIdx,el){
-  const i=profile1b.cardioPreferredDays.indexOf(dayIdx);
-  if(i>=0)profile1b.cardioPreferredDays.splice(i,1);
+  const required=profile1b.cardioDays||1;
+  const already=profile1b.cardioPreferredDays.includes(dayIdx);
+  const errEl=document.getElementById('cardioDaysPrefErr');
+  if(!already&&profile1b.cardioPreferredDays.length>=required){
+    errEl.textContent=`בחר בדיוק ${required} ימים — בטל יום אחר תחילה`;
+    errEl.style.display='block';
+    return;
+  }
+  errEl.style.display='none';
+  if(already)profile1b.cardioPreferredDays.splice(profile1b.cardioPreferredDays.indexOf(dayIdx),1);
   else profile1b.cardioPreferredDays.push(dayIdx);
   el.classList.toggle('sel',profile1b.cardioPreferredDays.includes(dayIdx));
+  // update title counter
+  const title=document.getElementById('cardioDaysPrefTitle');
+  if(title)title.textContent=`באיזה ימים אתה מעדיף לעשות קרדיו? (${profile1b.cardioPreferredDays.length}/${required})`;
+}
+function _refreshCardioDaysPrefTitle(){
+  const required=profile1b.cardioDays||1;
+  const title=document.getElementById('cardioDaysPrefTitle');
+  if(title)title.textContent=`באיזה ימים אתה מעדיף לעשות קרדיו? (0/${required})`;
+  profile1b.cardioPreferredDays=[];
+  document.querySelectorAll('[data-prefday]').forEach(o=>o.classList.remove('sel'));
+  const errEl=document.getElementById('cardioDaysPrefErr');
+  if(errEl)errEl.style.display='none';
 }
 function setMorning(v,el){profile1b.morningCardio=v;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function setMorningType(v,el){profile1b.morningType=v;profile1b.morningCardio=(v==='cardio');el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
@@ -1682,6 +1709,7 @@ function _updateCardioDaysNote(total){
   const cdays=total-sdays;
   profile1b.cardioDays=cdays;
   note.textContent=cdays>0?`🏃 קרדיו: ${cdays} אימונים בשבוע`:'';
+  _refreshCardioDaysPrefTitle();
 }
 function _buildCardioDistSection(){
   const sec=document.getElementById('cardioDistSection');
@@ -1957,6 +1985,12 @@ const CARDIO_OPTIONS={
   pool:[['שחייה חופשית','20 דק׳ רצוף'],['אינטרוולי בריכה','8×50 מטר + 30ש׳ מנוחה'],['סטייל מגוון','300מ חופשי+200מ גב+100מ חזה'],['שחייה מרחק','400 מטר רצוף']],
   jump:[['קפיצה בחבל רצוף','3×3 דק׳ + 1 דק׳ מנוחה'],['אינטרוולי חבל','10×30ש׳ מהיר + 30ש׳ מנוחה'],['Double Unders','5×30 חזרות'],['קפיצה בוקס','4×2 דק׳ קצב מהיר']],
   tennis:[['משחק חופשי','45-60 דק׳ משחק'],['אימון ריצות לכדור','20 דק׳ תנועות מהירות'],['כדורים ברצף','15 דק׳ החלפות ארוכות'],['מחזורי ספרינט כמו טניס','8×10ש׳ ספרינט לצדדים']],
+  soccer:[['משחק כדורגל','45-90 דק׳ משחק מלא'],['אימון ספרינטים + כדור','20 דק׳ ספרינטים קצרים'],['ריצות טקטיות','6×100מ ריצה + הליכה חזרה'],['ג׳וגינג עם כדור','25 דק׳ ריצה קלה עם כדור']],
+  basketball:[['משחק כדורסל','40-60 דק׳ משחק'],['תרגילי ספרינט מגרש','10×קצה לקצה מגרש'],['סוויצ׳ים וקאטים','15 דק׳ תנועות מהירות'],['אינטרוולי ספרינט','8×20מ ספרינט מלא + 40ש׳ מנוחה']],
+  volleyball:[['משחק כדורעף','45-60 דק׳ משחק'],['קפיצות ובלוקים','4×10 קפיצות מקסימום + 90ש׳ מנוחה'],['תנועות רוחביות מהירות','15 דק׳ צלב רגליים'],['ספרינטים קצרים','10×10מ + חזרה']],
+  boxing:[['שקית — אינטרוולים','6×2 דק׳ שקית + 1 דק׳ מנוחה'],['שדלנות / מיתרים','5×3 דק׳ מיתרים מהירים'],['קומבינציות ותנועה','4×2 דק׳ תנועות + 60ש׳'],['ספרינטים כמו בוקסר','8×30ש׳ ספרינט + 90ש׳ מנוחה']],
+  rowing:[['חתירה קצב קבוע','20 דק׳ Erg דופק 130-150'],['אינטרוולי חתירה','8×250מ + 60ש׳ מנוחה'],['פירמידה','250מ/500מ/750מ/500מ/250מ'],['אנדורנס','30 דק׳ קצב קבוע 2:10/500מ']],
+  hiit:[['טאבטה קלאסי','8×20ש׳ עבודה + 10ש׳ מנוחה · 4 מחזורים'],['אמראפ 15 דק׳','5 בורפי + 10 שוקדיים + 15 ג׳מפינג'],['אינטרוולי 30/30','10×30ש׳ עצים + 30ש׳ מנוחה'],['Chipper קרדיו','50 ג׳מפינג + 40 שוקדיים + 30 בורפי']],
 };
 
 function tierFromLevel(lvl){
@@ -2028,7 +2062,7 @@ function generateWeeklyPlan(){
   const baseSets=sessionLen<=30?2:sessionLen<=45?3:4;
   const strengthSets=Math.max(2,baseSets+(isRecovery?-1:0));
   const morningPref=p.morningType||'evening'; // 'cardio'|'strength'|'evening'
-  const CARDIO_LABELS={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'};
+  const CARDIO_LABELS={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס',soccer:'כדורגל',basketball:'כדורסל',volleyball:'כדורעף',boxing:'אגרוף/קיקבוקס',rowing:'חתירה',hiit:'HIIT'};
   const MUSCLE_CAT=femFocus==='lower'
     ?{0:'legs',1:'push',2:'core',3:'legs',4:'pull',6:'legs'}
     :femFocus==='upper'
@@ -2757,7 +2791,7 @@ function closeProfile(){document.getElementById('profileBackdrop').style.display
 function _renderProfileContent(){
   const p=state.profile;
   const GOAL_LABELS={skills:'🏆 תרגילים מגניבים',body:'💪 גוף חטוב + ירידה בשומן',both:'⚡ גם וגם'};
-  const CARDIO_LABELS={running:'ריצה 🏃',walking:'הליכה מהירה 🚶',stairs:'מדרגות 🪜',bike:'אופניים 🚴',pool:'שחייה 🏊',jump:'קפיצה בחבל 🪢',tennis:'טניס 🎾'};
+  const CARDIO_LABELS={running:'ריצה 🏃',walking:'הליכה מהירה 🚶',stairs:'מדרגות 🪜',bike:'אופניים 🚴',pool:'שחייה 🏊',jump:'קפיצה בחבל 🪢',tennis:'טניס 🎾',soccer:'כדורגל ⚽',basketball:'כדורסל 🏀',volleyball:'כדורעף 🏐',boxing:'אגרוף/קיקבוקס 🥊',rowing:'חתירה 🚣',hiit:'HIIT ⚡'};
   const MORNING_LABELS={strength:'כוח בבוקר 💪',cardio:'קרדיו בבוקר 🏃',evening:'הכל בערב 🌙'};
   const FEM_LABELS={lower:'פלג תחתון 🍑',full:'כל הגוף 💪',upper:'פלג עליון + ליבה 👙'};
 
@@ -3091,7 +3125,7 @@ function showWeeklySchedule(){
     if(!s)return'';
     if(s.type==='rest')return`<div style="color:#a78bfa;font-size:11px">🧘 מתיחות · באלנס רשות</div>`;
     if(s.type==='cardio'){
-      const CARDIO_LABELS={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס'};
+      const CARDIO_LABELS={running:'ריצה',walking:'הליכה',stairs:'מדרגות',bike:'אופניים',pool:'שחייה',jump:'קפיצה בחבל',tennis:'טניס',soccer:'כדורגל',basketball:'כדורסל',volleyball:'כדורעף',boxing:'אגרוף/קיקבוקס',rowing:'חתירה',hiit:'HIIT'};
       return`<div style="font-size:11px;color:#ff6b35">${prefix?prefix+' · ':''}🏃 קרדיו · ${CARDIO_LABELS[s.cardioType]||s.cardioType||''}</div>`;
     }
     if(s.type==='train'){
