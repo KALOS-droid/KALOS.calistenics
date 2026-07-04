@@ -2596,7 +2596,7 @@ function pickLevel(v){
   document.getElementById('basicQ').innerHTML=BASIC.map(ex=>`
     <div class="qblock"><h3>${ex.t}</h3>
       <div class="row">${ex.opts.map((o,i)=>`<div class="opt" onclick="setAns('${ex.k}',${i+1},this)"><span class="dot"></span>${o}</div>`).join('')}
-        <div class="opt" onclick="setAns('${ex.k}',0,this)"><span class="dot"></span>לא יודע/ת</div></div>
+        <div class="opt" onclick="setAns('${ex.k}',0,this)"><span class="dot"></span>0 חזרות</div></div>
     </div>${ex.followups?`<div id="followup_${ex.k}"></div>`:''}`).join('');
   document.getElementById('advQ').innerHTML=adv?ADV.map(ex=>{
     if(ex.type==='time'){
@@ -2607,7 +2607,7 @@ function pickLevel(v){
     }
     const _stages=ex.stages||STAGES;
     return `<div class="qblock"><h3>${ex.t} — באיזה שלב?</h3>
-      <div class="row"><div class="opt" onclick="setStage('${ex.k}',0,this)"><span class="dot"></span>לא עושה / לא יודע</div>
+      <div class="row"><div class="opt" onclick="setStage('${ex.k}',0,this)"><span class="dot"></span>0 חזרות</div>
       ${_stages.map((s,i)=>`<div class="opt" onclick="setStage('${ex.k}',${i+1},this)"><span class="dot"></span>${s}</div>`).join('')}</div></div>
       ${ex.followups?`<div id="followup_${ex.k}"></div>`:''}`;
   }).join(''):'';
@@ -2623,11 +2623,11 @@ function _renderFollowups(k,stage){
   cont.innerHTML=relevant.map(f=>{
     let opts;
     if(f.stages){
-      opts=`<div class="opt" onclick="setStage('${f.k}',0,this)"><span class="dot"></span>לא עושה / לא יודע</div>`
+      opts=`<div class="opt" onclick="setStage('${f.k}',0,this)"><span class="dot"></span>0 חזרות</div>`
         +f.stages.map((s,i)=>`<div class="opt" onclick="setStage('${f.k}',${i+1},this)"><span class="dot"></span>${s}</div>`).join('');
     } else if(f.opts){
       opts=f.opts.map((o,i)=>`<div class="opt" onclick="setAns('${f.k}',${i+1},this)"><span class="dot"></span>${o}</div>`).join('')
-        +`<div class="opt" onclick="setAns('${f.k}',0,this)"><span class="dot"></span>לא יודע/ת</div>`;
+        +`<div class="opt" onclick="setAns('${f.k}',0,this)"><span class="dot"></span>0 חזרות</div>`;
     } else {
       opts=`<div class="opt" onclick="setAns('${f.k}',0,this)"><span class="dot"></span>לא</div><div class="opt" onclick="setAns('${f.k}',1,this)"><span class="dot"></span>כן</div>`;
     }
