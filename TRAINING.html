@@ -2615,11 +2615,11 @@ function _finishQuiz(){
     if((a.handstand||0)>=3){['b_wall','b_legoff','b_free5'].forEach(mark);}
     if((a.handstand||0)>=4){['b_wall','b_legoff','b_free5','b_free30'].forEach(mark);}
     // front lever → pull tree
-    const fl=['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][a.front||0];
-    if(fl){mark('p_pull10');for(let i=1;i<=(a.front);i++){mark(['','p_tuckfl','p_advfl','p_strfl','p_strfl','p_fl'][i]);}}
+    const fl=['','p_tuckfl','p_advfl','p_advfl','p_strfl','p_fl'][a.front||0];
+    if(fl){mark('p_pull10');for(let i=1;i<=(a.front);i++){mark(['','p_tuckfl','p_advfl','p_advfl','p_strfl','p_fl'][i]);}}
     // planche → push planche track
     if((a.planche||0)>=1){mark('h_knee');mark('h_pushup');mark('h_dia');mark('h_dips');mark('h_pike');mark('h_pseudo');mark('h_lean');mark('h_leanpush');mark('h_tuck');}
-    for(let i=2;i<=(a.planche||0);i++){mark(['','','h_adv','h_str','h_str','h_planche'][i]);}
+    for(let i=2;i<=(a.planche||0);i++){mark(['','','h_adv','h_adv','h_str','h_planche'][i]);}
     // pistol/legs advanced
     const _pistolNodes=[null,'l_pistol_neg','l_pistol','l_shrimp','l_dragon'];
     if((a.pistol||0)>=1){['l_squat20','l_lunge','l_nordic','l_pistol_neg'].forEach(mark);}
