@@ -1831,8 +1831,9 @@ const TREES={
     {id:'h_whspu',   track:'hspu',name:'HSPU על הקיר',                icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים על הקיר. בניית כוח ספציפי לכתפיים.',cond:'10 HSPU על הקיר עם טווח תנועה מלא.',req:['h_pike_elev','b_wall'],xp:70,pre:'4×מקס · טווח מלא, ראש בין הידיים'},
     {id:'h_hspu_neg',track:'hspu',name:'Negative HSPU חופשי',         icon:'⬇️',desc:'ירידה איטית מעמידת ידיים חופשית עד 90° — בניית כוח אקסצנטרי.',cond:'5 ירידות איטיות (5 שניות כל אחת) — עצירה ב-90°.',req:['h_whspu','b_free30'],xp:90,pre:'5×3-5 ירידות · 3-5ש׳ כל ירידה'},
     {id:'h_hspu',    track:'hspu',name:'HSPU חופשי',                   icon:'🆓',desc:'שכיבת סמיכה בעמידת ידיים חופשית — טווח תנועה מלא.',cond:'3 HSPU חופשיים נקיים — טווח מלא.',req:['h_hspu_neg'],xp:115,pre:'5×1-3 · גוף ישר לחלוטין'},
-    {id:'h_hspu_kip',track:'hspu_right',name:'Kipping HSPU',           icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים עם תנופת ירך — כוח פיצוץ וצבירת נפח.',cond:'4 Kipping HSPU ברצף נקי.',req:['h_hspu'],xp:100,pre:'5×3-5 · תנופה מהירביים, נחיתה בשליטה'},
-    {id:'h_90neg',   track:'hspu',name:'Negative 90° HSPU',            icon:'📉',desc:'ירידה איטית ומבוקרת עד 90° בדיוק מעמידת ידיים חופשית — הכנה ל-90° Push-up מלא.',cond:'5 ירידות עם עצירה ב-90° מדויק.',req:['h_hspu','h_90hold'],xp:120,pre:'4×3-5 ירידות · עצור ב-90° מדויק'},
+    {id:'h_hspu10',  track:'hspu',name:'10 HSPU ברצף',                 icon:'🔟',desc:'10 שכיבות סמיכה בעמידת ידיים ברצף — בניית נפח וכוח מתמשך.',cond:'10 HSPU חופשיים ברצף נקי.',req:['h_hspu'],xp:90,pre:'4×6-10 · הגדל חזרות בהדרגה'},
+    {id:'h_hspu_kip',track:'hspu_side',name:'Kipping HSPU',            icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים עם תנופת ירך — כוח פיצוץ וצבירת נפח.',cond:'4 Kipping HSPU ברצף נקי.',req:['h_hspu10'],xp:100,pre:'5×3-5 · תנופה מהירה, נחיתה בשליטה'},
+    {id:'h_90neg',   track:'hspu',name:'Negative 90° HSPU',            icon:'📉',desc:'ירידה איטית ומבוקרת עד 90° בדיוק מעמידת ידיים חופשית — הכנה ל-90° Push-up מלא.',cond:'5 ירידות עם עצירה ב-90° מדויק.',req:['h_hspu10','h_90hold'],xp:120,pre:'4×3-5 ירידות · עצור ב-90° מדויק'},
     {id:'h_90pushup',track:'hspu',name:'90° Push-up חופשי',           icon:'🔄',goal:true,desc:'דחיפה מ-90° Hold חזרה למעלה — HSPU חלקי בשליטה מלאה.',cond:'5 חזרות של 90° Push-up בעמידת ידיים חופשית.',req:['h_90neg'],xp:130,pre:'4×3-5 · עצור ב-90° כל חזרה'},
 
     /* ── צומת אמצע — נפתח משני המסלולים ── */
@@ -2641,10 +2642,10 @@ function _finishQuiz(){
     // hspu_count (free HSPU reps) → unlock HSPU track
     if((a.hspu_count||0)>=1){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu'].forEach(mark);}
     if((a.hspu_count||0)>=2){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu'].forEach(mark);}
-    if((a.hspu_count||0)>=3){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu','h_90neg'].forEach(mark);}
-    if((a.hspu_count||0)>=4){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu','h_90neg','h_90hold','h_90pushup'].forEach(mark);}
-    // hspu_kip = kipping HSPU
-    if((a.hspu_kip||0)>=1){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu'].forEach(mark);}
+    if((a.hspu_count||0)>=3){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu','h_hspu10','h_90neg'].forEach(mark);}
+    if((a.hspu_count||0)>=4){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu','h_hspu10','h_90neg','h_90hold','h_90pushup'].forEach(mark);}
+    // hspu_kip = kipping HSPU (requires 10-rep node)
+    if((a.hspu_kip||0)>=1){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu','h_hspu10'].forEach(mark);}
     if((a.hspu_kip||0)>=2){mark('h_hspu_kip');}
     if((a.hspu_kip||0)>=3){mark('h_hspu_kip');}
     if((a.hspu_kip||0)>=4){mark('h_hspu_kip');}
