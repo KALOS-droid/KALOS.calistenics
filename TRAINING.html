@@ -3509,28 +3509,77 @@ function buildWarmup(muscleDay,goals){
   return items;
 }
 
+/* Tier milestones per category — checked highest→lowest, first match wins */
+const TIER_MILESTONES={
+  push:[
+    {nodes:['h_planche','h_planchepush'],         tier:'elite'},
+    {nodes:['h_hspu','h_str'],                    tier:'advanced'},
+    {nodes:['h_whspu','h_pike_elev'],             tier:'intermediate'},
+    {nodes:['h_dips'],                            tier:'beginner'},
+    {nodes:['h_pushup','h_knee'],                 tier:'starter'},
+  ],
+  pull:[
+    {nodes:['p_w50','p_w60','p_w70','p_w80','p_w90','p_w100','p_oa'], tier:'elite'},
+    {nodes:['p_w10','p_w20','p_w30','p_w40','p_muscleup'],            tier:'advanced'},
+    {nodes:['p_pull10'],                                              tier:'intermediate'},
+    {nodes:['p_pull5'],                                               tier:'beginner'},
+    {nodes:['p_neg','p_pull1'],                                       tier:'starter'},
+  ],
+  core:[
+    {nodes:['c_vsit','c_str_vsit','c_advtuck_vsit','c_tuck_vsit'],   tier:'elite'},
+    {nodes:['c_dragonflag','c_wiper'],                                tier:'advanced'},
+    {nodes:['c_lsit','c_lsit30'],                                     tier:'intermediate'},
+    {nodes:['c_tuck_lsit'],                                           tier:'beginner'},
+    {nodes:['c_hollow','c_legraise'],                                 tier:'starter'},
+  ],
+  legs:[
+    {nodes:['l_dragon','l_dragon_neg'],  tier:'elite'},
+    {nodes:['l_shrimp','l_pistol'],      tier:'advanced'},
+    {nodes:['l_pistol_neg'],             tier:'intermediate'},
+    {nodes:['l_nordic','l_lunge'],       tier:'beginner'},
+    {nodes:['l_squat20'],                tier:'starter'},
+  ],
+};
+function getTierFromDone(cat,done){
+  if(!done?.length)return null;
+  const ms=TIER_MILESTONES[cat];
+  if(!ms)return null;
+  for(const m of ms){if(m.nodes.some(id=>done.includes(id)))return m.tier;}
+  return null;
+}
+
 /* Phase 3 — Fixed weekly muscle split (Sun=חזה, Mon=ידיים, Wed=רגליים, Thu=גב, Sat=בטן) */
 const MUSCLE_SPLIT={
   0:{name:'חזה 💪',emoji:'💪',tier_key:'push',
-    beginner:[['שכיבות סמיכה רגילות','4×מקס · 60ש׳'],['שכיבות רחבות (Wide Push-up)','3×12 · 60ש׳'],['שכיבות Decline (רגליים על כיסא)','3×8-10 · 60ש׳']],
+    starter:[['שכיבות על הברכיים','4×15-20 · 45ש׳'],['שכיבות על קיר (Incline PU)','3×12 · 45ש׳'],['פלאנק דינמי (In/Out)','3×8 · 45ש׳'],['שכיבות רגילות — ניסיון','2×מקס']],
+    beginner:[['שכיבות סמיכה רגילות','4×מקס · 60ש׳'],['שכיבות רחבות (Wide Push-up)','3×12 · 60ש׳'],['שכיבות Decline (רגליים על כיסא)','3×8-10 · 60ש׳'],['פלאנק + Shoulder Tap','3×10 · 60ש׳']],
     intermediate:[['שכיבות ארצ\'ר','4×5 לכל צד · 90ש׳'],['מקבילים (Dips)','4×10-12 · 90ש׳'],['שכיבות Decline','4×12 · 60ש׳'],['שכיבות פיצוץ (Clap)','3×6-8 · 90ש׳']],
-    advanced:[['שכיבות פיצוץ כפולה','4×6-8 · 90ש׳'],['PPPU (Pseudo Planche PU)','4×10 · 90ש׳'],['מקבילים עם משקל','4×8 · 120ש׳'],['שכיבות ארצ\'ר','3×6 לכל צד · 90ש׳']]},
+    advanced:[['שכיבות פיצוץ כפולה','4×6-8 · 90ש׳'],['PPPU (Pseudo Planche PU)','4×10 · 90ש׳'],['מקבילים עם משקל','4×8 · 120ש׳'],['שכיבות ארצ\'ר','3×6 לכל צד · 90ש׳']],
+    elite:[['Planche Pushup נגטיב','5×2-3 · 120ש׳'],['One-Arm PU נגטיב','4×3 לכל צד · 120ש׳'],['PPPU עם משקל / רגליים על כדור','4×8 · 90ש׳'],['מקבילים עם משקל מקס','3×4-5 · 120ש׳']]},
   1:{name:'ידיים 💪 (ביצפס + טריצפס)',emoji:'💪',tier_key:'pull',
+    starter:[['Dead Hang','4×20ש׳ · 45ש׳'],['מקבילים על ספסל (Bench Dips)','3×12 · 45ש׳'],['קרל עם גומייה','3×15 · 45ש׳'],['תליה + קירוב שכמות','3×10 · 45ש׳']],
     beginner:[['מתח אנדרהאנד נגטיב (Chin-up neg)','4×3-5 · 90ש׳'],['שכיבות דיימונד (Tricep PU)','4×10-12 · 60ש׳'],['תליה + עצירה 3ש׳ בזווית 90°','3×5 · 60ש׳'],['מקבילים על ספסל','3×12 · 60ש׳']],
     intermediate:[['מתח אנדרהאנד (Chin-up)','4×מקס · 90ש׳'],['מתח + עצירה 3ש׳ בקצה עליון','3×5-6 · 90ש׳'],['מקבילים (Dips)','4×10 · 90ש׳'],['שכיבות דיימונד','4×12 · 60ש׳']],
-    advanced:[['מתח אנדרהאנד עם משקל','4×6-8 · 120ש׳'],['L-Sit Chin-up','3×5-6 · 90ש׳'],['מקבילים עם משקל','4×8 · 120ש׳'],['שכיבות דיימונד + משקל','3×10 · 90ש׳']]},
+    advanced:[['מתח אנדרהאנד עם משקל','4×6-8 · 120ש׳'],['L-Sit Chin-up','3×5-6 · 90ש׳'],['מקבילים עם משקל','4×8 · 120ש׳'],['שכיבות דיימונד + משקל','3×10 · 90ש׳']],
+    elite:[['One-Arm Chin-up נגטיב','5×2-3 לכל צד · 120ש׳'],['L-Sit Chin-up עם משקל','4×4-5 · 120ש׳'],['Close-Grip HSPU נגטיב','4×3-4 · 120ש׳'],['מקבילים עם משקל מקס','3×4-5 · 120ש׳']]},
   3:{name:'רגליים 🦵',emoji:'🦵',tier_key:'legs',
+    starter:[['סקוואט','4×15 · 45ש׳'],['Step-Up על כיסא','3×10 לכל רגל · 45ש׳'],['גשר בשכיבה (Glute Bridge)','3×15 · 45ש׳'],['לאנג׳ מקום','3×10 לכל רגל · 45ש׳']],
     beginner:[['סקוואט','4×20 · 60ש׳'],['לאנג׳','3×12 לכל רגל · 60ש׳'],['קפיצות סקוואט (Jump Squat)','3×10 · 60ש׳'],['גשר בשכיבה (Glute Bridge)','3×15 · 45ש׳']],
     intermediate:[['פיסטול נגטיב','4×5 לכל רגל · 90ש׳'],['Nordic Curl','3×5-8 · 90ש׳'],['ג׳אמפ לאנג׳','3×10 לכל רגל · 90ש׳'],['סקוואט בולגרי','3×10 לכל רגל · 90ש׳']],
-    advanced:[['פיסטול','4×5 לכל רגל · 90ש׳'],['Shrimp Squat','3×4-6 לכל רגל · 90ש׳'],['Nordic Curl','4×6-8 · 90ש׳'],['קפיצת רגל אחת','3×5 לכל רגל · 90ש׳']]},
+    advanced:[['פיסטול','4×5 לכל רגל · 90ש׳'],['Shrimp Squat','3×4-6 לכל רגל · 90ש׳'],['Nordic Curl','4×6-8 · 90ש׳'],['קפיצת רגל אחת','3×5 לכל רגל · 90ש׳']],
+    elite:[['Dragon Squat נגטיב','5×3-4 לכל רגל · 120ש׳'],['Shrimp Squat עם עצירה תחתית 3ש׳','4×4 לכל רגל · 120ש׳'],['Nordic Curl — ירידה מלאה + עלייה','4×5-6 · 120ש׳'],['פיסטול + קפיצה','3×3 לכל רגל · 90ש׳']]},
   4:{name:'גב 🔗',emoji:'🔗',tier_key:'pull',
+    starter:[['תליה אקטיבית (Scapular Pull)','4×10 · 45ש׳'],['Dead Hang','3×20ש׳ · 45ש׳'],['מתח אוסטרלי — גבוה (Inverted Row)','4×10-12 · 60ש׳'],['קירוב שכמות בתלייה','3×12 · 45ש׳']],
     beginner:[['מתח אוסטרלי (Rows)','4×12 · 60ש׳'],['נגטיב מתח (5ש׳)','4×3-5 · 90ש׳'],['תליה אקטיבית (Scapular Pull)','3×10 · 60ש׳'],['מתח אוסטרלי — רגליים מורמות','3×8 · 60ש׳']],
     intermediate:[['מתח','4×מקס · 90ש׳'],['מתח + עצירה 3ש׳ בראש','3×5 · 90ש׳'],['מתח L-Sit','3×5-6 · 90ש׳'],['מתח אוסטרלי כבד','3×10 · 90ש׳']],
-    advanced:[['מתח עם משקל','5×4-5 · 120ש׳'],['FL Rows — טאק פרונט לבר','4×4-5 · 90ש׳'],['L-Sit Chin-up / Pull-up','3×5-6 · 90ש׳'],['נגטיב מתח 6ש׳','4×3 · 90ש׳']]},
+    advanced:[['מתח עם משקל','5×4-5 · 120ש׳'],['FL Rows — טאק פרונט לבר','4×4-5 · 90ש׳'],['L-Sit Chin-up / Pull-up','3×5-6 · 90ש׳'],['נגטיב מתח 6ש׳','4×3 · 90ש׳']],
+    elite:[['Archer Pull-up','5×3-4 לכל צד · 120ש׳'],['FL Rows — סטראדל פרונט לבר','4×4-5 · 120ש׳'],['מתח עם משקל מקס ל-3','4×3 · 120ש׳'],['One-Arm Row Progression','3×3-5 לכל צד · 120ש׳']]},
   6:{name:'בטן 🔥',emoji:'🔥',tier_key:'core',
-    beginner:[['פלאנק','4×30-45ש׳ · 60ש׳'],['כפיפות בטן','4×20 · 45ש׳'],['הרמות רגליים שכוב','3×12 · 60ש׳'],['Hollow Body Hold','3×20ש׳ · 45ש׳']],
+    starter:[['פלאנק','4×30ש׳ · 45ש׳'],['Dead Bug','3×8 לכל צד · 45ש׳'],['הרמות ברכיים שכוב','3×15 · 45ש׳'],['Hollow Body שבור — ניסיון','3×15ש׳ · 45ש׳']],
+    beginner:[['פלאנק','4×45ש׳ · 60ש׳'],['כפיפות בטן','4×20 · 45ש׳'],['הרמות רגליים שכוב','3×12 · 60ש׳'],['Hollow Body Hold','3×20ש׳ · 45ש׳']],
     intermediate:[['הרמות רגליים בתלייה','4×12 · 90ש׳'],['L-Sit אחיזה','4×מקס · 90ש׳'],['Hollow Body Hold','4×30ש׳ · 60ש׳'],['Russian Twist עם משקל גוף','3×20 · 60ש׳']],
-    advanced:[['Dragon Flag נגטיב','4×4-6 · 90ש׳'],['Toes-to-Bar','4×10 · 90ש׳'],['V-Sit Tuck','3×מקס · 90ש׳'],['L-Sit על מקבילים','3×מקס · 90ש׳']]},
+    advanced:[['Dragon Flag נגטיב','4×4-6 · 90ש׳'],['Toes-to-Bar','4×10 · 90ש׳'],['V-Sit Tuck','3×מקס · 90ש׳'],['Windshield Wipers','3×5 לכל צד · 90ש׳']],
+    elite:[['Dragon Flag מלא','5×3-5 · 120ש׳'],['V-Sit Straddle — החזקה','4×מקס · 120ש׳'],['Toes-to-Bar עם עצירה','4×8 · 90ש׳'],['Windshield Wipers — רגליים ישרות','3×6 לכל צד · 120ש׳']]},
 };
 const MUSCLE_REST_DAYS=new Set([2,5]); // Tuesday, Friday
 const REST_DAY_STRETCH=[
@@ -3559,9 +3608,11 @@ function buildMuscleDay(dayIdx){
   const split=MUSCLE_SPLIT[day];
   if(!split)return null;
   const tiers=state.profile.tiers||{};
-  const tier=tiers[split.tier_key]||tierFromLevel(state.level);
+  const skillTier=getTierFromDone(split.tier_key,state.done);
+  const profileTier=tiers[split.tier_key]||tierFromLevel(state.level);
+  const tier=skillTier||profileTier;
   const exs=split[tier]||split.intermediate;
-  return{name:split.name,emoji:split.emoji,exs};
+  return{name:split.name,emoji:split.emoji,exs,tier};
 }
 
 // Full workout modal for a specific day from weekly schedule
