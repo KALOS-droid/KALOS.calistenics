@@ -488,20 +488,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         </div>
       </div>
 
-      <!-- 3. Strength split — shown when cardio goal -->
-      <div id="strengthSplitSection" class="hidden">
-        <div id="highVolumeWarning" class="hidden" style="padding:10px 14px;margin-bottom:8px;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.3);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;line-height:1.6">
-          ⚠️ <b>מעל 6 אימונים בשבוע</b> — חשוב להקשיב לגוף. אם אתה מרגיש עייפות חריגה, קח יום מנוחה. KALOS אינה אחראית לפציעות.
-        </div>
-        <div class="qblock">
-          <h3>כמה מהם אימוני <span style="color:var(--pull)">כוח</span>?</h3>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">השאר יהיו אימוני קרדיו.</div>
-          <div class="row" style="flex-wrap:wrap;gap:6px" id="strengthDaysRow"></div>
-          <div id="cardioDaysNote" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;margin-top:8px"></div>
-        </div>
-      </div>
-
-      <!-- 4. Cardio types — shown when body/both goal -->
+      <!-- 3. Cardio types — shown when body/both goal -->
       <div id="cardioSection" class="hidden">
         <div class="qblock">
           <h3>איזה קרדיו זמין לך? (אפשר לבחור כמה)</h3>
@@ -513,6 +500,19 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
           <div class="opt" data-cardio="jump" onclick="toggleCardio('jump',this)"><span class="dot"></span>🪢 קפיצה בחבל</div>
           <div class="opt" data-cardio="tennis" onclick="toggleCardio('tennis',this)"><span class="dot"></span>🎾 טניס</div>
           <div class="opt" data-cardio="none" onclick="toggleCardio('none',this)"><span class="dot"></span>❌ אין קרדיו זמין</div>
+        </div>
+      </div>
+
+      <!-- 4. Strength split — shown when cardio goal -->
+      <div id="strengthSplitSection" class="hidden">
+        <div id="highVolumeWarning" class="hidden" style="padding:10px 14px;margin-bottom:8px;background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.3);border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;line-height:1.6">
+          ⚠️ <b>מעל 6 אימונים בשבוע</b> — חשוב להקשיב לגוף. אם אתה מרגיש עייפות חריגה, קח יום מנוחה. KALOS אינה אחראית לפציעות.
+        </div>
+        <div class="qblock">
+          <h3>כמה מהם אימוני <span style="color:var(--pull)">כוח</span>?</h3>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">השאר יהיו אימוני קרדיו.</div>
+          <div class="row" style="flex-wrap:wrap;gap:6px" id="strengthDaysRow"></div>
+          <div id="cardioDaysNote" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#ff6b35;margin-top:8px"></div>
         </div>
       </div>
 
