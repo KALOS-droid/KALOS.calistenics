@@ -1133,7 +1133,10 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
     </div>
     <div class="field"><label>משקל עדכני (ק"ג) — אופציונלי</label><input id="ci_weight" type="number" min="30" placeholder="70"></div>
     <div class="field"><label>הערה חופשית — מה הרגשת השבוע?</label><input id="ci_note" type="text" placeholder="כתוב כאן..."></div>
-    <div class="m-btns"><button class="mbtn mbtn-go" onclick="submitCheckin()">שלח דוח וקבל תוכנית חדשה ›</button></div>
+    <div class="m-btns">
+      <button class="mbtn mbtn-go" onclick="submitCheckin()">שלח דוח וקבל תוכנית חדשה ›</button>
+      <button class="mbtn" onclick="document.getElementById('checkinBackdrop').style.display='none'" style="margin-top:8px;background:none;border:1px solid var(--border);color:var(--muted)">← סגור</button>
+    </div>
   </div>
 </div>
 
