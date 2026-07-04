@@ -2432,7 +2432,7 @@ function goStep(n){
 /* ---------------- QUIZ (ported from Elad's calisthenics.html, fixed) ---------------- */
 const LEVELS=[['beginner','מתחיל'],['intermediate','בינוני'],['advanced','מתקדם'],['crazy','מטורף']];
 const BASIC=[
-  {k:'pullups',t:'מתח',opts:['1–3','4–6','7–10','15+'],followups:[
+  {k:'pullups',t:'מתח',opts:['1–3','4–6','7–15','15+'],followups:[
     {minStage:3,k:'pull_over',t:'🌀 Pull Over — מצליח לבצע? (סיבוב הגוף מעל המוט מתוך תלייה)'},
     {minStage:4,k:'oa_pull',t:'☝️ מתח יד אחת — עד איפה הגעת?',stages:['ירידה איטית (נגטיב)','× 1 מלא','2–4 חזרות','5+ חזרות']},
     {minStage:4,k:'muscle_up',t:'🔄 עליות כוח (Muscle-Up) — כמה מצליח ברצף?',opts:['1–3','4–6','7–10','10+']},
@@ -2591,7 +2591,7 @@ function _finishQuiz(){
   // pull tree
   if((a.pullups||0)>=1){mark('p_hang');mark('p_scap');mark('p_rows');mark('p_neg');}
   if((a.pullups||0)>=2){mark('p_pull1');mark('p_pull5');}
-  if((a.pullups||0)>=3){mark('p_pull1');mark('p_pull5');mark('p_pull10');}
+  if((a.pullups||0)>=3){mark('p_pull1');mark('p_pull5');}
   if((a.pullups||0)>=4){['p_hang','p_scap','p_rows','p_neg','p_pull1','p_pull5','p_pull10'].forEach(mark);}
   // pull over follow-up
   if((a.pull_over||0)===1)mark('p_pullover');
