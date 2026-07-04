@@ -4875,7 +4875,9 @@ function onPhoto(e, nodeId){
     `<video id="proofVid" src="${url}" controls playsinline style="max-width:100%;max-height:150px;margin:8px auto 0;display:block;border:1px solid var(--border);border-radius:6px"></video>`;
   if(nodeId) analyzeProofVideo(nodeId, f);
 }
-function completeNode(id){if(isDone(id))return;state.done.push(id);
+function completeNode(id){if(isDone(id))return;
+  (function markPrereqs(nid){const n=nodeById(nid);if(!n)return;n.req.forEach(r=>{if(!isDone(r)){markPrereqs(r);state.done.push(r);}});})(id);
+  state.done.push(id);
   if(pendingPhoto){state.proof=state.proof||{};state.proof[id]=pendingPhoto;}
   gainXP(nodeById(id).xp);save();closeModal();render();}
 function undoNode(id){state.done=state.done.filter(x=>x!==id);save();closeModal();render();}
