@@ -1948,6 +1948,54 @@ const MUSCLE_SCHEDULE={
   6:{name:'בטן 🔥',emoji:'🔥'},
 };
 
+// ── Skill-tree-aware blocks ──
+// Each tier: need[] = any of these done → use this tier. Ordered hardest→easiest.
+const SKILL_BLOCKS={
+  pull:[
+    {need:['p_oa'],        ex:[["מתח יד אחת (Assisted)",'3×3-4 לכל יד'],['מתח מתפרץ (Explosive)','3×5-6'],['מתח עם משקל מקס ל-5','3×5'],['מתח — מקס','4×מקס']]},
+    {need:['p_w50','p_w60','p_w70','p_w80'],ex:[["מתח ארצ'ר",'4×3-4 לכל צד'],['מתח עם משקל מקס ל-5','4×5'],['L-Sit Pull-up','3×5'],['מתח — מקס','3×מקס']]},
+    {need:['p_w20','p_w30','p_w40'],ex:[['מתח עם משקל מקס ל-8','4×8'],["מתח ארצ'ר",'3×3 לכל צד'],['מתח — מקס','3×מקס'],['Chin-up עם עצירה','3×5']]},
+    {need:['p_w10','p_muscleup'],ex:[['מתח עם משקל מקס ל-8','4×8'],['מתח — מקס','4×מקס'],['Chin-up','3×מקס-2'],['מתח שלילי 6ש׳','3×3']]},
+    {need:['p_pull10'],    ex:[['מתח — מקס חזרות','4×מקס'],['Chin-up','4×8-10'],['מתח עם עצירה בTop','3×5'],['מתח אחיזה רחבה','3×מקס-2']]},
+    {need:['p_pull5'],     ex:[['מתח','4×מקס-2'],['Chin-up','4×מקס-2'],['מתח שלילי','3×5'],['מתח אוסטרלי','3×10-12']]},
+    {need:['p_pull1'],     ex:[['מתח','4×מקס'],['Chin-up נגטיב','4×3-5'],['מתח אוסטרלי','3×10-12'],['תליה אקטיבית','4×30ש׳']]},
+    {need:['p_neg'],       ex:[['מתח שלילי','4×3-5'],['מתח אוסטרלי','4×10-12'],['תליה אקטיבית','4×30ש׳'],['Dead Hang','3×20ש׳']]},
+    {need:[],              ex:[['מתח אוסטרלי','3×8-10'],['תליה אקטיבית','4×30ש׳'],['Dead Hang','3×15ש׳'],['מתח שלילי — ניסיון','3×3']]},
+  ],
+  push:[
+    {need:['h_90pushup'],  ex:[['90° Push-up חופשי','3×3-5'],['HSPU חופשי','4×מקס'],['מקבילים עם משקל','3×6-8'],["שכיבות ארצ'ר",'3×4 לכל צד']]},
+    {need:['h_planche','h_str_push'],ex:[["פוש אפ פלאנץ / סטראדל",'3×3'],['HSPU על קיר','4×מקס'],['מקבילים עם משקל','3×6-8'],['Pseudo Planche Pushups','3×8']]},
+    {need:['h_hspu10','h_hspu_kip'],ex:[['HSPU חופשי','4×מקס'],['Kipping HSPU','3×5-8'],['מקבילים עם משקל','3×6-8'],['Pseudo Planche Pushups','3×8']]},
+    {need:['h_hspu','h_str','h_adv'],ex:[['HSPU על קיר','4×מקס'],['מקבילים עם משקל','4×5-6'],["שכיבות ארצ'ר",'3×4 לכל צד'],['Pseudo Planche Pushups','3×8']]},
+    {need:['h_whspu','h_tuck'],ex:[['HSPU על קיר','4×מקס'],['מקבילים','4×8-12'],["שכיבות ארצ'ר",'3×4 לכל צד'],['שכיבות פייק גבוהות','3×10']]},
+    {need:['h_pike_elev','h_pike'],ex:[['שכיבות פייק גבוהות','4×8-10'],['מקבילים','4×8-12'],['שכיבות כוח מתפרץ','3×6-8'],['שכיבות דיימונד','4×8']]},
+    {need:['h_dips','h_dia'],ex:[['מקבילים','4×8-12'],['שכיבות דיימונד','4×8-10'],['שכיבות כוח מתפרץ','3×6'],['שכיבות פייק','3×10']]},
+    {need:['h_pushup'],    ex:[['שכיבות סמיכה','4×מקס'],['שכיבות רחבות','3×10-12'],['מקבילים על כיסאות','3×8-10'],['שכיבות פייק','3×8']]},
+    {need:[],              ex:[['שכיבות ברכיים','4×12-15'],['שכיבות סמיכה — ניסיון','3×מקס'],['שכיבות על ידיים מוגבהות','3×8'],['מקבילים על כיסאות','3×6']]},
+  ],
+  core:[
+    {need:['c_str_vsit'],  ex:[['V-Sit מלא','4×10ש׳'],['L-Sit hold','4×20ש׳'],['Dragon Flag','4×4-6'],['Windshield Wipers','3×8 לכל צד']]},
+    {need:['c_lsit30','c_adv_lsit'],ex:[['L-Sit hold','4×15ש׳'],['Dragon Flag נגטיב','4×4-6'],['Windshield Wipers','3×6 לכל צד'],['הרמות רגליים בתלייה','4×12']]},
+    {need:['c_tuck_lsit'], ex:[['Tuck L-Sit','4×8-12ש׳'],['Dragon Flag נגטיב','3×3-5'],['הרמות רגליים בתלייה','4×10-12'],['Hollow Body Hold','4×25ש׳']]},
+    {need:['c_legraise','c_hollow'],ex:[['הרמות רגליים בתלייה','4×10-12'],['Hollow Body Hold','4×25ש׳'],['פלאנק צדדי','3×30ש׳'],['כפיפות בטן','3×20']]},
+    {need:['c_plank'],     ex:[['פלאנק','4×45ש׳'],['הרמות רגליים שכוב','3×12'],['כפיפות בטן','3×20'],['גשר ירכיים','3×15']]},
+    {need:[],              ex:[['פלאנק','3×30ש׳'],['כפיפות בטן','3×15'],['הרמות רגליים שכוב','3×10'],['גשר ירכיים','3×12']]},
+  ],
+  legs:[
+    {need:['l_dragon'],    ex:[['Dragon Squat','3×3-4 לכל רגל'],['Shrimp Squat','3×5 לכל רגל'],['פיסטול סקוואט','4×5 לכל רגל'],['Nordic Curls','4×6']]},
+    {need:['l_shrimp','l_pistol'],ex:[['פיסטול סקוואט','4×5-6 לכל רגל'],['Nordic Curls','4×6-8'],['סקוואט קפיצה + עצירה','3×8'],['ספרינטים','6×30מ׳']]},
+    {need:['l_pistol_neg','l_nordic'],ex:[['פיסטול נגטיב','4×4-5 לכל רגל'],['Nordic Hamstring Curls','4×5-8'],['לאנג׳ קפיצה','3×8 לכל רגל'],['סקוואט קפיצה','3×10']]},
+    {need:['l_lunge'],     ex:[['לאנג׳','4×10 לכל רגל'],['פיסטול פרוגרסיה','3×5 לכל רגל'],['Nordic Curls — ניסיון','3×3'],['סקוואט קפיצה','3×10-12']]},
+    {need:['l_squat20'],   ex:[['סקוואט','4×15-20'],['לאנג׳','3×10 לרגל'],['Step-up על כיסא','3×12 לרגל'],['גשר ירכיים','3×15']]},
+    {need:[],              ex:[['סקוואט','3×10-12'],['לאנג׳','3×8 לכל רגל'],['הרמות עקב','4×20'],['גשר ירכיים','3×12']]},
+  ],
+};
+function getSkillBlock(cat,done){
+  const tiers=SKILL_BLOCKS[cat];if(!tiers)return null;
+  for(const t of tiers){if(!t.need.length||t.need.some(id=>done.includes(id)))return t.ex;}
+  return tiers[tiers.length-1].ex;
+}
+
 const MUSCLE_POOL={
   0:{ // יד קדמית
     beginner:[['קרל ביצפס עם גומייה','3×12-15'],['מתח אחיזה תחתית (Chin-up) — נגטיב','4×3-5'],['מתח אוסטרלי אחיזה תחתית','3×10-12'],['קרל פטיש (Hammer Curl) עם משקל','3×10']],
@@ -2097,19 +2145,40 @@ function generateWeeklyPlan(){
     const musclePool=(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[dayIdx]?.[muscleTier]
       ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[dayIdx]?.[globalTier]
       ||(wantsWeights?MUSCLE_POOL_WEIGHTED:MUSCLE_POOL_BW)[1]?.[globalTier]||[];
-    const ppType=sIdx%2===0?'push':'pull';
+
+    // Skill-aware: on pull/push/core/legs days, ppType matches the muscle
+    const skillCatMap={pull:'pull',push:'push',core:'core',legs:'legs'};
+    const dominantCat=skillCatMap[muscleCat];
+    const ppType=dominantCat==='pull'?'pull':dominantCat==='push'?'push':(sIdx%2===0?'push':'pull');
     const ppTier=ct(ppType);
+
+    // Build skill-aware full block for this day (hardest → easiest)
+    const skillCat=dominantCat||ppType;
+    const skillFull=getSkillBlock(skillCat,state.done)||[];
+
     const pullMaxed=(tiers.pullRaw||0)>=4,pushMaxed=(tiers.pushRaw||0)>=4,dipsMaxed=(tiers.dipsRaw||0)>=4;
     const isMaxed=(ppType==='pull'&&pullMaxed)||(ppType==='push'&&(pushMaxed||dipsMaxed));
-    let ppBlock,needsWeight=false;
-    if(isMaxed){
+    let ppBlock,strengthBlock,needsWeight=false;
+
+    if(skillFull.length>=3){
+      // Skill-aware: top exercises → ppBlock, remaining → strengthBlock
+      ppBlock=skillFull.slice(0,2);
+      strengthBlock=skillFull.slice(2,2+strengthSets);
+      // Pad strengthBlock if needed
+      if(strengthBlock.length<strengthSets){
+        const extra=musclePool.slice(0,strengthSets-strengthBlock.length);
+        strengthBlock=[...strengthBlock,...extra];
+      }
+    } else if(isMaxed){
       needsWeight=true;
       ppBlock=ppType==='pull'?[['מתח עם חגורת משקל 🏋️','2×3-5'],['מתח עם חגורת משקל 🏋️','2×3-5'],['מתח — מקס חזרות','מקס'],['מתח — מקס חזרות','מקס (סט אחרון)']]:[['מקבילים עם חגורת משקל 🏋️','2×4-6'],['מקבילים עם חגורת משקל 🏋️','2×4-6'],['שכיבות — מקס חזרות','מקס'],['שכיבות — מקס חזרות','מקס (אחרון)']];
+      strengthBlock=musclePool.slice(0,strengthSets);
     } else {
       const ppPool=PUSH_PULL_POOL[ppType][ppTier]||PUSH_PULL_POOL[ppType].beginner;
       ppBlock=ppPool.slice(0,Math.min(3,strengthSets));
+      strengthBlock=musclePool.slice(0,strengthSets);
     }
-    return{type:'train',focus:dayIdx,label:`💪 כוח · ${ppType==='push'?'PUSH':'PULL'} + ${muscle.name}`,muscleName:muscle.name,muscleEmoji:muscle.emoji,ppType,ppTier,muscleTier,needsWeight,ppBlock,strengthBlock:musclePool.slice(0,strengthSets),coreBlock:[],cardioBlock:[]};
+    return{type:'train',focus:dayIdx,label:`💪 כוח · ${ppType==='push'?'PUSH':'PULL'} + ${muscle.name}`,muscleName:muscle.name,muscleEmoji:muscle.emoji,ppType,ppTier,muscleTier,needsWeight,ppBlock,strengthBlock,coreBlock:[],cardioBlock:[]};
   }
 
   function buildCardioSession(dayIdx){
