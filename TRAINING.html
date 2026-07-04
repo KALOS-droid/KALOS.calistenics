@@ -2657,7 +2657,6 @@ function _finishQuiz(){
     if((a.core_skill||0)>=4){['c_tuck_vsit','c_advtuck_vsit','c_str_vsit','c_vsit'].forEach(mark);}
   }
   // basic squat → legs tree
-  if((a.squat||0)>=1){mark('l_squat20');}
   if((a.squat||0)>=2){mark('l_squat20');mark('l_lunge');}
   if((a.squat||0)>=3){['l_squat20','l_lunge','l_nordic','l_pistol_neg'].forEach(mark);}
   if((a.squat||0)>=4){['l_squat20','l_lunge','l_nordic','l_pistol_neg','l_pistol'].forEach(mark);}
@@ -2672,8 +2671,10 @@ function _finishQuiz(){
   if((a.weighted_pull||0)>=3){mark('p_w20');mark('p_w30');mark('p_w40');mark('p_w50');}
   if((a.weighted_pull||0)>=4){mark('p_w50');mark('p_w60');mark('p_w70');mark('p_w80');}
   // dips (plain) → push base
-  if((a.dips||0)>=1){['h_knee','h_pushup','h_dia','h_dips'].forEach(mark);}
-  if((a.dips||0)>=2){mark('h_pike');}
+  if((a.dips||0)>=1){['h_knee','h_pushup','h_dia'].forEach(mark);}
+  if((a.dips||0)>=2){mark('h_dips');mark('h_pike');}
+  if((a.dips||0)>=3){mark('h_dips');mark('h_pike');}
+  if((a.dips||0)>=4){mark('h_dips');mark('h_pike');}
   // dips with weight
   if((a.dips_weight||0)>=1){['h_knee','h_pushup','h_dia','h_dips'].forEach(mark);}
   if((a.dips_weight||0)>=2){mark('h_pike');}
