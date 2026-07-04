@@ -2464,8 +2464,9 @@ const ADV=[
     {minStage:5,k:'hs_oa_hip',t:'☝️ עמידת יד בטיל — יד חופשית על הירך (קצה הגוף)?'},
     {minStage:5,k:'hs_oa_hspu',t:'👑 HSPU על יד אחת — שכיבת סמיכה בעמידת ידיים על יד אחת?'},
   ]},
-  {k:'hspu_count',t:'💪 HSPU חופשי — כמה שכיבות סמיכה בעמידת ידיים ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
-  {k:'hspu_kip',t:'🤸 Kipping HSPU — כמה ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
+  {k:'hspu_count',t:'💪 HSPU חופשי — כמה שכיבות סמיכה בעמידת ידיים ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+'],followups:[
+    {minStage:3,k:'hspu_kip',t:'Kipping HSPU — כמה ברצף?',stages:['1–3','4–7','8–12','12+']},
+  ]},
   {k:'hspu_adv',t:'📐 90° Push-up בעמידת ידיים — כמה חזרות ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
   {k:'front',t:'Front Lever',type:'stage',followups:[
     {minStage:2,k:'front_adv_pull',t:'פול אפ באדוונס טאק פרונט לבר?',node:'p_advfl_pull'},
