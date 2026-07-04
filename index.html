@@ -1831,6 +1831,7 @@ const TREES={
     {id:'h_whspu',   track:'hspu',name:'HSPU על הקיר',                icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים על הקיר. בניית כוח ספציפי לכתפיים.',cond:'10 HSPU על הקיר עם טווח תנועה מלא.',req:['h_pike_elev','b_wall'],xp:70,pre:'4×מקס · טווח מלא, ראש בין הידיים'},
     {id:'h_hspu_neg',track:'hspu',name:'Negative HSPU חופשי',         icon:'⬇️',desc:'ירידה איטית מעמידת ידיים חופשית עד 90° — בניית כוח אקסצנטרי.',cond:'5 ירידות איטיות (5 שניות כל אחת) — עצירה ב-90°.',req:['h_whspu','b_free30'],xp:90,pre:'5×3-5 ירידות · 3-5ש׳ כל ירידה'},
     {id:'h_hspu',    track:'hspu',name:'HSPU חופשי',                   icon:'🆓',desc:'שכיבת סמיכה בעמידת ידיים חופשית — טווח תנועה מלא.',cond:'3 HSPU חופשיים נקיים — טווח מלא.',req:['h_hspu_neg'],xp:115,pre:'5×1-3 · גוף ישר לחלוטין'},
+    {id:'h_hspu_kip',track:'hspu_right',name:'Kipping HSPU',           icon:'🤸',desc:'שכיבת סמיכה בעמידת ידיים עם תנופת ירך — כוח פיצוץ וצבירת נפח.',cond:'4 Kipping HSPU ברצף נקי.',req:['h_hspu'],xp:100,pre:'5×3-5 · תנופה מהירביים, נחיתה בשליטה'},
     {id:'h_90neg',   track:'hspu',name:'Negative 90° HSPU',            icon:'📉',desc:'ירידה איטית ומבוקרת עד 90° בדיוק מעמידת ידיים חופשית — הכנה ל-90° Push-up מלא.',cond:'5 ירידות עם עצירה ב-90° מדויק.',req:['h_hspu','h_90hold'],xp:120,pre:'4×3-5 ירידות · עצור ב-90° מדויק'},
     {id:'h_90pushup',track:'hspu',name:'90° Push-up חופשי',           icon:'🔄',goal:true,desc:'דחיפה מ-90° Hold חזרה למעלה — HSPU חלקי בשליטה מלאה.',cond:'5 חזרות של 90° Push-up בעמידת ידיים חופשית.',req:['h_90neg'],xp:130,pre:'4×3-5 · עצור ב-90° כל חזרה'},
 
@@ -2464,6 +2465,7 @@ const ADV=[
     {minStage:5,k:'hs_oa_hspu',t:'👑 HSPU על יד אחת — שכיבת סמיכה בעמידת ידיים על יד אחת?'},
   ]},
   {k:'hspu_count',t:'💪 HSPU חופשי — כמה שכיבות סמיכה בעמידת ידיים ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
+  {k:'hspu_kip',t:'🤸 Kipping HSPU — כמה ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
   {k:'hspu_adv',t:'📐 90° Push-up בעמידת ידיים — כמה חזרות ברצף?',type:'stage',stages:['1–3','4–7','8–12','12+']},
   {k:'front',t:'Front Lever',type:'stage',followups:[
     {minStage:2,k:'front_adv_pull',t:'פול אפ באדוונס טאק פרונט לבר?',node:'p_advfl_pull'},
@@ -2640,6 +2642,11 @@ function _finishQuiz(){
     if((a.hspu_count||0)>=2){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu'].forEach(mark);}
     if((a.hspu_count||0)>=3){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu','h_90neg'].forEach(mark);}
     if((a.hspu_count||0)>=4){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu','h_90neg','h_90hold','h_90pushup'].forEach(mark);}
+    // hspu_kip = kipping HSPU
+    if((a.hspu_kip||0)>=1){['h_pike','h_pike_elev','h_whspu','h_hspu_neg','h_hspu'].forEach(mark);}
+    if((a.hspu_kip||0)>=2){mark('h_hspu_kip');}
+    if((a.hspu_kip||0)>=3){mark('h_hspu_kip');}
+    if((a.hspu_kip||0)>=4){mark('h_hspu_kip');}
     // hspu_adv = 90° push-up question
     if((a.hspu_adv||0)>=1){['h_90neg','h_90hold'].forEach(mark);}
     if((a.hspu_adv||0)>=2){mark('h_90pushup');}
@@ -4579,6 +4586,7 @@ function render(){
       const plancheSideNodes=tree.nodes.filter(n=>n.track==='planche_side');
       const straddleSideNodes=tree.nodes.filter(n=>n.track==='straddle_side');
       const hspuSideNodes=tree.nodes.filter(n=>n.track==='hspu_side');
+      const hspuRightNodes=tree.nodes.filter(n=>n.track==='hspu_right');
       const centerNodes=tree.nodes.filter(n=>n.track==='center');
       const centerReqIds=centerNodes.flatMap(cn=>cn.req);
       const maxLen=Math.max(t0Nodes.length,t1Nodes.length);
@@ -4625,6 +4633,7 @@ function render(){
           :'display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;width:100%;align-items:center';
 
         const _hspuSide=n1?hspuSideNodes.filter(s=>s.req.includes(n1.id)):[];
+        const _hspuRight=n1?hspuRightNodes.filter(s=>s.req.includes(n1.id)):[];
         const _needsSide=(n0&&(n0.id==='h_planche'||n0.id==='h_str'));
         const left=document.createElement('div');left.style.cssText='display:flex;justify-content:center'+(_needsSide?';position:relative;overflow:visible':'');
         if(n0)left.appendChild(_makeTreeNode(n0,null));
@@ -4677,7 +4686,7 @@ function render(){
           nodeRow.appendChild(ra);
         }
 
-        const right=document.createElement('div');right.style.cssText='display:flex;justify-content:center'+(_hspuSide.length>0?';position:relative;overflow:visible':'');
+        const right=document.createElement('div');right.style.cssText='display:flex;justify-content:center'+((_hspuSide.length>0||_hspuRight.length>0)?';position:relative;overflow:visible':'');
         if(n1)right.appendChild(_makeTreeNode(n1,null));
         if(_hspuSide.length>0){
           const sw=document.createElement('div');
@@ -4685,6 +4694,14 @@ function render(){
           const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(90deg);flex-shrink:0';
           _hspuSide.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
           sw.appendChild(ha);
+          right.appendChild(sw);
+        }
+        if(_hspuRight.length>0){
+          const sw=document.createElement('div');
+          sw.style.cssText='position:absolute;top:50%;left:100%;transform:translateY(-50%);display:flex;flex-direction:row;align-items:center;pointer-events:auto;gap:8px';
+          const ha=document.createElement('div');ha.className='connector';ha.style.cssText='height:40px;margin:0;transform:rotate(-90deg);flex-shrink:0';
+          sw.appendChild(ha);
+          _hspuRight.forEach(sn=>sw.appendChild(_makeTreeNode(sn,null)));
           right.appendChild(sw);
         }
         nodeRow.appendChild(right);
@@ -5148,7 +5165,7 @@ const NODE_EX_TYPE={
   p_fl:'frontlever',p_oatuckfl:'frontlever',p_oaadvfl:'frontlever',p_oastrfl:'frontlever',p_oafl:'frontlever',
   p_advfl_pull:'pullup',p_strfl_pull:'pullup',p_flpull:'pullup',
   // Push — HSPU family
-  h_pike_elev:'hspu',h_whspu:'hspu',h_hspu_neg:'hspu',h_hspu:'hspu',
+  h_pike_elev:'hspu',h_whspu:'hspu',h_hspu_neg:'hspu',h_hspu:'hspu',h_hspu_kip:'hspu',
   h_90neg:'hspu',h_90pushup:'hspu',h_90hold:'hspu',
   // Push — pushup family
   h_knee:'pushup',h_pushup:'pushup',h_dia:'pushup',h_pike:'pushup',h_pseudo:'pushup',
