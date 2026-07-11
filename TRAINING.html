@@ -501,6 +501,24 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
         </div>
       </div>
 
+      <!-- 3b. Strength preferred days — shown after picking strength count -->
+      <div id="strengthDaysPrefSection" class="hidden">
+        <div class="qblock">
+          <h3 id="strengthDaysPrefTitle">באיזה ימים אתה רוצה לאמן כוח?</h3>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px">חייב להישאר לפחות יום מנוחה אחד בשבוע.</div>
+          <div class="row" style="flex-wrap:wrap;gap:6px">
+            <div class="opt" data-strday="0" onclick="toggleStrengthPrefDay(0,this)"><span class="dot"></span>ראשון</div>
+            <div class="opt" data-strday="1" onclick="toggleStrengthPrefDay(1,this)"><span class="dot"></span>שני</div>
+            <div class="opt" data-strday="2" onclick="toggleStrengthPrefDay(2,this)"><span class="dot"></span>שלישי</div>
+            <div class="opt" data-strday="3" onclick="toggleStrengthPrefDay(3,this)"><span class="dot"></span>רביעי</div>
+            <div class="opt" data-strday="4" onclick="toggleStrengthPrefDay(4,this)"><span class="dot"></span>חמישי</div>
+            <div class="opt" data-strday="5" onclick="toggleStrengthPrefDay(5,this)"><span class="dot"></span>שישי</div>
+            <div class="opt" data-strday="6" onclick="toggleStrengthPrefDay(6,this)"><span class="dot"></span>שבת</div>
+          </div>
+          <div id="strengthDaysPrefErr" style="display:none;margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--danger)"></div>
+        </div>
+      </div>
+
       <!-- 4. Cardio types — shown when body/both goal -->
       <div id="cardioSection" class="hidden">
         <div class="qblock">
@@ -1608,7 +1626,7 @@ function exByCategory(cat,maxLvl){return EX.filter(e=>e.cat===cat&&e.lvl<=(maxLv
 /* ============================================================
    STEP 1B — Goals & Schedule helpers
    ============================================================ */
-const profile1b={goal:null,cardio:[],days:3,sessionLen:60,morningCardio:false,morningType:'evening',femFocus:null,strengthDays:null,cardioDays:null,cardioPerType:{},cardioPreferredDays:[]};
+const profile1b={goal:null,cardio:[],days:3,sessionLen:60,morningCardio:false,morningType:'evening',femFocus:null,strengthDays:null,cardioDays:null,cardioPerType:{},cardioPreferredDays:[],strengthPreferredDays:[]};
 function setFemFocus(v,el){profile1b.femFocus=v;document.querySelectorAll('[data-femfocus]').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
 function setGoalType(g,el){
   profile1b.goal=g;
@@ -1646,6 +1664,30 @@ function toggleCardioPrefDay(dayIdx,el){
   // update title counter
   const title=document.getElementById('cardioDaysPrefTitle');
   if(title)title.textContent=`באיזה ימים אתה מעדיף לעשות קרדיו? (${profile1b.cardioPreferredDays.length}/${required})`;
+}
+function toggleStrengthPrefDay(dayIdx,el){
+  const required=profile1b.strengthDays||1;
+  const already=profile1b.strengthPreferredDays.includes(dayIdx);
+  const errEl=document.getElementById('strengthDaysPrefErr');
+  if(!already&&profile1b.strengthPreferredDays.length>=required){
+    errEl.textContent=`בחר בדיוק ${required} ימים — בטל יום אחר תחילה`;
+    errEl.style.display='block';return;
+  }
+  errEl.style.display='none';
+  if(already)profile1b.strengthPreferredDays.splice(profile1b.strengthPreferredDays.indexOf(dayIdx),1);
+  else profile1b.strengthPreferredDays.push(dayIdx);
+  el.classList.toggle('sel',profile1b.strengthPreferredDays.includes(dayIdx));
+  const title=document.getElementById('strengthDaysPrefTitle');
+  if(title)title.textContent=`באיזה ימים אתה רוצה לאמן כוח? (${profile1b.strengthPreferredDays.length}/${required})`;
+}
+function _refreshStrengthDaysPrefTitle(){
+  const required=profile1b.strengthDays||1;
+  const title=document.getElementById('strengthDaysPrefTitle');
+  if(title)title.textContent=`באיזה ימים אתה רוצה לאמן כוח? (0/${required})`;
+  profile1b.strengthPreferredDays=[];
+  document.querySelectorAll('[data-strday]').forEach(o=>o.classList.remove('sel'));
+  const errEl=document.getElementById('strengthDaysPrefErr');
+  if(errEl)errEl.style.display='none';
 }
 function _refreshCardioDaysPrefTitle(){
   const required=profile1b.cardioDays||1;
@@ -1697,6 +1739,8 @@ function _buildSplitRows(total){
       el.classList.add('sel');
       _updateCardioDaysNote(profile1b.days);
       _buildCardioDistSection();
+      document.getElementById('strengthDaysPrefSection').classList.remove('hidden');
+      _refreshStrengthDaysPrefTitle();
     };})(i,d);
     sr.appendChild(d);
   }
@@ -2188,7 +2232,10 @@ function generateWeeklyPlan(){
 
   // ---------- Assign sessions to days ----------
   // Strength occupies its own days; cardio gets assigned per user preference or auto
-  const strengthDays=ALL_DAY_MAP[Math.min(strengthDayCount,7)]||ALL_DAY_MAP[3];
+  const _prefStr=(p.strengthPreferredDays||[]).slice().sort((a,b)=>a-b);
+  const strengthDays=(_prefStr.length===strengthDayCount)
+    ?_prefStr
+    :ALL_DAY_MAP[Math.min(strengthDayCount,7)]||ALL_DAY_MAP[3];
   const preferred=(p.cardioPreferredDays||[]).slice().sort((a,b)=>a-b);
   let cardioOnlyDays,morningCardioDays;
   if(preferred.length>0&&cardioDayCount>0){
@@ -2839,6 +2886,7 @@ function _finishQuiz(){
     cardioDays:profile1b.cardioDays,
     cardioPerType:profile1b.cardioPerType||{},
     cardioPreferredDays:[...profile1b.cardioPreferredDays],
+    strengthPreferredDays:[...profile1b.strengthPreferredDays],
     tiers:_computedTiers,
     quizAnswers:{...quiz.answers},
     quizLevel:quiz.level,
