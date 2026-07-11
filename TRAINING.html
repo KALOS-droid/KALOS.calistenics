@@ -584,6 +584,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
           <div class="opt" onclick="setSessionLen(45,this)"><span class="dot"></span>45 דק׳</div>
           <div class="opt" onclick="setSessionLen(60,this)"><span class="dot"></span>60 דק׳</div>
           <div class="opt" onclick="setSessionLen(90,this)"><span class="dot"></span>90 דק׳</div>
+          <div class="opt" onclick="setSessionLen(120,this)"><span class="dot"></span>120 דק׳</div>
         </div>
       </div>
 
@@ -3159,7 +3160,7 @@ function currentStep(goalId){
 }
 function _renderSessionBlock(session,timeLabel,st,cnt,partnerSession){
   const sLen=st.profile.sessionLen||60;
-  const _pm={30:[13,9,8],45:[20,13,12],60:[27,17,16],90:[40,25,25]}[sLen]||[Math.round(sLen*8/18),Math.round(sLen*5/18),sLen-Math.round(sLen*8/18)-Math.round(sLen*5/18)];
+  const _pm={30:[20,0,10],45:[30,0,15],60:[40,0,20],90:[60,0,30],120:[80,0,40]}[sLen]||[Math.round(sLen*2/3),0,Math.round(sLen/3)];
   const skillMin=_pm[0],ppMin=_pm[1],muscleMin=_pm[2];
   const CARDIO_HE={running:'ריצה 🏃',walking:'הליכה 🚶',stairs:'מדרגות 🪜',bike:'אופניים 🚴',pool:'שחייה 🏊',jump:'קפיצה בחבל 🪢',tennis:'טניס 🎾'};
 
@@ -3666,7 +3667,7 @@ function showDayWorkout(dayIdx){
   // Helper: render one session with correct dayIdx context
   function _renderForDay(session,timeLabel,partner){
     const sLen=state.profile.sessionLen||60;
-    const _pm={30:[13,9,8],45:[20,13,12],60:[27,17,16],90:[40,25,25]}[sLen]||[Math.round(sLen*8/18),Math.round(sLen*5/18),sLen-Math.round(sLen*8/18)-Math.round(sLen*5/18)];
+    const _pm={30:[20,0,10],45:[30,0,15],60:[40,0,20],90:[60,0,30],120:[80,0,40]}[sLen]||[Math.round(sLen*2/3),0,Math.round(sLen/3)];
     const skillMin=_pm[0],ppMin=_pm[1],muscleMin=_pm[2];
     let h='';
     if(timeLabel)h+=`<div style="padding:8px 14px 4px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:.1em;font-weight:700">${timeLabel} · ${session.type==='cardio'?'קרדיו 🏃':'כוח 💪'}</div>`;
@@ -3828,7 +3829,7 @@ function buildSmartSkillPhase(sLen){
   const done=state.done||[];
   const activePrio=(state.priorities||[]).filter(id=>!done.includes(id));
   const frontier=getSkillFrontierNodes();
-  const minutes={30:13,45:20,60:27,90:40}[sLen]||Math.round(sLen*8/18);
+  const minutes={30:20,45:30,60:40,90:60,120:80}[sLen]||Math.round(sLen*2/3);
   const treeColors={pull:'var(--pull)',push:'var(--push)',balance:'var(--balance)'};
   let h=`<div class="wk-block"><div class="wk-h" style="display:flex;align-items:center;justify-content:space-between">
     <span>🎯 מיומנויות · ${minutes} דקות</span>
@@ -3928,7 +3929,7 @@ function renderWorkout(){
   // Calculate proportional block times (base: 40+20+30=90 min)
   const sLen=state.profile.sessionLen||90;
   // Phase time split (ratio 8:5:5 based on 90min = 40+25+25)
-  const _phaseMins={30:[13,9,8],45:[20,13,12],60:[27,17,16],90:[40,25,25]}[sLen]||[Math.round(sLen*8/18),Math.round(sLen*5/18),sLen-Math.round(sLen*8/18)-Math.round(sLen*5/18)];
+  const _phaseMins={30:[20,0,10],45:[30,0,15],60:[40,0,20],90:[60,0,30],120:[80,0,40]}[sLen]||[Math.round(sLen*2/3),0,Math.round(sLen/3)];
   const skillMin=_phaseMins[0];
   const ppMin=_phaseMins[1];
   const muscleMin=_phaseMins[2];
