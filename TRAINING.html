@@ -1491,7 +1491,7 @@ function startApp(email){
   // re-init state + content with the right keys
   state=JSON.parse(localStorage.getItem(tk)||'null')||{done:[],xp:0,level:1,admin:false,onboarded:false,profile:{}};
   state.goals=state.goals||[];state.profile=state.profile||{};
-  state.admin=fromJarvis;
+  if(fromJarvis) state.admin=true; // fromJarvis always grants; otherwise keep stored value
   content=JSON.parse(localStorage.getItem(ck)||'null')||{videos:{},notes:{}};
   content.videos=content.videos||{};content.notes=content.notes||{};
   // boot
@@ -2366,6 +2366,7 @@ function hasProAccess(){
   return true;
 }
 function openAICoach(){
+  if(hasProAccess()){window.open('AI-COACH.html?fromJarvis=1','_blank');return;}
   document.getElementById('proModal').style.display='flex';
 }
 function closeProModal(){document.getElementById('proModal').style.display='none';}
