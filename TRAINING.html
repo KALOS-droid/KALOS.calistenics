@@ -396,9 +396,11 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 
 <div id="recaptcha-container" style="position:fixed;bottom:0;left:0;z-index:9999"></div>
 
+<!-- Back to home — fixed, outside all containers -->
+<a id="backHomeBtn" href="index.html" style="position:fixed;top:18px;right:18px;z-index:9999;display:flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;color:#eaf6ff;text-decoration:none;background:rgba(0,168,255,.12);border:1px solid rgba(0,168,255,.45);padding:9px 16px;border-radius:6px;transition:all .2s;backdrop-filter:blur(8px)" onmouseover="this.style.background='rgba(0,168,255,.25)';this.style.boxShadow='0 0 18px rgba(0,168,255,.3)'" onmouseout="this.style.background='rgba(0,168,255,.12)';this.style.boxShadow='none'">← עמוד הבית</a>
+
 <!-- ============ INTRO ============ -->
 <div id="intro">
-<a href="index.html" style="position:fixed;top:18px;right:18px;z-index:200;display:flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;color:#eaf6ff;text-decoration:none;background:rgba(0,168,255,.1);border:1px solid rgba(0,168,255,.35);padding:9px 16px;border-radius:6px;transition:all .2s;backdrop-filter:blur(8px)" onmouseover="this.style.background='rgba(0,168,255,.2)';this.style.boxShadow='0 0 16px rgba(0,168,255,.25)'" onmouseout="this.style.background='rgba(0,168,255,.1)';this.style.boxShadow='none'">← עמוד הבית</a>
   <!-- step 0: boot -->
   <div class="step active" id="step0">
     <div class="sys-card">
