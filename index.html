@@ -1192,13 +1192,19 @@ async function hashPass(p){const buf=await crypto.subtle.digest("SHA-256",new Te
 function userKey(email){return'kalos_tr_'+btoa(email).replace(/=/g,'');}
 function contentKey(email){return'kalos_cnt_'+btoa(email).replace(/=/g,'');}
 
-async function getUsers(){try{const snap=await _db.collection('users').get();return snap.docs.map(d=>d.data());}catch(e){return JSON.parse(localStorage.getItem('kalos_users')||'[]');}}
-async function saveUser(user){try{await _db.collection('users').doc(btoa(user.email)).set(user);const all=await getUsers();localStorage.setItem('kalos_users',JSON.stringify(all));}catch(e){const u=JSON.parse(localStorage.getItem('kalos_users')||'[]');const i=u.findIndex(x=>x.email===user.email);if(i>=0)u[i]=user;else u.push(user);localStorage.setItem('kalos_users',JSON.stringify(u));}}
+async function getUsers(){try{const snap=await _db.collection('users').get();return snap.docs.map(d=>d.data());}catch(e){return[];}} // never cache user list locally
+async function saveUser(user){
+  // strip hash before any local storage — only Firestore holds credentials
+  const safeLocal={email:user.email,name:user.name,joined:user.joined,lastActive:user.lastActive};
+  try{await _db.collection('users').doc(btoa(user.email)).set(user);}
+  catch(e){/* Firestore failed — do NOT fall back to localStorage for credentials */console.warn('saveUser Firestore error',e);}
+}
 
 let currentUser=null; // {email,name}
 
 const OWNER_EMAIL='eladgo55@gmail.com';
 function initAuth(){
+  localStorage.removeItem('kalos_users'); // security: never cache user credentials locally
   if(fromJarvis){
     currentUser={email:OWNER_EMAIL,name:'אלעד'};
     sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
