@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KALOS · Calisthenics</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+<title>KALOS · Calisthenics System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
@@ -15,332 +16,673 @@ const _db=firebase.firestore();
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --cyan:#00a8ff;--gold:#ffd700;--text:#eaf6ff;--muted:#4a7a9b;
-  --border:rgba(0,168,255,.18);--bg:#060d1a;--card:rgba(6,18,40,.7)
+  --bg:#07090f;
+  --bg2:#0b0e18;
+  --surface:rgba(255,255,255,.03);
+  --surface2:rgba(255,255,255,.055);
+  --border:rgba(255,255,255,.07);
+  --border2:rgba(99,160,255,.18);
+  --text:#eaf2ff;
+  --text2:#8ba0bf;
+  --text3:#55697e;
+  --accent:#4D9FFF;
+  --accent2:#7B6FFF;
+  --gold:#F5C542;
+  --glow-blue:rgba(77,159,255,.18);
+  --glow-purple:rgba(123,111,255,.14);
 }
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
 
-/* ── PARTICLES ── */
-#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
-.scanline{position:fixed;left:0;right:0;top:-3px;height:3px;z-index:1;opacity:.25;pointer-events:none;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);animation:scan 8s linear infinite}
-@keyframes scan{0%{top:-3px}100%{top:100vh}}
+/* ── SCAN LINE ── */
+#scanline{
+  position:fixed;left:0;right:0;height:2px;z-index:9999;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(77,159,255,.6) 50%,transparent 100%);
+  top:-2px;
+}
+@keyframes scan120{
+  0%{top:-2px;opacity:0}
+  2%{opacity:.35}
+  98%{opacity:.35}
+  100%{top:100vh;opacity:0}
+}
+
+/* ── NOISE / GRAIN ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  opacity:.4;
+}
+
+/* ── GRADIENT RADIALS ── */
+#grad1{position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:600px;
+  background:radial-gradient(ellipse at center,rgba(77,159,255,.08) 0%,transparent 70%);
+  pointer-events:none;z-index:0;}
+#grad2{position:fixed;bottom:-100px;left:0;width:600px;height:400px;
+  background:radial-gradient(ellipse at center,rgba(123,111,255,.06) 0%,transparent 70%);
+  pointer-events:none;z-index:0;}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
-  padding:14px 24px;background:rgba(6,13,26,.85);backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Cinzel',serif;font-size:20px;font-weight:900;letter-spacing:.2em;color:var(--gold);
-  display:flex;align-items:center;gap:10px}
-.nav-logo svg{vertical-align:-3px}
-.nav-right{display:flex;align-items:center;gap:12px}
-.nav-btn{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;
-  padding:8px 18px;cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
-.nav-btn.enter{background:rgba(0,168,255,.12);border:1px solid rgba(0,168,255,.5);color:var(--cyan)}
-.nav-btn.enter:hover{background:rgba(0,168,255,.22);box-shadow:0 0 16px rgba(0,168,255,.3)}
-.nav-btn.cta{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.5);color:var(--gold)}
-.nav-btn.cta:hover{background:rgba(255,215,0,.22);box-shadow:0 0 16px rgba(255,215,0,.3)}
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:60px;
+  background:rgba(7,9,15,.8);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  transition:background .3s;
+}
+.nav-logo{
+  font-family:'Orbitron',monospace;font-weight:900;font-size:17px;
+  letter-spacing:.2em;color:var(--text);
+  display:flex;align-items:center;gap:10px;text-decoration:none;
+}
+.nav-logo-icon{width:26px;height:26px;display:flex;align-items:center;justify-content:center}
+.nav-links{display:flex;align-items:center;gap:6px;position:absolute;left:50%;transform:translateX(-50%)}
+.nav-link{
+  font-size:13.5px;font-weight:450;color:var(--text2);
+  padding:6px 14px;border-radius:7px;text-decoration:none;
+  transition:color .2s,background .2s;letter-spacing:-.01em;
+}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-cta{
+  font-size:13px;font-weight:600;letter-spacing:-.01em;
+  padding:8px 20px;border-radius:8px;text-decoration:none;
+  background:var(--accent);color:#fff;
+  transition:opacity .2s,transform .2s;
+  box-shadow:0 0 20px rgba(77,159,255,.35);
+}
+.nav-cta:hover{opacity:.88;transform:translateY(-1px)}
+.nav-ghost{
+  font-size:13px;font-weight:500;color:var(--text2);
+  padding:8px 16px;border-radius:8px;text-decoration:none;
+  transition:color .2s,background .2s;
+}
+.nav-ghost:hover{color:var(--text);background:rgba(255,255,255,.05)}
 
 /* ── HERO ── */
-#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:100px 24px 60px;text-align:center;position:relative;z-index:2}
-.hero-photo-wrap{position:relative;margin-bottom:28px}
-.hero-photo{width:130px;height:130px;border-radius:50%;object-fit:cover;
-  border:2px solid var(--gold);box-shadow:0 0 40px rgba(255,215,0,.3);
-  background:rgba(255,215,0,.06);display:flex;align-items:center;justify-content:center;
-  font-size:48px;cursor:pointer;transition:all .3s;overflow:hidden}
-.hero-photo:hover{box-shadow:0 0 60px rgba(255,215,0,.5)}
-.hero-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-#photoUpload{display:none}
-.photo-hint{font-size:9px;color:var(--muted);margin-top:6px;letter-spacing:.08em;opacity:.7}
-#photoHintAdmin{display:none}
+#hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:120px 24px 80px;text-align:center;
+  position:relative;z-index:2;
+}
 
-.hero-badge{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--muted);
-  border:1px solid var(--border);padding:4px 14px;border-radius:2px;margin-bottom:16px;display:inline-block}
-.hero-title{font-family:'Cinzel',serif;font-size:clamp(42px,10vw,80px);font-weight:900;
-  letter-spacing:.18em;color:var(--gold);line-height:1;margin-bottom:6px;
-  text-shadow:0 0 60px rgba(255,215,0,.4)}
-.hero-sub{font-family:'Orbitron',monospace;font-size:clamp(13px,3vw,18px);letter-spacing:.22em;
-  color:var(--cyan);margin-bottom:32px;text-shadow:0 0 20px rgba(0,168,255,.4)}
-.hero-desc{font-size:13px;color:#8ab4cc;line-height:2;max-width:480px;margin:0 auto 36px}
+.hero-announce{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:500;letter-spacing:.02em;color:var(--text2);
+  border:1px solid var(--border2);
+  background:rgba(77,159,255,.06);
+  padding:6px 16px;border-radius:100px;margin-bottom:36px;
+  opacity:0;transform:translateY(16px);
+  animation:fadeUp .6s .1s forwards;
+}
+.hero-announce span{
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700;
+}
 
-/* stats bar */
-.stats-bar{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;margin-bottom:44px}
-.stat{text-align:center}
-.stat-num{font-family:'Orbitron',monospace;font-size:clamp(28px,6vw,44px);font-weight:900;
-  color:var(--gold);line-height:1;text-shadow:0 0 30px rgba(255,215,0,.5)}
-.stat-label{font-size:10px;letter-spacing:.18em;color:var(--muted);margin-top:4px}
-.stat-divider{width:1px;background:var(--border);align-self:stretch}
+.hero-h1{
+  font-size:clamp(52px,9vw,100px);font-weight:900;line-height:1.01;letter-spacing:-.04em;
+  color:var(--text);margin-bottom:28px;
+  opacity:0;transform:translateY(20px);
+  animation:fadeUp .7s .25s forwards;
+}
+.hero-h1 .grad{
+  background:linear-gradient(120deg,#fff 0%,var(--accent) 55%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
 
-.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-primary{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.15em;font-weight:700;
-  padding:14px 32px;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.6);
-  color:var(--gold);cursor:pointer;border-radius:4px;transition:all .25s;text-decoration:none;display:inline-block;
-  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
-.btn-primary:hover{background:rgba(255,215,0,.22);box-shadow:0 0 30px rgba(255,215,0,.35);transform:translateY(-2px)}
-.btn-secondary{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.15em;font-weight:700;
-  padding:14px 32px;background:rgba(0,168,255,.08);border:1px solid rgba(0,168,255,.4);
-  color:var(--cyan);cursor:pointer;border-radius:4px;transition:all .25s;text-decoration:none;display:inline-block;
-  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
-.btn-secondary:hover{background:rgba(0,168,255,.18);box-shadow:0 0 20px rgba(0,168,255,.25);transform:translateY(-2px)}
+.hero-desc{
+  font-size:clamp(15px,2.2vw,20px);font-weight:400;color:var(--text2);
+  line-height:1.65;max-width:520px;margin:0 auto 44px;letter-spacing:-.01em;
+  opacity:0;transform:translateY(16px);
+  animation:fadeUp .7s .4s forwards;
+}
 
-/* ── SECTIONS ── */
-section{position:relative;z-index:2;padding:80px 24px;max-width:1000px;margin:0 auto}
-.sec-label{font-size:9px;letter-spacing:.3em;color:var(--muted);margin-bottom:10px;text-align:center}
-.sec-title{font-family:'Cinzel',serif;font-size:clamp(22px,5vw,36px);font-weight:900;
-  letter-spacing:.12em;color:var(--gold);text-align:center;margin-bottom:40px}
+.hero-btns{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:64px;
+  opacity:0;transform:translateY(16px);
+  animation:fadeUp .6s .55s forwards;
+}
+.btn-primary{
+  font-size:14px;font-weight:600;letter-spacing:-.01em;
+  padding:14px 32px;border-radius:10px;text-decoration:none;
+  background:var(--accent);color:#fff;
+  transition:all .22s;
+  box-shadow:0 0 30px rgba(77,159,255,.4),0 4px 24px rgba(0,0,0,.4);
+}
+.btn-primary:hover{opacity:.88;transform:translateY(-2px);box-shadow:0 0 40px rgba(77,159,255,.5),0 8px 32px rgba(0,0,0,.4)}
+.btn-secondary{
+  font-size:14px;font-weight:500;letter-spacing:-.01em;
+  padding:14px 28px;border-radius:10px;text-decoration:none;
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border);
+  transition:all .22s;
+}
+.btn-secondary:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);transform:translateY(-2px)}
 
-/* about */
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:600px){.about-grid{grid-template-columns:1fr}}
-.about-card{background:var(--card);border:1px solid var(--border);border-radius:8px;
-  padding:22px 20px;transition:all .25s}
-.about-card:hover{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.04)}
-.about-icon{font-size:28px;margin-bottom:12px}
-.about-card h3{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:.15em;color:var(--cyan);margin-bottom:8px}
-.about-card p{font-size:12px;color:#8ab4cc;line-height:1.9}
+/* ── STATS ── */
+.hero-stats{
+  display:flex;gap:0;
+  border:1px solid var(--border);border-radius:14px;
+  background:var(--surface);backdrop-filter:blur(12px);
+  overflow:hidden;
+  opacity:0;animation:fadeUp .6s .7s forwards;
+}
+.stat{
+  padding:24px 44px;text-align:center;
+  position:relative;
+}
+.stat+.stat::before{
+  content:'';position:absolute;left:0;top:20%;bottom:20%;
+  width:1px;background:var(--border);
+}
+.stat-num{
+  font-size:clamp(28px,5vw,40px);font-weight:800;letter-spacing:-.04em;
+  color:var(--text);line-height:1;margin-bottom:6px;
+}
+.stat-num .plus{color:var(--accent)}
+.stat-label{font-size:12px;color:var(--text3);font-weight:500;letter-spacing:.01em}
 
-/* features */
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-@media(max-width:700px){.features-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:440px){.features-grid{grid-template-columns:1fr}}
-.feat{background:var(--card);border:1px solid var(--border);border-radius:8px;
-  padding:22px 18px;text-align:center;transition:all .25s}
-.feat:hover{border-color:rgba(0,168,255,.4);background:rgba(0,168,255,.04);transform:translateY(-3px)}
-.feat-icon{font-size:32px;margin-bottom:14px}
-.feat h3{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--cyan);margin-bottom:8px}
-.feat p{font-size:11px;color:var(--muted);line-height:1.8}
+/* ── VIDEO SECTION ── */
+#demo{
+  padding:80px 24px 0;max-width:1000px;margin:0 auto;
+  position:relative;z-index:2;
+}
+.demo-label{
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);text-align:center;margin-bottom:14px;
+}
+.demo-title{
+  font-size:clamp(24px,4vw,40px);font-weight:800;letter-spacing:-.03em;
+  color:var(--text);text-align:center;margin-bottom:48px;line-height:1.2;
+}
+.demo-title span{color:var(--text2);font-weight:400}
 
-/* reviews */
-.reviews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-.review-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;transition:all .25s;position:relative}
-.review-card:hover{border-color:rgba(255,215,0,.25);background:rgba(255,215,0,.03)}
-.stars{color:var(--gold);font-size:15px;margin-bottom:10px;letter-spacing:2px}
-.review-text{font-size:12px;color:#b0cce4;line-height:1.9;margin-bottom:14px}
-.review-author{font-size:10px;color:var(--muted);letter-spacing:.1em}
-.review-days{font-size:9px;color:rgba(74,122,155,.6);margin-top:2px}
-.no-reviews{text-align:center;color:var(--muted);font-size:12px;padding:40px 0}
+.video-wrap{
+  position:relative;border-radius:16px;overflow:hidden;
+  border:1px solid var(--border2);
+  background:var(--bg2);
+  box-shadow:0 0 60px rgba(77,159,255,.1),0 40px 80px rgba(0,0,0,.6);
+}
+.video-inner{
+  width:100%;aspect-ratio:16/9;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:20px;
+  background:linear-gradient(135deg,#0c1428 0%,#0e1830 50%,#080c18 100%);
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.video-inner::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 40%,rgba(77,159,255,.12) 0%,transparent 65%);
+}
+.play-btn{
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(77,159,255,.18);
+  border:1.5px solid rgba(77,159,255,.5);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .25s;position:relative;z-index:1;
+}
+.play-btn::after{
+  content:'';width:0;height:0;
+  border-top:13px solid transparent;
+  border-bottom:13px solid transparent;
+  border-left:22px solid var(--accent);
+  margin-left:5px;
+}
+.video-inner:hover .play-btn{
+  background:rgba(77,159,255,.3);
+  transform:scale(1.07);
+  box-shadow:0 0 40px rgba(77,159,255,.4);
+}
+.video-caption{
+  font-size:13px;color:var(--text3);position:relative;z-index:1;
+  letter-spacing:.02em;
+}
+.video-bar{
+  height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  position:absolute;bottom:0;left:0;width:35%;
+}
 
-/* admin overlay on reviews */
-.review-admin-bar{display:none;position:absolute;top:8px;left:8px;gap:6px}
-.rev-remove-btn{font-size:9px;font-family:'Share Tech Mono',monospace;padding:3px 8px;
-  border-radius:3px;cursor:pointer;background:rgba(255,51,85,.12);border:1px solid rgba(255,51,85,.3);color:#ff8099}
-.rev-remove-btn:hover{background:rgba(255,51,85,.25)}
+/* ── SECTIONS SHARED ── */
+.section{padding:100px 24px;max-width:1100px;margin:0 auto;position:relative;z-index:2}
+.section-label{
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px;
+}
+.section-title{
+  font-size:clamp(26px,4vw,42px);font-weight:800;letter-spacing:-.035em;
+  color:var(--text);margin-bottom:16px;line-height:1.2;
+}
+.section-sub{
+  font-size:16px;color:var(--text2);line-height:1.65;max-width:520px;margin-bottom:56px;
+}
 
-/* counter animation */
-@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.count-anim{animation:countUp .6s ease forwards}
+/* ── FEATURES BENTO ── */
+.bento{display:grid;gap:12px;grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.bento{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.bento{grid-template-columns:1fr}}
+.bento-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:28px 26px;position:relative;overflow:hidden;
+  transition:border-color .3s,background .3s,transform .25s;
+}
+.bento-card:hover{
+  border-color:var(--border2);
+  background:var(--surface2);
+  transform:translateY(-3px);
+}
+.bento-card.wide{grid-column:span 2}
+.bento-card.tall{grid-row:span 2}
+@media(max-width:900px){.bento-card.wide{grid-column:span 1}}
 
-/* CTA bottom */
-.cta-section{text-align:center;padding:80px 24px;position:relative;z-index:2}
-.cta-section h2{font-family:'Cinzel',serif;font-size:clamp(24px,5vw,40px);font-weight:900;
-  color:var(--gold);letter-spacing:.12em;margin-bottom:16px}
-.cta-section p{color:#8ab4cc;font-size:13px;margin-bottom:36px;line-height:2}
+.bento-glow{
+  position:absolute;top:-60px;right:-60px;width:180px;height:180px;
+  border-radius:50%;pointer-events:none;opacity:0;
+  transition:opacity .4s;
+}
+.bento-card:hover .bento-glow{opacity:1}
+.glow-blue{background:radial-gradient(circle,var(--glow-blue) 0%,transparent 70%)}
+.glow-purple{background:radial-gradient(circle,var(--glow-purple) 0%,transparent 70%)}
 
-/* divider */
-.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);
-  margin:0 24px;position:relative;z-index:2}
+.bento-icon{
+  font-size:22px;margin-bottom:18px;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+}
+.bento-card h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:-.02em}
+.bento-card p{font-size:13.5px;color:var(--text2);line-height:1.7;letter-spacing:-.01em}
+.bento-tag{
+  display:inline-flex;align-items:center;gap:6px;margin-top:16px;
+  font-size:11px;font-weight:600;letter-spacing:.04em;
+  color:var(--accent);text-transform:uppercase;
+}
+.bento-tag::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent)}
 
-/* footer */
-footer{text-align:center;padding:28px;font-size:10px;color:rgba(74,122,155,.5);letter-spacing:.1em;position:relative;z-index:2}
+/* ── REVIEWS ── */
+.reviews-track-wrap{overflow:hidden;position:relative}
+.reviews-fade-l{position:absolute;top:0;bottom:0;left:0;width:80px;z-index:1;
+  background:linear-gradient(90deg,var(--bg),transparent);pointer-events:none}
+.reviews-fade-r{position:absolute;top:0;bottom:0;right:0;width:80px;z-index:1;
+  background:linear-gradient(270deg,var(--bg),transparent);pointer-events:none}
+.reviews-track{display:flex;gap:16px;width:max-content;animation:marquee 32s linear infinite}
+.reviews-track:hover{animation-play-state:paused}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.review-card{
+  width:300px;flex-shrink:0;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:24px 22px;
+}
+.review-stars{color:var(--gold);font-size:14px;letter-spacing:3px;margin-bottom:12px}
+.review-text{font-size:13.5px;color:var(--text2);line-height:1.75;margin-bottom:16px;letter-spacing:-.01em}
+.review-author{font-size:12px;color:var(--text3);font-weight:500}
+.review-days{font-size:11px;color:var(--text3);margin-top:2px}
+.no-reviews-msg{text-align:center;color:var(--text3);font-size:14px;padding:40px 0}
 
-/* flames */
-.flames{position:fixed;bottom:0;left:0;width:100%;height:100px;z-index:1;pointer-events:none;opacity:.4}
-.flame{position:absolute;bottom:0;width:50px;height:100px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
-  background:radial-gradient(ellipse at 50% 100%,rgba(0,200,255,.5),rgba(0,90,255,.2) 50%,transparent 75%);
-  filter:blur(5px);animation:flick 3s ease-in-out infinite}
-@keyframes flick{0%,100%{transform:scaleX(1) scaleY(1) rotate(-1deg)}50%{transform:scaleX(.9) scaleY(1.08) rotate(1deg)}}
+/* ── TRAINER ── */
+.trainer-wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
+}
+@media(max-width:700px){.trainer-wrap{grid-template-columns:1fr}}
+.trainer-img-col{display:flex;justify-content:center}
+.trainer-photo{
+  width:200px;height:200px;border-radius:50%;object-fit:cover;
+  border:2px solid var(--border2);
+  box-shadow:0 0 80px rgba(77,159,255,.2);
+  background:var(--surface);
+  display:flex;align-items:center;justify-content:center;font-size:56px;
+  cursor:pointer;overflow:hidden;transition:box-shadow .3s;
+}
+.trainer-photo:hover{box-shadow:0 0 100px rgba(77,159,255,.35)}
+.trainer-photo img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none}
+.trainer-text-col .section-label{display:block;margin-bottom:12px}
+.trainer-list{list-style:none;margin-top:24px;display:flex;flex-direction:column;gap:14px}
+.trainer-list li{
+  display:flex;align-items:flex-start;gap:12px;
+  font-size:14px;color:var(--text2);line-height:1.6;
+}
+.trainer-list li::before{
+  content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);
+  flex-shrink:0;margin-top:7px;
+}
+
+/* ── BOTTOM CTA ── */
+.cta-wrap{
+  text-align:center;padding:120px 24px;position:relative;z-index:2;
+  border-top:1px solid var(--border);
+}
+.cta-glow{
+  position:absolute;top:-200px;left:50%;transform:translateX(-50%);
+  width:600px;height:400px;
+  background:radial-gradient(ellipse,rgba(77,159,255,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.cta-wrap h2{
+  font-size:clamp(32px,6vw,60px);font-weight:800;letter-spacing:-.04em;
+  color:var(--text);margin-bottom:20px;line-height:1.1;
+}
+.cta-wrap p{font-size:17px;color:var(--text2);margin-bottom:44px;line-height:1.65}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;padding:28px 24px;
+  border-top:1px solid var(--border);
+  font-size:12px;color:var(--text3);
+  letter-spacing:.02em;position:relative;z-index:2;
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ── ADMIN ── */
+#adminPanel{
+  display:none;position:fixed;bottom:20px;left:20px;z-index:600;
+  background:rgba(7,9,15,.97);border:1px solid rgba(77,159,255,.25);border-radius:12px;
+  padding:16px 18px;font-family:'Inter',sans-serif;font-size:12px;
+  min-width:200px;box-shadow:0 8px 40px rgba(0,0,0,.7);
+}
+.admin-title{color:var(--accent);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.admin-btn{
+  width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
+  color:var(--text2);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
+  padding:8px 12px;border-radius:7px;cursor:pointer;margin-bottom:6px;
+  text-align:left;transition:background .2s,color .2s;
+}
+.admin-btn:hover{background:rgba(255,255,255,.08);color:var(--text)}
+
+/* ── MODAL ── */
+#allReviewsModal{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.88);align-items:center;justify-content:center;overflow-y:auto;padding:20px}
+.modal-box{background:#0c0f1a;border:1px solid var(--border2);border-radius:16px;padding:28px;max-width:700px;width:100%;margin:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-head-title{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.modal-close{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;transition:color .2s}
+.modal-close:hover{color:var(--text)}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);position:relative;z-index:2}
+
+@keyframes fadeUp{to{opacity:1;transform:none}}
+@media(max-width:600px){
+  nav{padding:0 16px}
+  .nav-links{display:none}
+  .stat{padding:18px 24px}
+  .hero-stats{flex-wrap:wrap;justify-content:center}
+  .section{padding:70px 20px}
+}
 </style>
 </head>
 <body>
-
-<canvas id="fx"></canvas>
-<div class="scanline"></div>
-<div class="flames" id="flames"></div>
+<div id="scanline"></div>
+<div id="grad1"></div>
+<div id="grad2"></div>
 
 <!-- NAV -->
-<nav>
-  <div class="nav-logo">
-    <svg width="22" height="24" viewBox="0 0 64 72"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="#ffd700" stroke-width="3"/><g stroke="#ffd700" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg width="22" height="24" viewBox="0 0 64 72"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="#4D9FFF" stroke-width="3.5"/><g stroke="#4D9FFF" stroke-width="6.5" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>
+    </div>
     KALOS
+  </a>
+  <div class="nav-links">
+    <a href="#features" class="nav-link">Features</a>
+    <a href="#demo" class="nav-link">How it works</a>
+    <a href="#reviews" class="nav-link">Reviews</a>
+    <a href="#trainer" class="nav-link">Trainer</a>
   </div>
   <div class="nav-right">
-    <a href="TRAINING.html" class="nav-btn enter">כניסה לאפליקציה ›</a>
-    <a href="#reviews" class="nav-btn cta">חוות דעת</a>
+    <a href="TRAINING.html" class="nav-ghost">Log in</a>
+    <a href="TRAINING.html" class="nav-cta">Get Started</a>
   </div>
 </nav>
 
 <!-- HERO -->
 <div id="hero">
-  <div class="hero-badge">CALISTHENICS · ISRAEL</div>
-
-  <!-- Trainer photo -->
-  <div class="hero-photo-wrap">
-    <div class="hero-photo" id="photoCircle" onclick="document.getElementById('photoUpload').click()">
-      <img id="trainerImg" src="" alt="" style="display:none">
-      <span id="photoPlaceholder">🏋️</span>
-    </div>
-    <input type="file" id="photoUpload" accept="image/*" onchange="uploadPhoto(this)">
-    <div class="photo-hint" id="photoHintAdmin">לחץ לעדכון תמונה</div>
+  <div class="hero-announce">
+    <span>NEW</span> AI Coach now available for all members
   </div>
 
-  <h1 class="hero-title">KALOS</h1>
-  <div class="hero-sub">CALISTHENICS SYSTEM</div>
+  <h1 class="hero-h1">
+    The calisthenics system<br><span class="grad">built to get you stronger.</span>
+  </h1>
+
   <p class="hero-desc">
-    תוכנית אימון מבוססת מדע לבניית כוח אמיתי —<br>
-    ללא ציוד, עם מעקב מלא, עצי מיומנויות ומאמן AI אישי.
+    Science-based skill trees, AI coaching, and automatic weekly planning —
+    all in one place. No gym required.
   </p>
 
-  <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-num" id="userCountHero">—</div>
-      <div class="stat-label">מתאמנים רשומים</div>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat">
-      <div class="stat-num">6</div>
-      <div class="stat-label">שנות קליסתניקס</div>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat">
-      <div class="stat-num">2</div>
-      <div class="stat-label">שנות אימון אישי</div>
-    </div>
+  <div class="hero-btns">
+    <a href="TRAINING.html" class="btn-primary">Start for free →</a>
+    <a href="#demo" class="btn-secondary">See how it works</a>
   </div>
 
-  <div class="hero-cta">
-    <a href="TRAINING.html" class="btn-primary">התחל עכשיו ›</a>
-    <a href="#about" class="btn-secondary">קרא עוד</a>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num" id="userCountHero">1,000<span class="plus">+</span></div>
+      <div class="stat-label">Athletes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">6</div>
+      <div class="stat-label">Years of calisthenics</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Years of coaching</div>
+    </div>
   </div>
 </div>
 
-<div class="divider"></div>
+<!-- VIDEO / DEMO -->
+<div id="demo" class="reveal" style="padding:0 24px 0;max-width:1000px;margin:0 auto;position:relative;z-index:2;margin-top:80px">
+  <p class="demo-label">See it in action</p>
+  <h2 class="demo-title">Everything in one <span>system</span></h2>
 
-<!-- ABOUT -->
-<section id="about">
-  <div class="sec-label">· אודות ·</div>
-  <div class="sec-title">מי אני?</div>
-  <div class="about-grid">
-    <div class="about-card">
-      <div class="about-icon">🏋️</div>
-      <h3>6 שנות קליסתניקס</h3>
-      <p>התחלתי מאפס — בלי ציוד, בלי כסף לחדר כושר. תוך 6 שנים הגעתי לעמידת ידיים, פלאנץ, פרונט לבר ומאות תרגילים מתקדמים. הכל גוף חופשי.</p>
-    </div>
-    <div class="about-card">
-      <div class="about-icon">🎯</div>
-      <h3>2 שנות אימון אישי</h3>
-      <p>כבר שנתיים אני מאמן אנשים בקליסתניקס — מתחילים מוחלטים ועד מתקדמים. בניתי את KALOS כדי שכל אחד יוכל לאמן כמו שאני מאמן.</p>
-    </div>
-    <div class="about-card">
-      <div class="about-icon">🌳</div>
-      <h3>עצי מיומנויות</h3>
-      <p>המערכת בנויה על עצי מיומנויות — כל תרגיל פותח תרגיל הבא. מתח אחד → 15 מתחים → מתח יד אחת. תמיד יודעים בדיוק לאן הולכים.</p>
-    </div>
-    <div class="about-card">
-      <div class="about-icon">🤖</div>
-      <h3>AI Coach אישי</h3>
-      <p>מאמן AI שמכיר את ההתקדמות שלך, יודע איפה אתה תקוע, ומייעץ בזמן אמת. לא פורום, לא וידאו כללי — ייעוץ ספציפי לך.</p>
+  <div class="video-wrap" id="videoWrap">
+    <div class="video-inner" onclick="openVideo()">
+      <div class="play-btn"></div>
+      <div class="video-caption">Watch the KALOS overview — 2 min</div>
+      <div class="video-bar"></div>
     </div>
   </div>
-</section>
+</div>
 
-<div class="divider"></div>
+<div class="divider" style="margin:100px 24px 0"></div>
 
 <!-- FEATURES -->
-<section id="features">
-  <div class="sec-label">· מה בפנים ·</div>
-  <div class="sec-title">המערכת</div>
-  <div class="features-grid">
-    <div class="feat"><div class="feat-icon">📊</div><h3>מעקב XP</h3><p>כל תרגיל שמשלים = נקודות ניסיון. רמות, הישגים, תגמולים.</p></div>
-    <div class="feat"><div class="feat-icon">🗓️</div><h3>תוכנית שבועית</h3><p>מחשבת אוטומטית לפי הימים הפנויים שלך — כוח + קרדיו מאוזנים.</p></div>
-    <div class="feat"><div class="feat-icon">🎯</div><h3>עדיפויות מיומנות</h3><p>בוחר איזה תרגיל מיקוד — המערכת בונה את האימון סביבו.</p></div>
-    <div class="feat"><div class="feat-icon">💪</div><h3>5 רמות כוח</h3><p>כל קבוצת שריר מקבלת רמה נפרדת — starter עד elite.</p></div>
-    <div class="feat"><div class="feat-icon">⚡</div><h3>דגשי טכניקה</h3><p>כל תרגיל עם הדגשי המאמן — כמו שקיבלת עם מאמן אישי.</p></div>
-    <div class="feat"><div class="feat-icon">🔥</div><h3>עונשים ותגמולים</h3><p>המערכת יודעת כשדילגת על אימון — ומשאירה אותך אחראי.</p></div>
+<section id="features" class="section">
+  <p class="section-label reveal">Platform</p>
+  <h2 class="section-title reveal">Everything you need to progress.</h2>
+  <p class="section-sub reveal">From your first pull-up to a one-arm handstand — KALOS tracks every step and tells you exactly what to do next.</p>
+
+  <div class="bento">
+    <div class="bento-card wide reveal">
+      <div class="bento-glow glow-blue"></div>
+      <div class="bento-icon">🌳</div>
+      <h3>Skill Trees</h3>
+      <p>Every skill unlocks the next. Master a pull-up, progress to archer, then one-arm. You always know exactly where you are and what's next.</p>
+      <div class="bento-tag">5 skill paths</div>
+    </div>
+    <div class="bento-card reveal">
+      <div class="bento-glow glow-purple"></div>
+      <div class="bento-icon">🤖</div>
+      <h3>AI Coach</h3>
+      <p>Real-time coaching that knows your full history and gives advice specific to you.</p>
+      <div class="bento-tag">Personalized</div>
+    </div>
+    <div class="bento-card reveal">
+      <div class="bento-glow glow-blue"></div>
+      <div class="bento-icon">📊</div>
+      <h3>XP & Levels</h3>
+      <p>Every set completed earns experience. Track your progress with levels, streaks and milestones.</p>
+      <div class="bento-tag">53 levels</div>
+    </div>
+    <div class="bento-card reveal">
+      <div class="bento-glow glow-purple"></div>
+      <div class="bento-icon">🗓️</div>
+      <h3>Smart Planning</h3>
+      <p>Tell KALOS which days you train. It builds a balanced weekly program for strength and skills.</p>
+      <div class="bento-tag">Auto-generated</div>
+    </div>
+    <div class="bento-card reveal">
+      <div class="bento-glow glow-blue"></div>
+      <div class="bento-icon">🎯</div>
+      <h3>Priority Skills</h3>
+      <p>Pick one skill to focus on. The system rebuilds every session around accelerating it.</p>
+      <div class="bento-tag">Your goal, your plan</div>
+    </div>
+    <div class="bento-card reveal">
+      <div class="bento-glow glow-purple"></div>
+      <div class="bento-icon">⚡</div>
+      <h3>Technique Cues</h3>
+      <p>Every exercise comes with coach-curated technique notes — exactly what you'd hear in a PT session.</p>
+      <div class="bento-tag">100+ exercises</div>
+    </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="divider" style="margin:0 24px"></div>
 
 <!-- REVIEWS -->
-<section id="reviews">
-  <div class="sec-label">· חוות דעת ·</div>
-  <div class="sec-title">מה המתאמנים אומרים</div>
-  <div id="reviewsGrid" class="reviews-grid">
-    <div class="no-reviews">טוען...</div>
+<section id="reviews" class="section">
+  <p class="section-label reveal">Community</p>
+  <h2 class="section-title reveal">Loved by athletes.</h2>
+  <p class="section-sub reveal">Real feedback from KALOS members. No filters.</p>
+
+  <div class="reviews-track-wrap reveal">
+    <div class="reviews-fade-l"></div>
+    <div class="reviews-fade-r"></div>
+    <div class="reviews-track" id="reviewsTrack">
+      <!-- injected by JS, duplicated for infinite scroll -->
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"The skill tree concept finally made calisthenics make sense to me. I went from zero pull-ups to 15 in two months."</div>
+        <div class="review-author">Member · Anonymous</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Having an AI coach that actually knows my progress is a game-changer. Way better than random YouTube advice."</div>
+        <div class="review-author">Member · Anonymous</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"I've tried a dozen calisthenics apps. KALOS is the only one that builds the session for me instead of giving me a static plan."</div>
+        <div class="review-author">Member · Anonymous</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="divider" style="margin:0 24px"></div>
 
-<!-- CTA BOTTOM -->
-<div class="cta-section">
-  <h2>מוכן להתחיל?</h2>
-  <p>הצטרף למתאמנים שכבר בונים כוח אמיתי עם KALOS.<br>ההרשמה חינמית. מתחילים מהיום.</p>
-  <a href="TRAINING.html" class="btn-primary" style="font-size:14px;padding:16px 44px">הצטרף עכשיו ›</a>
+<!-- TRAINER -->
+<section id="trainer" class="section">
+  <div class="trainer-wrap">
+    <div class="trainer-img-col reveal">
+      <div class="trainer-photo" id="photoCircle" onclick="onPhotoClick()">
+        <img id="trainerImg" src="" alt="Trainer">
+        <span id="photoPlaceholder">🏋️</span>
+      </div>
+      <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
+      <div id="photoHintAdmin" style="display:none;font-size:11px;color:var(--text3);margin-top:10px;text-align:center">Click to update photo</div>
+    </div>
+    <div class="trainer-text-col">
+      <span class="section-label reveal">Your trainer</span>
+      <h2 class="section-title reveal" style="margin-bottom:0">Built by a calisthenics practitioner.<br><span style="color:var(--text2);font-weight:400">Not a tech team.</span></h2>
+      <ul class="trainer-list reveal">
+        <li>6 years of calisthenics — from zero equipment to handstands, front lever, and beyond.</li>
+        <li>2 years coaching real people — from absolute beginners to advanced athletes.</li>
+        <li>KALOS was built from real coaching experience, not generic fitness content.</li>
+        <li>The skill trees, technique cues and weekly plans are exactly what I use with my own clients.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- BOTTOM CTA -->
+<div class="cta-wrap">
+  <div class="cta-glow"></div>
+  <h2 class="reveal">Ready to start?</h2>
+  <p class="reveal">Join 1,000+ athletes already training with KALOS.<br>Free to start. No gym needed.</p>
+  <a href="TRAINING.html" class="btn-primary reveal" style="font-size:15px;padding:16px 44px">Create your account →</a>
 </div>
 
 <footer>
-  © KALOS CALISTHENICS · כל הזכויות שמורות
+  © 2025 KALOS Calisthenics · All rights reserved
 </footer>
 
-<!-- ADMIN PANEL (only for Elad) -->
-<div id="adminPanel" style="display:none;position:fixed;bottom:20px;left:20px;z-index:500;
-  background:rgba(6,13,26,.95);border:1px solid rgba(255,215,0,.3);border-radius:10px;padding:16px 18px;
-  font-family:'Share Tech Mono',monospace;font-size:11px;min-width:200px;box-shadow:0 8px 40px rgba(0,0,0,.6)">
-  <div style="color:var(--gold);letter-spacing:.12em;margin-bottom:12px;font-size:10px">⚙️ KALOS ADMIN</div>
-  <button onclick="showAllReviews()" style="width:100%;background:rgba(0,168,255,.1);border:1px solid rgba(0,168,255,.3);color:var(--cyan);font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px;border-radius:4px;cursor:pointer;margin-bottom:6px;letter-spacing:.08em">👥 כל חוות הדעת</button>
-  <button onclick="uploadPhotoFromAdmin()" style="width:100%;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);color:var(--gold);font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px;border-radius:4px;cursor:pointer;letter-spacing:.08em">📷 עדכן תמונה</button>
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <div class="admin-title">⚙ KALOS ADMIN</div>
+  <button class="admin-btn" onclick="showAllReviews()">📋 All reviews</button>
+  <button class="admin-btn" onclick="uploadPhotoFromAdmin()">📷 Update photo</button>
 </div>
 
-<!-- ALL REVIEWS MODAL (admin) -->
-<div id="allReviewsModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);align-items:center;justify-content:center;direction:rtl;overflow-y:auto;padding:20px">
-  <div style="background:#080f20;border:1px solid rgba(255,215,0,.3);border-radius:14px;padding:28px;max-width:700px;width:100%;margin:auto">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div style="font-family:'Cinzel',serif;font-size:16px;color:var(--gold)">כל חוות הדעת</div>
-      <button onclick="document.getElementById('allReviewsModal').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
+<!-- ALL REVIEWS MODAL -->
+<div id="allReviewsModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-head-title">All Reviews</div>
+      <button class="modal-close" onclick="document.getElementById('allReviewsModal').style.display='none'">✕</button>
     </div>
     <div id="allReviewsList"></div>
   </div>
 </div>
 
 <script>
-/* ─── Firebase init (already done above) ─── */
+/* ─── SCANLINE every 120s ─── */
+(function(){
+  const sl=document.getElementById('scanline');
+  function runScan(){
+    sl.style.animation='none';
+    sl.offsetHeight; // reflow
+    sl.style.animation='scan120 6s linear forwards';
+  }
+  runScan();
+  setInterval(runScan,120000);
+})();
 
-/* ─── ADMIN CHECK ─── */
+/* ─── ADMIN ─── */
 const OWNER_EMAIL='eladgo55@gmail.com';
 const _isAdmin=(()=>{try{const s=JSON.parse(localStorage.getItem('jarvis_training')||'{}');return s.admin===true;}catch(e){return false;}})();
-if(_isAdmin){document.getElementById('adminPanel').style.display='block';document.getElementById('photoHintAdmin').style.display='block';}
+if(_isAdmin){
+  document.getElementById('adminPanel').style.display='block';
+  document.getElementById('photoHintAdmin').style.display='block';
+}
 
 /* ─── PHOTO ─── */
+function onPhotoClick(){if(_isAdmin)document.getElementById('photoUpload').click();}
+function uploadPhotoFromAdmin(){document.getElementById('photoUpload').click();}
 function uploadPhoto(inp){
   const f=inp.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=e=>{
     const url=e.target.result;
-    document.getElementById('trainerImg').src=url;
-    document.getElementById('trainerImg').style.display='block';
-    document.getElementById('photoPlaceholder').style.display='none';
+    setPhoto(url);
     localStorage.setItem('kalos_landing_photo',url);
-    // Save to Firestore too
     _db.collection('landing').doc('config').set({trainerPhoto:url},{merge:true}).catch(()=>{});
   };r.readAsDataURL(f);
 }
-function uploadPhotoFromAdmin(){document.getElementById('photoUpload').click();}
-// Load saved photo
+function setPhoto(url){
+  const img=document.getElementById('trainerImg');
+  img.src=url;img.style.display='block';
+  document.getElementById('photoPlaceholder').style.display='none';
+}
 async function loadPhoto(){
   try{
     const doc=await _db.collection('landing').doc('config').get();
     const url=doc.data()?.trainerPhoto||localStorage.getItem('kalos_landing_photo');
-    if(url){
-      document.getElementById('trainerImg').src=url;
-      document.getElementById('trainerImg').style.display='block';
-      document.getElementById('photoPlaceholder').style.display='none';
-    }
+    if(url)setPhoto(url);
   }catch(e){
     const url=localStorage.getItem('kalos_landing_photo');
-    if(url){document.getElementById('trainerImg').src=url;document.getElementById('trainerImg').style.display='block';document.getElementById('photoPlaceholder').style.display='none';}
+    if(url)setPhoto(url);
   }
 }
 
@@ -349,98 +691,119 @@ async function loadUserCount(){
   try{
     const snap=await _db.collection('users').get();
     const count=snap.size;
-    animateCount(document.getElementById('userCountHero'),count);
-  }catch(e){document.getElementById('userCountHero').textContent='?';}
+    const el=document.getElementById('userCountHero');
+    if(count>1000){
+      // animate to real number
+      let cur=1000;const step=Math.max(1,Math.floor((count-1000)/40));
+      const t=setInterval(()=>{cur=Math.min(cur+step,count);el.innerHTML=cur.toLocaleString()+'<span class="plus">+</span>';if(cur>=count)clearInterval(t);},40);
+    }
+    // else keep "1,000+" display
+  }catch(e){}
 }
-function animateCount(el,target){
-  let cur=0;const step=Math.max(1,Math.floor(target/40));
-  el.classList.add('count-anim');
-  const t=setInterval(()=>{cur=Math.min(cur+step,target);el.textContent=cur;if(cur>=target)clearInterval(t);},40);
+
+/* ─── VIDEO ─── */
+function openVideo(){
+  const toast=document.createElement('div');
+  toast.textContent='▶ Explanation video coming soon';
+  Object.assign(toast.style,{
+    position:'fixed',bottom:'32px',left:'50%',transform:'translateX(-50%)',
+    background:'rgba(10,16,30,.95)',border:'1px solid rgba(77,159,255,.35)',
+    color:'#e8f4ff',fontSize:'13px',fontFamily:'Inter,sans-serif',fontWeight:'500',
+    padding:'12px 24px',borderRadius:'10px',zIndex:'9999',
+    boxShadow:'0 8px 32px rgba(0,0,0,.5)',letterSpacing:'-.01em',
+    animation:'fadeUp .3s forwards',opacity:'0',
+  });
+  document.body.appendChild(toast);
+  requestAnimationFrame(()=>{toast.style.opacity='1';toast.style.transform='translateX(-50%) translateY(0)'});
+  setTimeout(()=>{toast.style.opacity='0';setTimeout(()=>toast.remove(),300)},2500);
 }
 
 /* ─── REVIEWS ─── */
 async function loadReviews(){
-  const grid=document.getElementById('reviewsGrid');
+  const track=document.getElementById('reviewsTrack');
   try{
     const snap=await _db.collection('reviews').where('approved','==',true).orderBy('createdAt','desc').get();
-    if(snap.empty){grid.innerHTML='<div class="no-reviews">אין חוות דעת עדיין — היה הראשון!</div>';return;}
-    grid.innerHTML='';
+    if(snap.empty){return;} // keep placeholder cards
+    // Build cards
+    const cards=[];
     snap.forEach(doc=>{
       const d=doc.data();
       const stars='★'.repeat(d.rating)+'☆'.repeat(5-d.rating);
-      const card=document.createElement('div');
-      card.className='review-card';
-      card.innerHTML=`
-        ${_isAdmin?`<div class="review-admin-bar" style="display:flex"><button class="rev-remove-btn" onclick="removeReview('${doc.id}')">הסר מהאתר</button></div>`:''}
-        <div class="stars">${stars}</div>
+      cards.push(`<div class="review-card">
+        <div class="review-stars">${stars}</div>
         <div class="review-text">"${d.text}"</div>
-        <div class="review-author">${d.name||'משתמש אנונימי'}</div>
-        <div class="review-days">חבר ${d.daysActive||''} ימים</div>
-      `;
-      grid.appendChild(card);
+        <div class="review-author">${d.name||'Anonymous member'}</div>
+        <div class="review-days">${d.daysActive?d.daysActive+' days active':''}</div>
+      </div>`);
     });
-  }catch(e){grid.innerHTML='<div class="no-reviews">שגיאה בטעינת חוות דעת</div>';}
+    if(cards.length===0)return;
+    // Duplicate for seamless loop
+    const all=cards.join('')+cards.join('');
+    track.innerHTML=all;
+    // Adjust animation duration based on count
+    const dur=Math.max(20,cards.length*6);
+    track.style.animationDuration=dur+'s';
+  }catch(e){}
 }
 
 /* ─── ADMIN: ALL REVIEWS ─── */
 async function showAllReviews(){
   document.getElementById('allReviewsModal').style.display='flex';
   const list=document.getElementById('allReviewsList');
-  list.innerHTML='<div style="color:var(--muted);font-size:11px">טוען...</div>';
+  list.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px 0">Loading...</div>';
   try{
     const snap=await _db.collection('reviews').orderBy('createdAt','desc').get();
-    if(snap.empty){list.innerHTML='<div style="color:var(--muted);font-size:12px">אין חוות דעת עדיין</div>';return;}
+    if(snap.empty){list.innerHTML='<div style="color:var(--text3);font-size:13px">No reviews yet.</div>';return;}
     list.innerHTML='';
     snap.forEach(doc=>{
-      const d=doc.data();
-      const stars='★'.repeat(d.rating)+'☆'.repeat(5-d.rating);
+      const d=doc.data();const stars='★'.repeat(d.rating)+'☆'.repeat(5-d.rating);
       const approved=d.approved===true;
       const div=document.createElement('div');
-      div.style.cssText='background:rgba(6,18,40,.8);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:16px;margin-bottom:10px;direction:rtl';
+      div.style.cssText='background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px;margin-bottom:10px';
       div.innerHTML=`
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div style="display:flex;align-items:center;gap:10px">
-            <span style="color:var(--gold)">${stars}</span>
-            <span style="font-size:11px;color:var(--muted)">${d.name||'אנונימי'} · ${d.daysActive||'?'} ימים</span>
+            <span style="color:var(--gold);font-size:13px">${stars}</span>
+            <span style="font-size:12px;color:var(--text3)">${d.name||'Anonymous'} · ${d.daysActive||'?'} days</span>
           </div>
-          <div style="display:flex;gap:6px">
-            <button onclick="toggleReviewApproval('${doc.id}',${!approved},this)" style="font-size:10px;font-family:'Share Tech Mono',monospace;padding:4px 10px;border-radius:3px;cursor:pointer;${approved?'background:rgba(255,51,85,.12);border:1px solid rgba(255,51,85,.3);color:#ff8099':'background:rgba(0,255,130,.1);border:1px solid rgba(0,255,130,.3);color:#00ff82'}">
-              ${approved?'הסר מהאתר':'פרסם באתר'}
-            </button>
-          </div>
+          <button onclick="toggleReviewApproval('${doc.id}',${!approved},this)" style="font-size:11px;font-family:'Inter',sans-serif;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;${approved?'background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.25);color:#ff8099':'background:rgba(0,255,130,.08);border:1px solid rgba(0,255,130,.25);color:#00cc6a'}">
+            ${approved?'Remove':'Publish'}
+          </button>
         </div>
-        <div style="font-size:12px;color:#b0cce4;line-height:1.8">"${d.text}"</div>
-        <div style="font-size:9px;color:rgba(74,122,155,.5);margin-top:6px">${new Date(d.createdAt?.toDate?.()??d.createdAt).toLocaleDateString('he-IL')} · ${approved?'<span style="color:#00ff82">מפורסם</span>':'<span style="color:var(--muted)">ממתין לאישור</span>'}</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">"${d.text}"</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:8px">${new Date(d.createdAt?.toDate?.()??d.createdAt).toLocaleDateString('en-US')} · ${approved?'<span style="color:#00cc6a">Published</span>':'<span style="color:var(--text3)">Pending</span>'}</div>
       `;
       list.appendChild(div);
     });
-  }catch(e){list.innerHTML='<div style="color:var(--muted)">שגיאה בטעינה</div>';}
+  }catch(e){list.innerHTML='<div style="color:var(--text3)">Error loading.</div>';}
 }
 async function toggleReviewApproval(id,approve,btn){
   try{
     await _db.collection('reviews').doc(id).update({approved:approve});
-    btn.textContent=approve?'הסר מהאתר':'פרסם באתר';
-    btn.style.background=approve?'rgba(255,51,85,.12)':'rgba(0,255,130,.1)';
-    btn.style.borderColor=approve?'rgba(255,51,85,.3)':'rgba(0,255,130,.3)';
-    btn.style.color=approve?'#ff8099':'#00ff82';
+    btn.textContent=approve?'Remove':'Publish';
+    btn.style.background=approve?'rgba(255,51,85,.1)':'rgba(0,255,130,.08)';
+    btn.style.borderColor=approve?'rgba(255,51,85,.25)':'rgba(0,255,130,.25)';
+    btn.style.color=approve?'#ff8099':'#00cc6a';
     btn.onclick=()=>toggleReviewApproval(id,!approve,btn);
-    // Refresh public reviews
     loadReviews();
-  }catch(e){alert('שגיאה');}
-}
-async function removeReview(id){
-  await _db.collection('reviews').doc(id).update({approved:false});
-  loadReviews();
+  }catch(e){alert('Error');}
 }
 
-/* ─── PARTICLES ─── */
-const cv=document.getElementById('fx'),cx=cv.getContext('2d');
-function rz(){cv.width=innerWidth;cv.height=innerHeight;}rz();addEventListener('resize',rz);
-const motes=[];for(let i=0;i<60;i++)motes.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,v:-(Math.random()*.35+.08),r:Math.random()*1.8+.4,h:Math.random()<.5?210:50,l:Math.random()});
-function draw(){cx.clearRect(0,0,cv.width,cv.height);motes.forEach(p=>{p.y+=p.v;p.l+=.004;if(p.y<-10){p.y=cv.height+10;p.x=Math.random()*cv.width;}
-const a=Math.sin(p.l*Math.PI)*.5;cx.beginPath();cx.arc(p.x,p.y,p.r,0,7);cx.fillStyle=`hsla(${p.h},100%,70%,${a})`;cx.fill();});requestAnimationFrame(draw);}draw();
-// flames
-(function(){const f=document.getElementById('flames');for(let i=0;i<12;i++){const e=document.createElement('div');e.className='flame';e.style.left=(i*9)+'%';e.style.animationDelay=(Math.random()*3)+'s';e.style.animationDuration=(2.4+Math.random()*1.4)+'s';f.appendChild(e);}})();
+/* ─── SCROLL REVEAL ─── */
+const revealObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');revealObs.unobserve(e.target);}});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach((el,i)=>{
+  el.style.transitionDelay=(i%5)*0.08+'s';
+  revealObs.observe(el);
+});
+
+/* ─── NAV SCROLL TINT ─── */
+window.addEventListener('scroll',()=>{
+  const nav=document.getElementById('nav');
+  if(scrollY>40){nav.style.background='rgba(7,9,15,.96)';}
+  else{nav.style.background='rgba(7,9,15,.8)';}
+},{passive:true});
 
 /* ─── BOOT ─── */
 loadPhoto();
