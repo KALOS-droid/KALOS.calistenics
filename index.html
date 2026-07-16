@@ -836,11 +836,20 @@ function toEmbedUrl(url){
   }catch(e){}
   return url; // return as-is for direct video URLs
 }
+let _videoUrl='';
 function setVideo(url){
+  _videoUrl=url;
+  // Just update the placeholder click — don't load iframe yet
+  const placeholder=document.getElementById('videoPlaceholder');
+  placeholder.style.cursor='pointer';
+  placeholder.querySelector('.video-caption').textContent='Watch the KALOS overview';
+  placeholder.onclick=playVideo;
+}
+function playVideo(){
+  if(!_videoUrl)return;
   const frame=document.getElementById('videoFrame');
   const placeholder=document.getElementById('videoPlaceholder');
-  const embed=toEmbedUrl(url);
-  frame.src=embed;
+  frame.src=toEmbedUrl(_videoUrl);
   frame.style.display='block';
   placeholder.style.display='none';
 }
