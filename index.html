@@ -774,6 +774,7 @@ function grantAdmin(){
       <button class="admin-btn" onclick="uploadPhotoFromAdmin()">📷 Update photo</button>
       <button class="admin-btn" onclick="_auth.signOut().then(()=>{document.getElementById('adminPanel').remove();document.getElementById('photoHintAdmin').style.display='none';document.getElementById('videoAdminBar').style.display='none';_isAdmin=false;})">🚪 Sign out</button>
     </div>`;
+  document.getElementById('adminPanel').style.display='block';
   document.getElementById('photoHintAdmin').style.display='block';
   document.getElementById('videoAdminBar').style.display='block';
 }
