@@ -839,11 +839,24 @@ function toEmbedUrl(url){
 let _videoUrl='';
 function setVideo(url){
   _videoUrl=url;
-  // Just update the placeholder click — don't load iframe yet
   const placeholder=document.getElementById('videoPlaceholder');
   placeholder.style.cursor='pointer';
   placeholder.querySelector('.video-caption').textContent='Watch the KALOS overview';
   placeholder.onclick=playVideo;
+  // Show YouTube thumbnail as background
+  try{
+    const u=new URL(url);
+    let id='';
+    if(u.hostname==='youtu.be') id=u.pathname.slice(1);
+    else if(u.searchParams.get('v')) id=u.searchParams.get('v');
+    if(id){
+      placeholder.style.backgroundImage=`url(https://img.youtube.com/vi/${id}/maxresdefault.jpg)`;
+      placeholder.style.backgroundSize='cover';
+      placeholder.style.backgroundPosition='center';
+      // Darken slightly so play button is visible
+      placeholder.style.background=`linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(https://img.youtube.com/vi/${id}/maxresdefault.jpg) center/cover`;
+    }
+  }catch(e){}
 }
 function playVideo(){
   if(!_videoUrl)return;
