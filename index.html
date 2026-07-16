@@ -528,19 +528,9 @@ footer{
     <iframe id="videoFrame" style="display:none;width:100%;aspect-ratio:16/9;border:none"
       allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"
       allowfullscreen></iframe>
-    <!-- Admin edit bar, visible only when logged in as admin -->
-    <div id="videoAdminBar" style="display:none;position:absolute;bottom:14px;right:14px;z-index:10">
-      <button onclick="showVideoInput()" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border-radius:8px;background:rgba(7,9,15,.9);border:1px solid rgba(77,159,255,.4);color:var(--accent);cursor:pointer;backdrop-filter:blur(8px);transition:background .2s" onmouseover="this.style.background='rgba(77,159,255,.12)'" onmouseout="this.style.background='rgba(7,9,15,.9)'">🎬 Change video</button>
-    </div>
   </div>
-
-  <!-- Video URL input (admin only) -->
-  <div id="videoInputBar" style="display:none;margin-top:16px;display:none;gap:8px;align-items:center">
-    <input id="videoUrlInput" type="text" placeholder="Paste YouTube URL (e.g. https://youtu.be/...)"
-      style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none">
-    <button onclick="saveVideoUrl()" style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:10px 20px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;white-space:nowrap">Save</button>
-    <button onclick="document.getElementById('videoInputBar').style.display='none'" style="font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer">✕</button>
-  </div>
+  <!-- admin video controls injected here after auth -->
+  <div id="videoAdminSlot"></div>
 </div>
 
 <div class="divider" style="margin:100px 24px 0"></div>
@@ -667,20 +657,24 @@ footer{
   © 2025 KALOS Calisthenics · All rights reserved
 </footer>
 
-<!-- ADMIN AUTH MODAL (no admin HTML in source — injected after real Firebase Auth) -->
+<!-- ADMIN AUTH MODAL -->
 <div id="adminAuthModal">
   <div id="adminAuthBox">
-    <h3>Admin Sign In</h3>
-    <p>Sign in with your KALOS admin account.</p>
-    <input id="adminAuthEmail" type="email" placeholder="Email" autocomplete="email"
-      style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border .2s;margin-bottom:8px"
-      onkeydown="if(event.key==='Enter')document.getElementById('adminAuthPass').focus()">
-    <input id="adminAuthPass" type="password" placeholder="Password" autocomplete="current-password"
-      onkeydown="if(event.key==='Enter')submitAdminAuth()">
-    <div id="adminAuthErr"></div>
-    <div class="auth-btns">
-      <button class="auth-btn-ok" onclick="submitAdminAuth()">Sign in</button>
-      <button class="auth-btn-cancel" onclick="closeAdminAuth()">Cancel</button>
+    <div id="adminAuthStep1">
+      <h3>Admin Access</h3>
+      <p>A sign-in link will be sent to your email.</p>
+      <div id="adminAuthErr"></div>
+      <div class="auth-btns">
+        <button class="auth-btn-ok" onclick="sendAdminLink()">Send link →</button>
+        <button class="auth-btn-cancel" onclick="closeAdminAuth()">Cancel</button>
+      </div>
+    </div>
+    <div id="adminAuthStep2" style="display:none">
+      <h3>Check your email</h3>
+      <p>A sign-in link was sent to <strong style="color:var(--accent)">eladgo55@gmail.com</strong>.<br>Click the link in the email to continue.</p>
+      <div style="margin-top:16px">
+        <button class="auth-btn-cancel" onclick="closeAdminAuth()" style="width:100%">Close</button>
+      </div>
     </div>
   </div>
 </div>
@@ -710,12 +704,26 @@ footer{
   setInterval(runScan,120000);
 })();
 
-/* ─── ADMIN AUTH (Firebase Auth) ─── */
+/* ─── ADMIN AUTH (Firebase Email Link) ─── */
 const OWNER_EMAIL='eladgo55@gmail.com';
 let _isAdmin=false;
 const _auth=firebase.auth();
 
-// Long-press logo 5s → sign-in modal
+// Complete email-link sign-in if this is a redirect back from the link
+if(_auth.isSignInWithEmailLink(window.location.href)){
+  _auth.signInWithEmailLink(OWNER_EMAIL,window.location.href)
+    .then(r=>{
+      if(r.user.email===OWNER_EMAIL) grantAdmin();
+      window.history.replaceState({},document.title,window.location.pathname);
+    }).catch(()=>{});
+}
+
+// Restore session if already signed in
+_auth.onAuthStateChanged(user=>{
+  if(user&&user.email===OWNER_EMAIL) grantAdmin();
+});
+
+// Long-press logo 5s → modal
 (function(){
   const logo=document.querySelector('.nav-logo');
   let _t=null;
@@ -728,55 +736,64 @@ const _auth=firebase.auth();
   logo.addEventListener('touchend',stop);
 })();
 
-// Restore session if Firebase already has a signed-in user
-_auth.onAuthStateChanged(user=>{
-  if(user&&user.email===OWNER_EMAIL) grantAdmin();
-});
-
 function openAdminAuth(){
   document.getElementById('adminAuthModal').style.display='flex';
-  document.getElementById('adminAuthEmail').value='';
-  document.getElementById('adminAuthPass').value='';
+  document.getElementById('adminAuthStep1').style.display='block';
+  document.getElementById('adminAuthStep2').style.display='none';
   document.getElementById('adminAuthErr').textContent='';
-  setTimeout(()=>document.getElementById('adminAuthEmail').focus(),50);
 }
 function closeAdminAuth(){
   document.getElementById('adminAuthModal').style.display='none';
 }
-async function submitAdminAuth(){
-  const email=document.getElementById('adminAuthEmail').value.trim();
-  const pass=document.getElementById('adminAuthPass').value;
+async function sendAdminLink(){
   const errEl=document.getElementById('adminAuthErr');
-  if(!email||!pass){errEl.textContent='Fill in both fields.';return;}
-  errEl.textContent='Signing in…';
+  errEl.textContent='Sending…';
   try{
-    const cred=await _auth.signInWithEmailAndPassword(email,pass);
-    if(cred.user.email!==OWNER_EMAIL){
-      await _auth.signOut();
-      errEl.textContent='Not an admin account.';
-      return;
-    }
-    closeAdminAuth();
-    grantAdmin();
+    await _auth.sendSignInLinkToEmail(OWNER_EMAIL,{
+      url:window.location.href,
+      handleCodeInApp:true
+    });
+    document.getElementById('adminAuthStep1').style.display='none';
+    document.getElementById('adminAuthStep2').style.display='block';
   }catch(e){
-    errEl.textContent=e.code==='auth/invalid-credential'?'Wrong email or password.':'Error: '+e.message;
+    errEl.textContent='Error: '+e.message;
   }
 }
 
 function grantAdmin(){
   if(_isAdmin)return;
   _isAdmin=true;
-  // Inject admin panel into DOM only now — nothing was in the HTML source
+  // Inject admin panel — nothing in the static HTML source
   document.getElementById('adminRoot').innerHTML=`
     <div id="adminPanel">
       <div class="admin-title">⚙ KALOS ADMIN</div>
       <button class="admin-btn" onclick="showAllReviews()">📋 All reviews</button>
       <button class="admin-btn" onclick="uploadPhotoFromAdmin()">📷 Update photo</button>
-      <button class="admin-btn" onclick="_auth.signOut().then(()=>{document.getElementById('adminPanel').remove();document.getElementById('photoHintAdmin').style.display='none';document.getElementById('videoAdminBar').style.display='none';_isAdmin=false;})">🚪 Sign out</button>
+      <button class="admin-btn" onclick="signOutAdmin()">🚪 Sign out</button>
     </div>`;
   document.getElementById('adminPanel').style.display='block';
   document.getElementById('photoHintAdmin').style.display='block';
-  document.getElementById('videoAdminBar').style.display='block';
+  // Inject video admin controls
+  document.getElementById('videoAdminSlot').innerHTML=`
+    <div id="videoAdminBar" style="position:absolute;bottom:14px;right:14px;z-index:10">
+      <button onclick="showVideoInput()" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:8px 16px;border-radius:8px;background:rgba(7,9,15,.9);border:1px solid rgba(77,159,255,.4);color:var(--accent);cursor:pointer;backdrop-filter:blur(8px)">🎬 Change video</button>
+    </div>
+    <div id="videoInputBar" style="display:none;margin-top:12px;gap:8px;align-items:center">
+      <input id="videoUrlInput" type="text" placeholder="Paste YouTube URL…" style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none">
+      <button onclick="saveVideoUrl()" style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:10px 20px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer">Save</button>
+      <button onclick="document.getElementById('videoInputBar').style.display='none'" style="font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);cursor:pointer">✕</button>
+    </div>`;
+  // videoAdminSlot needs relative positioning for the absolute bar
+  document.getElementById('videoAdminSlot').style.position='relative';
+}
+
+function signOutAdmin(){
+  _auth.signOut().then(()=>{
+    document.getElementById('adminRoot').innerHTML='';
+    document.getElementById('videoAdminSlot').innerHTML='';
+    document.getElementById('photoHintAdmin').style.display='none';
+    _isAdmin=false;
+  });
 }
 
 /* ─── PHOTO ─── */
