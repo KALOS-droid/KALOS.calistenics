@@ -499,7 +499,7 @@ footer{
 
   <div class="hero-stats">
     <div class="stat">
-      <div class="stat-num" id="userCountHero">1,000<span class="plus">+</span></div>
+      <div class="stat-num" id="userCountHero">—</div>
       <div class="stat-label">Athletes</div>
     </div>
     <div class="stat">
@@ -650,7 +650,7 @@ footer{
 <div class="cta-wrap">
   <div class="cta-glow"></div>
   <h2 class="reveal">Ready to start?</h2>
-  <p class="reveal">Join 1,000+ athletes already training with KALOS.<br>Free to start. No gym needed.</p>
+  <p class="reveal">Join athletes already training with KALOS.<br>Free to start. No gym needed.</p>
   <a href="TRAINING.html" class="btn-primary reveal" style="font-size:15px;padding:16px 44px">Create your account →</a>
 </div>
 
@@ -834,18 +834,20 @@ async function loadPhoto(){
 }
 
 /* ─── USER COUNT ─── */
-async function loadUserCount(){
-  try{
-    const snap=await _db.collection('users').get();
+function animateCount(el, from, to){
+  if(to===0){el.textContent='0';return;}
+  let cur=from;
+  const step=Math.max(1,Math.floor((to-from)/40));
+  const t=setInterval(()=>{cur=Math.min(cur+step,to);el.textContent=cur;if(cur>=to)clearInterval(t);},30);
+}
+function loadUserCount(){
+  const el=document.getElementById('userCountHero');
+  // Real-time listener — updates instantly when new user registers
+  _db.collection('users').onSnapshot(snap=>{
     const count=snap.size;
-    const el=document.getElementById('userCountHero');
-    if(count>1000){
-      // animate to real number
-      let cur=1000;const step=Math.max(1,Math.floor((count-1000)/40));
-      const t=setInterval(()=>{cur=Math.min(cur+step,count);el.innerHTML=cur.toLocaleString()+'<span class="plus">+</span>';if(cur>=count)clearInterval(t);},40);
-    }
-    // else keep "1,000+" display
-  }catch(e){}
+    const prev=parseInt(el.textContent)||0;
+    animateCount(el,prev,count);
+  },()=>{el.textContent='?';});
 }
 
 /* ─── VIDEO ─── */
