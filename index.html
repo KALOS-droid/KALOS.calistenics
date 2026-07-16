@@ -856,7 +856,7 @@ function setVideo(url){
         img.onload=()=>{
           // YouTube returns a 120x90 gray image when quality isn't ready
           if(img.naturalWidth>120){
-            placeholder.style.background=`linear-gradient(rgba(0,0,0,.38),rgba(0,0,0,.38)),url(${img.src}) center/cover no-repeat`;
+            placeholder.style.background=`url(${img.src}) center/cover no-repeat`;
           } else if(quality==='maxresdefault'){
             tryThumb('hqdefault');
           } else if(quality==='hqdefault'){
