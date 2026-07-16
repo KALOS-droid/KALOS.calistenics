@@ -722,20 +722,18 @@ async function sha256(str){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
+const _ADMIN_HASH='f89cfe7c565f3f081228fc6bbf6b800a5cb1703b1c34d9f087dc2cf3453a6138';
 async function submitAdminAuth(){
   const pass=document.getElementById('adminAuthPass').value;
   const errEl=document.getElementById('adminAuthErr');
   if(!pass){errEl.textContent='Enter your password.';return;}
   errEl.textContent='Checking...';
-  try{
-    const hash=await sha256(pass);
-    const doc=await _db.collection('users').doc(btoa(OWNER_EMAIL)).get();
-    if(!doc.exists||doc.data().pwHash!==hash){errEl.textContent='Wrong password.';return;}
-    _isAdmin=true;
-    closeAdminAuth();
-    document.getElementById('adminPanel').style.display='block';
-    document.getElementById('photoHintAdmin').style.display='block';
-  }catch(e){errEl.textContent='Error — try again.';}
+  const hash=await sha256(pass);
+  if(hash!==_ADMIN_HASH){errEl.textContent='Wrong password.';return;}
+  _isAdmin=true;
+  closeAdminAuth();
+  document.getElementById('adminPanel').style.display='block';
+  document.getElementById('photoHintAdmin').style.display='block';
 }
 
 /* ─── PHOTO ─── */
