@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only the admin (signed-in via Firebase Auth) can write
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'eladgo55@gmail.com';
+    }
+
+    // Users collection — TRAINING.html manages its own auth, keep as-is
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    // Reviews — anyone can read approved ones, only admin can write/approve
+    match /reviews/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Private feedback (low-star) — admin only
+    match /feedback/{doc} {
+      allow read, write: if isAdmin();
+    }
+
+    // Landing page config (photo, video URL) — public read, admin write
+    match /landing/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

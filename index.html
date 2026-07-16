@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
 const _fbConfig={apiKey:"AIzaSyDVSuWYTq7ZREIA2ldlaXAsJqiByyKQE5w",authDomain:"kalos-db.firebaseapp.com",projectId:"kalos-db",storageBucket:"kalos-db.firebasestorage.app",messagingSenderId:"280774484505",appId:"1:280774484505:web:a693fb4466b6fc75e0c088"};
 firebase.initializeApp(_fbConfig);
@@ -666,28 +667,26 @@ footer{
   © 2025 KALOS Calisthenics · All rights reserved
 </footer>
 
-<!-- ADMIN AUTH MODAL -->
+<!-- ADMIN AUTH MODAL (no admin HTML in source — injected after real Firebase Auth) -->
 <div id="adminAuthModal">
   <div id="adminAuthBox">
-    <h3>Admin Access</h3>
-    <p>Enter your KALOS password to continue.</p>
-    <input id="adminAuthPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')submitAdminAuth()">
+    <h3>Admin Sign In</h3>
+    <p>Sign in with your KALOS admin account.</p>
+    <input id="adminAuthEmail" type="email" placeholder="Email" autocomplete="email"
+      style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border .2s;margin-bottom:8px"
+      onkeydown="if(event.key==='Enter')document.getElementById('adminAuthPass').focus()">
+    <input id="adminAuthPass" type="password" placeholder="Password" autocomplete="current-password"
+      onkeydown="if(event.key==='Enter')submitAdminAuth()">
     <div id="adminAuthErr"></div>
     <div class="auth-btns">
-      <button class="auth-btn-ok" onclick="submitAdminAuth()">Unlock</button>
+      <button class="auth-btn-ok" onclick="submitAdminAuth()">Sign in</button>
       <button class="auth-btn-cancel" onclick="closeAdminAuth()">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
-<div id="adminPanel">
-  <div class="admin-title">⚙ KALOS ADMIN</div>
-  <button class="admin-btn" onclick="showAllReviews()">📋 All reviews</button>
-  <button class="admin-btn" onclick="uploadPhotoFromAdmin()">📷 Update photo</button>
-</div>
-
-<!-- ALL REVIEWS MODAL -->
+<!-- ALL REVIEWS MODAL (injected admin-only content goes in #adminRoot) -->
+<div id="adminRoot"></div>
 <div id="allReviewsModal">
   <div class="modal-box">
     <div class="modal-head">
@@ -711,45 +710,70 @@ footer{
   setInterval(runScan,120000);
 })();
 
-/* ─── ADMIN AUTH ─── */
+/* ─── ADMIN AUTH (Firebase Auth) ─── */
 const OWNER_EMAIL='eladgo55@gmail.com';
 let _isAdmin=false;
+const _auth=firebase.auth();
 
-// Long-press logo 5s to open admin auth
+// Long-press logo 5s → sign-in modal
 (function(){
   const logo=document.querySelector('.nav-logo');
   let _t=null;
-  logo.addEventListener('mousedown',()=>{_t=setTimeout(openAdminAuth,5000)});
-  logo.addEventListener('mouseup',()=>clearTimeout(_t));
-  logo.addEventListener('mouseleave',()=>clearTimeout(_t));
-  logo.addEventListener('touchstart',()=>{_t=setTimeout(openAdminAuth,5000)},{passive:true});
-  logo.addEventListener('touchend',()=>clearTimeout(_t));
+  const start=()=>{_t=setTimeout(openAdminAuth,5000)};
+  const stop=()=>clearTimeout(_t);
+  logo.addEventListener('mousedown',start);
+  logo.addEventListener('mouseup',stop);
+  logo.addEventListener('mouseleave',stop);
+  logo.addEventListener('touchstart',start,{passive:true});
+  logo.addEventListener('touchend',stop);
 })();
+
+// Restore session if Firebase already has a signed-in user
+_auth.onAuthStateChanged(user=>{
+  if(user&&user.email===OWNER_EMAIL) grantAdmin();
+});
 
 function openAdminAuth(){
   document.getElementById('adminAuthModal').style.display='flex';
+  document.getElementById('adminAuthEmail').value='';
   document.getElementById('adminAuthPass').value='';
   document.getElementById('adminAuthErr').textContent='';
-  setTimeout(()=>document.getElementById('adminAuthPass').focus(),50);
+  setTimeout(()=>document.getElementById('adminAuthEmail').focus(),50);
 }
 function closeAdminAuth(){
   document.getElementById('adminAuthModal').style.display='none';
 }
-async function sha256(str){
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-const _ADMIN_HASH='f89cfe7c565f3f081228fc6bbf6b800a5cb1703b1c34d9f087dc2cf3453a6138';
 async function submitAdminAuth(){
+  const email=document.getElementById('adminAuthEmail').value.trim();
   const pass=document.getElementById('adminAuthPass').value;
   const errEl=document.getElementById('adminAuthErr');
-  if(!pass){errEl.textContent='Enter your password.';return;}
-  errEl.textContent='Checking...';
-  const hash=await sha256(pass);
-  if(hash!==_ADMIN_HASH){errEl.textContent='Wrong password.';return;}
+  if(!email||!pass){errEl.textContent='Fill in both fields.';return;}
+  errEl.textContent='Signing in…';
+  try{
+    const cred=await _auth.signInWithEmailAndPassword(email,pass);
+    if(cred.user.email!==OWNER_EMAIL){
+      await _auth.signOut();
+      errEl.textContent='Not an admin account.';
+      return;
+    }
+    closeAdminAuth();
+    grantAdmin();
+  }catch(e){
+    errEl.textContent=e.code==='auth/invalid-credential'?'Wrong email or password.':'Error: '+e.message;
+  }
+}
+
+function grantAdmin(){
+  if(_isAdmin)return;
   _isAdmin=true;
-  closeAdminAuth();
-  document.getElementById('adminPanel').style.display='block';
+  // Inject admin panel into DOM only now — nothing was in the HTML source
+  document.getElementById('adminRoot').innerHTML=`
+    <div id="adminPanel">
+      <div class="admin-title">⚙ KALOS ADMIN</div>
+      <button class="admin-btn" onclick="showAllReviews()">📋 All reviews</button>
+      <button class="admin-btn" onclick="uploadPhotoFromAdmin()">📷 Update photo</button>
+      <button class="admin-btn" onclick="_auth.signOut().then(()=>{document.getElementById('adminPanel').remove();document.getElementById('photoHintAdmin').style.display='none';document.getElementById('videoAdminBar').style.display='none';_isAdmin=false;})">🚪 Sign out</button>
+    </div>`;
   document.getElementById('photoHintAdmin').style.display='block';
   document.getElementById('videoAdminBar').style.display='block';
 }
