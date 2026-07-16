@@ -382,6 +382,37 @@ footer{
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
 .reveal.in{opacity:1;transform:none}
 
+/* ── ADMIN AUTH MODAL ── */
+#adminAuthModal{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.85);
+  align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+#adminAuthBox{
+  background:#0c0f1a;border:1px solid rgba(77,159,255,.25);border-radius:14px;
+  padding:28px 28px 24px;width:320px;font-family:'Inter',sans-serif;
+  box-shadow:0 20px 60px rgba(0,0,0,.7);
+}
+#adminAuthBox h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-.02em}
+#adminAuthBox p{font-size:12px;color:var(--text3);margin-bottom:20px}
+#adminAuthPass{
+  width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;
+  font-family:'Inter',sans-serif;outline:none;transition:border .2s;margin-bottom:12px;
+}
+#adminAuthPass:focus{border-color:rgba(77,159,255,.4)}
+#adminAuthErr{font-size:11px;color:#ff6b6b;min-height:16px;margin-bottom:12px}
+.auth-btns{display:flex;gap:8px}
+.auth-btn-ok{
+  flex:1;background:var(--accent);color:#fff;border:none;border-radius:8px;
+  padding:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:opacity .2s;
+}
+.auth-btn-ok:hover{opacity:.85}
+.auth-btn-cancel{
+  background:var(--surface2);color:var(--text2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 16px;font-family:'Inter',sans-serif;font-size:13px;
+  cursor:pointer;transition:background .2s;
+}
+.auth-btn-cancel:hover{background:rgba(255,255,255,.08)}
+
 /* ── ADMIN ── */
 #adminPanel{
   display:none;position:fixed;bottom:20px;left:20px;z-index:600;
@@ -618,6 +649,20 @@ footer{
   © 2025 KALOS Calisthenics · All rights reserved
 </footer>
 
+<!-- ADMIN AUTH MODAL -->
+<div id="adminAuthModal">
+  <div id="adminAuthBox">
+    <h3>Admin Access</h3>
+    <p>Enter your KALOS password to continue.</p>
+    <input id="adminAuthPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')submitAdminAuth()">
+    <div id="adminAuthErr"></div>
+    <div class="auth-btns">
+      <button class="auth-btn-ok" onclick="submitAdminAuth()">Unlock</button>
+      <button class="auth-btn-cancel" onclick="closeAdminAuth()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- ADMIN PANEL -->
 <div id="adminPanel">
   <div class="admin-title">⚙ KALOS ADMIN</div>
@@ -649,12 +694,48 @@ footer{
   setInterval(runScan,120000);
 })();
 
-/* ─── ADMIN ─── */
+/* ─── ADMIN AUTH ─── */
 const OWNER_EMAIL='eladgo55@gmail.com';
-const _isAdmin=(()=>{try{const s=JSON.parse(localStorage.getItem('jarvis_training')||'{}');return s.admin===true;}catch(e){return false;}})();
-if(_isAdmin){
-  document.getElementById('adminPanel').style.display='block';
-  document.getElementById('photoHintAdmin').style.display='block';
+let _isAdmin=false;
+
+// Long-press logo 5s to open admin auth
+(function(){
+  const logo=document.querySelector('.nav-logo');
+  let _t=null;
+  logo.addEventListener('mousedown',()=>{_t=setTimeout(openAdminAuth,5000)});
+  logo.addEventListener('mouseup',()=>clearTimeout(_t));
+  logo.addEventListener('mouseleave',()=>clearTimeout(_t));
+  logo.addEventListener('touchstart',()=>{_t=setTimeout(openAdminAuth,5000)},{passive:true});
+  logo.addEventListener('touchend',()=>clearTimeout(_t));
+})();
+
+function openAdminAuth(){
+  document.getElementById('adminAuthModal').style.display='flex';
+  document.getElementById('adminAuthPass').value='';
+  document.getElementById('adminAuthErr').textContent='';
+  setTimeout(()=>document.getElementById('adminAuthPass').focus(),50);
+}
+function closeAdminAuth(){
+  document.getElementById('adminAuthModal').style.display='none';
+}
+async function sha256(str){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function submitAdminAuth(){
+  const pass=document.getElementById('adminAuthPass').value;
+  const errEl=document.getElementById('adminAuthErr');
+  if(!pass){errEl.textContent='Enter your password.';return;}
+  errEl.textContent='Checking...';
+  try{
+    const hash=await sha256(pass);
+    const doc=await _db.collection('users').doc(btoa(OWNER_EMAIL)).get();
+    if(!doc.exists||doc.data().pwHash!==hash){errEl.textContent='Wrong password.';return;}
+    _isAdmin=true;
+    closeAdminAuth();
+    document.getElementById('adminPanel').style.display='block';
+    document.getElementById('photoHintAdmin').style.display='block';
+  }catch(e){errEl.textContent='Error — try again.';}
 }
 
 /* ─── PHOTO ─── */
