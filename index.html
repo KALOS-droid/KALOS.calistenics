@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 const _fbConfig={apiKey:"AIzaSyDVSuWYTq7ZREIA2ldlaXAsJqiByyKQE5w",authDomain:"kalos-db.firebaseapp.com",projectId:"kalos-db",storageBucket:"kalos-db.firebasestorage.app",messagingSenderId:"280774484505",appId:"1:280774484505:web:a693fb4466b6fc75e0c088"};
 firebase.initializeApp(_fbConfig);
@@ -662,18 +663,24 @@ footer{
   <div id="adminAuthBox">
     <div id="adminAuthStep1">
       <h3>Admin Access</h3>
-      <p>A sign-in link will be sent to your email.</p>
+      <p>A 6-digit code will be sent to your email.</p>
       <div id="adminAuthErr"></div>
       <div class="auth-btns">
-        <button class="auth-btn-ok" onclick="sendAdminLink()">Send link →</button>
+        <button class="auth-btn-ok" onclick="sendAdminOTP()">Send code →</button>
         <button class="auth-btn-cancel" onclick="closeAdminAuth()">Cancel</button>
       </div>
     </div>
     <div id="adminAuthStep2" style="display:none">
-      <h3>Check your email</h3>
-      <p>A sign-in link was sent to <strong style="color:var(--accent)">eladgo55@gmail.com</strong>.<br>Click the link in the email to continue.</p>
-      <div style="margin-top:16px">
-        <button class="auth-btn-cancel" onclick="closeAdminAuth()" style="width:100%">Close</button>
+      <h3>Enter code</h3>
+      <p>Sent to <strong style="color:var(--accent)">eladgo55@gmail.com</strong></p>
+      <input id="adminOTPInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+        oninput="this.value=this.value.replace(/\D/g,'')"
+        onkeydown="if(event.key==='Enter')verifyAdminOTP()"
+        style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:22px;font-family:'Inter',sans-serif;outline:none;text-align:center;letter-spacing:.35em;margin:12px 0">
+      <div id="adminOTPErr" style="font-size:11px;color:#ff6b6b;min-height:16px;margin-bottom:10px"></div>
+      <div class="auth-btns">
+        <button class="auth-btn-ok" onclick="verifyAdminOTP()">Verify →</button>
+        <button class="auth-btn-cancel" onclick="closeAdminAuth()">Cancel</button>
       </div>
     </div>
   </div>
@@ -704,24 +711,15 @@ footer{
   setInterval(runScan,120000);
 })();
 
-/* ─── ADMIN AUTH (Firebase Email Link) ─── */
+/* ─── ADMIN AUTH (EmailJS OTP) ─── */
 const OWNER_EMAIL='eladgo55@gmail.com';
-let _isAdmin=false;
-const _auth=firebase.auth();
+const EJS_SERVICE='service_p9jegfs',EJS_TEMPLATE='template_9r4owbs',EJS_KEY='pXx5dJshzx1Iznnu8';
+let _isAdmin=false,_otpHash=null,_otpExpiry=0;
 
-// Complete email-link sign-in if this is a redirect back from the link
-if(_auth.isSignInWithEmailLink(window.location.href)){
-  _auth.signInWithEmailLink(OWNER_EMAIL,window.location.href)
-    .then(r=>{
-      if(r.user.email===OWNER_EMAIL) grantAdmin();
-      window.history.replaceState({},document.title,window.location.pathname);
-    }).catch(()=>{});
+async function sha256(s){
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
 }
-
-// Restore session if already signed in
-_auth.onAuthStateChanged(user=>{
-  if(user&&user.email===OWNER_EMAIL) grantAdmin();
-});
 
 // Long-press logo 5s → modal
 (function(){
@@ -745,19 +743,29 @@ function openAdminAuth(){
 function closeAdminAuth(){
   document.getElementById('adminAuthModal').style.display='none';
 }
-async function sendAdminLink(){
+async function sendAdminOTP(){
   const errEl=document.getElementById('adminAuthErr');
   errEl.textContent='Sending…';
+  const code=String(Math.floor(100000+Math.random()*900000));
+  _otpHash=await sha256(code);
+  _otpExpiry=Date.now()+600000; // 10 min
   try{
-    await _auth.sendSignInLinkToEmail(OWNER_EMAIL,{
-      url:window.location.href,
-      handleCodeInApp:true
-    });
+    await emailjs.send(EJS_SERVICE,EJS_TEMPLATE,
+      {to_email:OWNER_EMAIL,to_name:'Admin',otp_code:code,app_name:'KALOS'},EJS_KEY);
     document.getElementById('adminAuthStep1').style.display='none';
     document.getElementById('adminAuthStep2').style.display='block';
-  }catch(e){
-    errEl.textContent='Error: '+e.message;
-  }
+    setTimeout(()=>document.getElementById('adminOTPInput').focus(),50);
+  }catch(e){errEl.textContent='Error sending email. Try again.';}
+}
+async function verifyAdminOTP(){
+  const code=document.getElementById('adminOTPInput').value.trim();
+  const errEl=document.getElementById('adminOTPErr');
+  if(code.length!==6){errEl.textContent='Enter the 6-digit code.';return;}
+  if(Date.now()>_otpExpiry){errEl.textContent='Code expired. Go back and resend.';return;}
+  const h=await sha256(code);
+  if(h!==_otpHash){errEl.textContent='Wrong code. Try again.';return;}
+  closeAdminAuth();
+  grantAdmin();
 }
 
 function grantAdmin(){
