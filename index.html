@@ -850,11 +850,22 @@ function setVideo(url){
     if(u.hostname==='youtu.be') id=u.pathname.slice(1);
     else if(u.searchParams.get('v')) id=u.searchParams.get('v');
     if(id){
-      placeholder.style.backgroundImage=`url(https://img.youtube.com/vi/${id}/maxresdefault.jpg)`;
-      placeholder.style.backgroundSize='cover';
-      placeholder.style.backgroundPosition='center';
-      // Darken slightly so play button is visible
-      placeholder.style.background=`linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(https://img.youtube.com/vi/${id}/maxresdefault.jpg) center/cover`;
+      // Try maxresdefault, fallback to hqdefault if not ready
+      const tryThumb=(quality)=>{
+        const img=new Image();
+        img.onload=()=>{
+          // YouTube returns a 120x90 gray image when quality isn't ready
+          if(img.naturalWidth>120){
+            placeholder.style.background=`linear-gradient(rgba(0,0,0,.38),rgba(0,0,0,.38)),url(${img.src}) center/cover no-repeat`;
+          } else if(quality==='maxresdefault'){
+            tryThumb('hqdefault');
+          } else if(quality==='hqdefault'){
+            tryThumb('mqdefault');
+          }
+        };
+        img.src=`https://img.youtube.com/vi/${id}/${quality}.jpg`;
+      };
+      tryThumb('maxresdefault');
     }
   }catch(e){}
 }
