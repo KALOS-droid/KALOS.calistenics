@@ -619,8 +619,9 @@ footer{
     </div>
   </div>
 
-  <div class="reveal" style="text-align:center;margin-top:32px">
-    <button onclick="openRateModal()" style="background:transparent;border:1px solid rgba(255,255,255,.18);color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:11px 28px;border-radius:8px;cursor:pointer;letter-spacing:.02em;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.4)';this.style.color='var(--text1)'" onmouseout="this.style.borderColor='rgba(255,255,255,.18)';this.style.color='var(--text2)'">Rate KALOS →</button>
+  <div class="reveal" style="text-align:center;margin-top:32px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+    <button onclick="showPublicAllReviews()" style="background:transparent;border:1px solid rgba(255,255,255,.18);color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:11px 28px;border-radius:8px;cursor:pointer;letter-spacing:.02em;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.4)';this.style.color='var(--text1)'" onmouseout="this.style.borderColor='rgba(255,255,255,.18)';this.style.color='var(--text2)'">All reviews</button>
+    <button onclick="openRateModal()" style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.35);color:#ffd700;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:11px 28px;border-radius:8px;cursor:pointer;letter-spacing:.02em;transition:background .2s" onmouseover="this.style.background='rgba(255,215,0,.15)'" onmouseout="this.style.background='rgba(255,215,0,.08)'">⭐ Rate KALOS</button>
   </div>
 </section>
 
@@ -964,9 +965,9 @@ async function loadReviews(){
     const cards=[];
     snap.forEach(doc=>{
       const d=doc.data();
-      if((d.rating||0)<4)return; // 4+ stars only
+      if((d.rating||0)<5)return; // 5 stars only in marquee
       if(cards.length>=10)return; // top 10
-      const stars='★'.repeat(d.rating)+'☆'.repeat(5-d.rating);
+      const stars='★★★★★';
       cards.push(`<div class="review-card">
         <div class="review-stars">${stars}</div>
         <div class="review-text">"${d.text}"</div>
@@ -980,6 +981,32 @@ async function loadReviews(){
     const dur=Math.max(20,cards.length*6);
     track.style.animationDuration=dur+'s';
   }catch(e){}
+}
+async function showPublicAllReviews(){
+  const modal=document.getElementById('allReviewsModal');
+  modal.style.display='flex';
+  const list=document.getElementById('allReviewsList');
+  list.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center">Loading...</div>';
+  try{
+    const snap=await _db.collection('reviews').where('approved','==',true).orderBy('createdAt','desc').get();
+    if(snap.empty){list.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center">No reviews yet.</div>';return;}
+    list.innerHTML='';
+    snap.forEach(doc=>{
+      const d=doc.data();
+      if((d.rating||0)<4)return;
+      const stars='★'.repeat(d.rating)+'☆'.repeat(5-d.rating);
+      const div=document.createElement('div');
+      div.style.cssText='background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px;margin-bottom:10px';
+      div.innerHTML=`
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span style="color:var(--gold);font-size:14px">${stars}</span>
+          <span style="font-size:12px;color:var(--text3)">${d.name||'Anonymous'}${d.daysActive?' · '+d.daysActive+' days active':''}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">"${d.text||''}"</div>
+      `;
+      list.appendChild(div);
+    });
+  }catch(e){list.innerHTML='<div style="color:var(--text3);text-align:center">Error loading reviews.</div>';}
 }
 
 /* ─── RATE MODAL ─── */
@@ -1011,10 +1038,12 @@ async function submitPublicReview(){
   btn.textContent='Sending...';btn.disabled=true;
   const text=(document.getElementById('rateTextInput').value||'').trim();
   const name=(document.getElementById('rateNameInput').value||'').trim();
-  const review={name:name||'Anonymous',rating:_rateStar,text,daysActive:null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),approved:false};
+  const autoApprove=_rateStar>=4;
+  const review={name:name||'Anonymous',rating:_rateStar,text,daysActive:null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),approved:autoApprove};
   try{
     if(_rateStar>=4){
       await _db.collection('reviews').add(review);
+      loadReviews(); // refresh marquee immediately
     } else {
       await _db.collection('feedback').add({...review,private:true});
     }
