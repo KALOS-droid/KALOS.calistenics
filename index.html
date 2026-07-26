@@ -600,7 +600,7 @@ footer{
     <div class="reviews-fade-l"></div>
     <div class="reviews-fade-r"></div>
     <div class="reviews-track" id="reviewsTrack">
-      <!-- injected by JS, duplicated for infinite scroll -->
+      <!-- injected by JS from Firestore (4+ stars, top 10) -->
       <div class="review-card">
         <div class="review-stars">★★★★★</div>
         <div class="review-text">"The skill tree concept finally made calisthenics make sense to me. I went from zero pull-ups to 15 in two months."</div>
@@ -618,7 +618,36 @@ footer{
       </div>
     </div>
   </div>
+
+  <div class="reveal" style="text-align:center;margin-top:32px">
+    <button onclick="openRateModal()" style="background:transparent;border:1px solid rgba(255,255,255,.18);color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;padding:11px 28px;border-radius:8px;cursor:pointer;letter-spacing:.02em;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.4)';this.style.color='var(--text1)'" onmouseout="this.style.borderColor='rgba(255,255,255,.18)';this.style.color='var(--text2)'">Rate KALOS →</button>
+  </div>
 </section>
+
+<!-- REVIEW MODAL -->
+<div id="rateModal" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:20px">
+  <div style="background:linear-gradient(160deg,#070e20,#04081a);border:1px solid rgba(255,215,0,.3);border-radius:16px;padding:30px 26px;max-width:380px;width:100%;text-align:center;box-shadow:0 0 60px rgba(255,215,0,.1);position:relative">
+    <button onclick="closeRateModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1">×</button>
+    <div style="font-size:32px;margin-bottom:10px">⭐</div>
+    <div style="font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#ffd700;margin-bottom:6px;letter-spacing:.03em">Rate your experience</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.7">How has KALOS been working for you?<br>Your honest feedback helps us improve.</div>
+    <div id="rateStars" style="display:flex;justify-content:center;gap:10px;margin-bottom:18px">
+      <span data-v="1" onclick="setRateStar(1)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
+      <span data-v="2" onclick="setRateStar(2)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
+      <span data-v="3" onclick="setRateStar(3)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
+      <span data-v="4" onclick="setRateStar(4)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
+      <span data-v="5" onclick="setRateStar(5)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
+    </div>
+    <input id="rateNameInput" type="text" placeholder="Your name (optional)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text1);font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;outline:none;margin-bottom:10px;box-sizing:border-box">
+    <textarea id="rateTextInput" placeholder="Tell us about your experience (optional)" style="width:100%;min-height:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text1);font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;resize:none;outline:none;line-height:1.65;margin-bottom:14px;box-sizing:border-box"></textarea>
+    <div style="display:flex;gap:8px">
+      <button onclick="submitPublicReview()" id="rateSubmitBtn" style="flex:1;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.4);color:#ffd700;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:11px;border-radius:8px;cursor:pointer;letter-spacing:.03em">Submit →</button>
+      <button onclick="closeRateModal()" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--text3);font-family:'Inter',sans-serif;font-size:13px;padding:11px 16px;border-radius:8px;cursor:pointer">Cancel</button>
+    </div>
+    <div id="rateErr" style="display:none;margin-top:10px;font-size:11px;color:#ff4466;font-family:'Inter',sans-serif"></div>
+    <div id="rateThanks" style="display:none;margin-top:14px;font-size:13px;color:#00cc6a;font-family:'Inter',sans-serif">Thank you for your review! ⭐</div>
+  </div>
+</div>
 
 <div class="divider" style="margin:0 24px"></div>
 
@@ -931,11 +960,12 @@ async function loadReviews(){
   const track=document.getElementById('reviewsTrack');
   try{
     const snap=await _db.collection('reviews').where('approved','==',true).orderBy('createdAt','desc').get();
-    if(snap.empty){return;} // keep placeholder cards
-    // Build cards
+    if(snap.empty){return;}
     const cards=[];
     snap.forEach(doc=>{
       const d=doc.data();
+      if((d.rating||0)<4)return; // 4+ stars only
+      if(cards.length>=10)return; // top 10
       const stars='★'.repeat(d.rating)+'☆'.repeat(5-d.rating);
       cards.push(`<div class="review-card">
         <div class="review-stars">${stars}</div>
@@ -945,13 +975,56 @@ async function loadReviews(){
       </div>`);
     });
     if(cards.length===0)return;
-    // Duplicate for seamless loop
     const all=cards.join('')+cards.join('');
     track.innerHTML=all;
-    // Adjust animation duration based on count
     const dur=Math.max(20,cards.length*6);
     track.style.animationDuration=dur+'s';
   }catch(e){}
+}
+
+/* ─── RATE MODAL ─── */
+let _rateStar=0;
+function openRateModal(){
+  _rateStar=0;
+  document.getElementById('rateStars').querySelectorAll('span').forEach(s=>{s.style.opacity='.35';s.style.transform='';});
+  document.getElementById('rateNameInput').value='';
+  document.getElementById('rateTextInput').value='';
+  document.getElementById('rateErr').style.display='none';
+  document.getElementById('rateThanks').style.display='none';
+  document.getElementById('rateSubmitBtn').textContent='Submit →';
+  document.getElementById('rateSubmitBtn').disabled=false;
+  document.getElementById('rateModal').style.display='flex';
+}
+function closeRateModal(){document.getElementById('rateModal').style.display='none';}
+function setRateStar(n){
+  _rateStar=n;
+  document.getElementById('rateStars').querySelectorAll('span').forEach(s=>{
+    const v=parseInt(s.dataset.v);
+    s.style.opacity=v<=n?'1':'.35';
+    s.style.transform=v<=n?'scale(1.15)':'';
+  });
+}
+async function submitPublicReview(){
+  const err=document.getElementById('rateErr');
+  if(!_rateStar){err.textContent='Please select a star rating first.';err.style.display='block';return;}
+  const btn=document.getElementById('rateSubmitBtn');
+  btn.textContent='Sending...';btn.disabled=true;
+  const text=(document.getElementById('rateTextInput').value||'').trim();
+  const name=(document.getElementById('rateNameInput').value||'').trim();
+  const review={name:name||'Anonymous',rating:_rateStar,text,daysActive:null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),approved:false};
+  try{
+    if(_rateStar>=4){
+      await _db.collection('reviews').add(review);
+    } else {
+      await _db.collection('feedback').add({...review,private:true});
+    }
+    err.style.display='none';
+    document.getElementById('rateThanks').style.display='block';
+    setTimeout(closeRateModal,2200);
+  }catch(e){
+    err.textContent='Error sending — please try again.';err.style.display='block';
+    btn.textContent='Submit →';btn.disabled=false;
+  }
 }
 
 /* ─── ADMIN: ALL REVIEWS ─── */

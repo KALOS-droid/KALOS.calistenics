@@ -748,6 +748,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <span id="coinsBadge" style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#ffd700;cursor:pointer;letter-spacing:.06em" onclick="openStore();setTimeout(()=>switchStoreTab('rewards'),100)">🪙 0</span>
       <button onclick="openProfile()" style="background:rgba(0,255,213,.08);border:1px solid rgba(0,255,213,.35);color:#00ffd5;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">👤 פרופיל</button>
       <button onclick="openCheckin()" style="background:rgba(0,168,255,.12);border:1px solid rgba(0,168,255,.5);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">📊 דוח שבועי</button>
+      <button onclick="openReviewFromBtn()" style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.35);color:#ffd700;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">⭐ דרג</button>
       <button class="admin-btn" id="adminBtn" onclick="openAdmin()">🔒 קוד</button>
     </div>
   </header>
@@ -3033,15 +3034,19 @@ function setReviewStar(v){
 }
 function maybeAskReview(){
   if(!currentUser)return;
-  if(currentUser.email===OWNER_EMAIL)return; // skip for admin
-  const key='kalos_reviewed_'+btoa(currentUser.email||'');
-  if(localStorage.getItem(key))return; // already reviewed
+  if(currentUser.email===OWNER_EMAIL)return;
+  const base=btoa(currentUser.email||'');
+  // Permanently done once reviewed
+  if(localStorage.getItem('kalos_review_done_'+base))return;
   const joined=state.profile?.joinDate||currentUser?.joined;
   if(!joined)return;
   const daysSince=Math.floor((Date.now()-new Date(joined).getTime())/(1000*60*60*24));
-  if(daysSince<5)return; // less than 5 days
-  // Show after slight delay so user settles in
-  document.getElementById('reviewBackdrop').style.display='flex';
+  if(daysSince<1)return; // wait at least 1 day after joining
+  // Only once per calendar day
+  const today=new Date().toISOString().slice(0,10);
+  if(localStorage.getItem('kalos_review_prompt_'+base)===today)return;
+  localStorage.setItem('kalos_review_prompt_'+base,today);
+  setTimeout(()=>{ document.getElementById('reviewBackdrop').style.display='flex'; },3000);
 }
 async function submitReview(){
   if(!_reviewRating){
@@ -3070,8 +3075,7 @@ async function submitReview(){
       // Low rating → save privately for Elad only
       await _db.collection('feedback').add({...review,private:true});
     }
-    const key='kalos_reviewed_'+btoa(currentUser.email||'');
-    localStorage.setItem(key,'1');
+    localStorage.setItem('kalos_review_done_'+btoa(currentUser.email||''),'1');
     document.getElementById('reviewBackdrop').style.display='none';
     flash(_reviewRating>=4?'תודה על הביקורת! ⭐':'תודה על המשוב — נשתפר 🙏');
   }catch(e){
@@ -3082,7 +3086,16 @@ async function submitReview(){
 }
 function dismissReview(){
   document.getElementById('reviewBackdrop').style.display='none';
-  // Ask again next session (don't save the key)
+}
+function openReviewFromBtn(){
+  // Reset stars and text for fresh submission
+  _reviewRating=0;
+  document.getElementById('reviewStars').querySelectorAll('span').forEach(s=>{s.style.opacity='.4';s.style.transform='scale(1)';s.style.color='#ffd700';});
+  document.getElementById('reviewText').value='';
+  document.getElementById('reviewErr').style.display='none';
+  document.getElementById('reviewSubmitBtn').textContent='שלח ›';
+  document.getElementById('reviewSubmitBtn').disabled=false;
+  document.getElementById('reviewBackdrop').style.display='flex';
 }
 
 /* ---- Tutorial popup ---- */
