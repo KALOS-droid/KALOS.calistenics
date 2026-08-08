@@ -1467,9 +1467,17 @@ function krRender(){
     const stars='★'.repeat(r.rating||0)+'☆'.repeat(5-(r.rating||0));
     const date=r.createdAt?.toDate?new Date(r.createdAt.toDate()).toLocaleDateString('he-IL'):'';
     const published=r.approved===true;
+    const seen=r.seen===true;
+    // Border color: green=published, dim=seen, normal=new
+    const borderColor=published?'rgba(0,255,130,.2)':seen?'rgba(255,255,255,.04)':'rgba(255,255,255,.12)';
     const card=document.createElement('div');
     card.id='kr_'+r.id;
-    card.style.cssText='background:rgba(255,255,255,.03);border:1px solid '+(published?'rgba(0,255,130,.2)':'rgba(255,255,255,.07)')+';border-radius:8px;padding:14px 16px';
+    card.style.cssText='background:rgba(255,255,255,.03);border:1px solid '+borderColor+';border-radius:8px;padding:14px 16px;transition:border-color .3s';
+    // Status badge
+    let statusBadge;
+    if(published) statusBadge='<span style="font-family:\'Share Tech Mono\',monospace;font-size:9px;padding:2px 8px;border-radius:2px;background:rgba(0,255,130,.1);color:#00cc6a;border:1px solid rgba(0,255,130,.3)">✓ PUBLISHED</span>';
+    else if(seen) statusBadge='<span style="font-family:\'Share Tech Mono\',monospace;font-size:9px;padding:2px 8px;border-radius:2px;background:rgba(255,255,255,.04);color:var(--muted);border:1px solid rgba(255,255,255,.1)">SEEN</span>';
+    else statusBadge='<span style="font-family:\'Share Tech Mono\',monospace;font-size:9px;padding:2px 8px;border-radius:2px;background:rgba(255,165,0,.08);color:#ffaa44;border:1px solid rgba(255,165,0,.25)">⏳ NEW</span>';
     card.innerHTML=`
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -1478,12 +1486,13 @@ function krRender(){
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted)">${date}</span>
-          <span style="font-family:'Share Tech Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;${published?'background:rgba(0,255,130,.1);color:#00cc6a;border:1px solid rgba(0,255,130,.3)':'background:rgba(255,165,0,.08);color:#ffaa44;border:1px solid rgba(255,165,0,.25)'}">${published?'✓ PUBLISHED':'⏳ PENDING'}</span>
+          ${statusBadge}
         </div>
       </div>
       <div style="font-size:12px;color:rgba(255,255,255,.75);line-height:1.65;margin-bottom:12px">"${(r.text||'—').replace(/</g,'&lt;')}"</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button onclick="krTogglePublish('${r.id}',${published})" style="font-family:'Share Tech Mono',monospace;font-size:9px;padding:5px 14px;border-radius:2px;cursor:pointer;letter-spacing:.08em;${published?'background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.35);color:#ffaa44':'background:rgba(0,255,130,.08);border:1px solid rgba(0,255,130,.35);color:#00cc6a'}">${published?'↓ UNPUBLISH':'↑ PUBLISH TO SITE'}</button>
+        ${!seen&&!published?`<button onclick="krMarkSeen('${r.id}')" style="font-family:'Share Tech Mono',monospace;font-size:9px;padding:5px 14px;border-radius:2px;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.45);letter-spacing:.08em">— SKIP</button>`:''}
         <button onclick="krDeleteReview('${r.id}')" style="font-family:'Share Tech Mono',monospace;font-size:9px;padding:5px 14px;border-radius:2px;cursor:pointer;background:rgba(255,51,85,.06);border:1px solid rgba(255,51,85,.25);color:#ff4466;letter-spacing:.08em">✕ DELETE</button>
       </div>
     `;
@@ -1491,18 +1500,32 @@ function krRender(){
   });
 }
 
+function krUpdateBadge(){
+  // Badge = reviews that are NOT approved AND NOT seen (truly new)
+  const newCount=_krAllReviews.filter(x=>!x.approved&&!x.seen).length;
+  const badge=document.getElementById('reviewsBadge');
+  if(newCount>0){badge.textContent=newCount;badge.style.display='inline-flex';}
+  else{badge.style.display='none';}
+}
+
 async function krTogglePublish(id,currentlyPublished){
   try{
     const newVal=!currentlyPublished;
-    await _db.collection('reviews').doc(id).update({approved:newVal});
-    // Update local cache and re-render
+    // Publishing also marks as seen
+    await _db.collection('reviews').doc(id).update({approved:newVal,seen:true});
     const r=_krAllReviews.find(x=>x.id===id);
-    if(r)r.approved=newVal;
-    // Update badge
-    const pending=_krAllReviews.filter(x=>!x.approved).length;
-    const badge=document.getElementById('reviewsBadge');
-    if(pending>0){badge.textContent=pending;badge.style.display='inline-flex';}
-    else{badge.style.display='none';}
+    if(r){r.approved=newVal;r.seen=true;}
+    krUpdateBadge();
+    krRender();
+  }catch(e){alert('שגיאה: '+e.message);}
+}
+
+async function krMarkSeen(id){
+  try{
+    await _db.collection('reviews').doc(id).update({seen:true});
+    const r=_krAllReviews.find(x=>x.id===id);
+    if(r)r.seen=true;
+    krUpdateBadge();
     krRender();
   }catch(e){alert('שגיאה: '+e.message);}
 }
@@ -1512,6 +1535,7 @@ async function krDeleteReview(id){
   try{
     await _db.collection('reviews').doc(id).delete();
     _krAllReviews=_krAllReviews.filter(x=>x.id!==id);
+    krUpdateBadge();
     krRender();
   }catch(e){alert('שגיאה: '+e.message);}
 }
@@ -1519,10 +1543,12 @@ async function krDeleteReview(id){
 async function krLoadBadge(){
   try{
     const snap=await _db.collection('reviews').get();
-    let pending=0;
-    snap.forEach(doc=>{if(!doc.data().approved)pending++;});
-    const badge=document.getElementById('reviewsBadge');
-    if(pending>0){badge.textContent=pending;badge.style.display='inline-flex';}
+    snap.forEach(doc=>{
+      const d=doc.data();
+      if(!_krAllReviews.find(x=>x.id===doc.id))
+        _krAllReviews.push({id:doc.id,...d});
+    });
+    krUpdateBadge();
   }catch(e){}
 }
 
