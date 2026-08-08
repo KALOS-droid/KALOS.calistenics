@@ -972,21 +972,21 @@ function loadReviews(){
       });
     });
     if(cards.length===0){track.innerHTML='';track.style.animation='none';return;}
-    // Cap at 10, duplicate for seamless loop
     const capped=cards.slice(0,10);
-    const html=capped.map(c=>`<div class="review-card">
+    // Pad to at least 6 items so no card appears twice on screen simultaneously
+    let pool=[...capped];
+    while(pool.length<6) pool=[...pool,...capped];
+    const html=pool.map(c=>`<div class="review-card">
       <div class="review-stars">${c.stars}</div>
       <div class="review-text">"${c.text}"</div>
       <div class="review-author">${c.author}</div>
       <div class="review-days">${c.days}</div>
     </div>`).join('');
-    // Duplicate for seamless infinite scroll
+    // Duplicate once for seamless infinite loop (-50% keyframe)
     track.innerHTML=html+html;
-    const dur=Math.max(24,capped.length*7);
-    track.style.animationDuration=dur+'s';
+    const dur=Math.max(30,pool.length*6);
     track.style.animation='none';
-    // Force reflow then restart animation
-    void track.offsetWidth;
+    void track.offsetWidth; // force reflow
     track.style.animation=`marquee ${dur}s linear infinite`;
   },()=>{track.innerHTML='';});
 }
