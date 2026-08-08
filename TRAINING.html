@@ -3068,16 +3068,10 @@ async function submitReview(){
     approved:false, // pending admin approval
   };
   try{
-    if(_reviewRating>=4){
-      // Good review → save to public reviews collection (pending approval)
-      await _db.collection('reviews').add(review);
-    } else {
-      // Low rating → save privately for Elad only
-      await _db.collection('feedback').add({...review,private:true});
-    }
+    await _db.collection('reviews').add(review);
     localStorage.setItem('kalos_review_done_'+btoa(currentUser.email||''),'1');
     document.getElementById('reviewBackdrop').style.display='none';
-    flash(_reviewRating>=4?'תודה על הביקורת! ⭐':'תודה על המשוב — נשתפר 🙏');
+    flash('תודה על הביקורת! ⭐');
   }catch(e){
     btn.textContent='שלח ›';btn.disabled=false;
     const err=document.getElementById('reviewErr');

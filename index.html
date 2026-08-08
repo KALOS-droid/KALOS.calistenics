@@ -1038,15 +1038,9 @@ async function submitPublicReview(){
   btn.textContent='Sending...';btn.disabled=true;
   const text=(document.getElementById('rateTextInput').value||'').trim();
   const name=(document.getElementById('rateNameInput').value||'').trim();
-  const autoApprove=_rateStar>=4;
-  const review={name:name||'Anonymous',rating:_rateStar,text,daysActive:null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),approved:autoApprove};
+  const review={name:name||'Anonymous',rating:_rateStar,text,daysActive:null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),approved:false};
   try{
-    if(_rateStar>=4){
-      await _db.collection('reviews').add(review);
-      loadReviews(); // refresh marquee immediately
-    } else {
-      await _db.collection('feedback').add({...review,private:true});
-    }
+    await _db.collection('reviews').add(review);
     err.style.display='none';
     document.getElementById('rateThanks').style.display='block';
     setTimeout(closeRateModal,2200);
