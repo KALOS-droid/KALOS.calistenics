@@ -627,26 +627,41 @@ footer{
 
 <!-- REVIEW MODAL -->
 <div id="rateModal" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:20px">
-  <div style="background:linear-gradient(160deg,#070e20,#04081a);border:1px solid rgba(255,215,0,.3);border-radius:16px;padding:30px 26px;max-width:380px;width:100%;text-align:center;box-shadow:0 0 60px rgba(255,215,0,.1);position:relative">
+  <div style="background:linear-gradient(160deg,#070e20,#04081a);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:32px 28px;max-width:380px;width:100%;text-align:center;position:relative">
     <button onclick="closeRateModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;line-height:1">×</button>
-    <div style="font-size:32px;margin-bottom:10px">⭐</div>
-    <div style="font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#ffd700;margin-bottom:6px;letter-spacing:.03em">Rate your experience</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.7">How has KALOS been working for you?<br>Your honest feedback helps us improve.</div>
-    <div id="rateStars" style="display:flex;justify-content:center;gap:10px;margin-bottom:18px">
-      <span data-v="1" onclick="setRateStar(1)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
-      <span data-v="2" onclick="setRateStar(2)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
-      <span data-v="3" onclick="setRateStar(3)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
-      <span data-v="4" onclick="setRateStar(4)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
-      <span data-v="5" onclick="setRateStar(5)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.35;color:#ffd700">★</span>
+
+    <!-- Step 1: Login -->
+    <div id="rateStep1">
+      <div style="font-size:13px;font-weight:700;color:var(--text1);margin-bottom:4px;font-family:'Inter',sans-serif;letter-spacing:.01em">Sign in to leave a review</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.65;font-family:'Inter',sans-serif">Enter your KALOS account details</div>
+      <input id="rateEmailInput" type="email" placeholder="Email" onkeydown="if(event.key==='Enter')rateLogin()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text1);font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;outline:none;margin-bottom:10px;box-sizing:border-box">
+      <input id="ratePassInput" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')rateLogin()" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text1);font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;outline:none;margin-bottom:14px;box-sizing:border-box">
+      <div style="display:flex;gap:8px">
+        <button onclick="rateLogin()" id="rateLoginBtn" style="flex:1;background:transparent;border:1px solid rgba(255,215,0,.5);color:#ffd700;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:11px;border-radius:8px;cursor:pointer;letter-spacing:.02em;transition:background .2s" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'">Continue →</button>
+        <button onclick="closeRateModal()" style="background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--text3);font-family:'Inter',sans-serif;font-size:13px;padding:11px 16px;border-radius:8px;cursor:pointer">Cancel</button>
+      </div>
+      <div id="rateLoginErr" style="display:none;margin-top:12px;font-size:11px;color:#ff4466;font-family:'Inter',sans-serif"></div>
     </div>
-    <input id="rateNameInput" type="text" placeholder="Your name (optional)" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text1);font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;outline:none;margin-bottom:10px;box-sizing:border-box">
-    <textarea id="rateTextInput" placeholder="Tell us about your experience (optional)" style="width:100%;min-height:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text1);font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;resize:none;outline:none;line-height:1.65;margin-bottom:14px;box-sizing:border-box"></textarea>
-    <div style="display:flex;gap:8px">
-      <button onclick="submitPublicReview()" id="rateSubmitBtn" style="flex:1;background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.4);color:#ffd700;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:11px;border-radius:8px;cursor:pointer;letter-spacing:.03em">Submit →</button>
-      <button onclick="closeRateModal()" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--text3);font-family:'Inter',sans-serif;font-size:13px;padding:11px 16px;border-radius:8px;cursor:pointer">Cancel</button>
+
+    <!-- Step 2: Review form -->
+    <div id="rateStep2" style="display:none">
+      <div id="rateGreeting" style="font-size:14px;font-weight:600;color:var(--text1);margin-bottom:4px;font-family:'Inter',sans-serif;direction:rtl"></div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:20px;font-family:'Inter',sans-serif;direction:rtl">נשמח לשמוע את הביקורת שלך</div>
+      <div id="rateStars" style="display:flex;justify-content:center;gap:10px;margin-bottom:18px">
+        <span data-v="1" onclick="setRateStar(1)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.3;color:#ffd700">★</span>
+        <span data-v="2" onclick="setRateStar(2)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.3;color:#ffd700">★</span>
+        <span data-v="3" onclick="setRateStar(3)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.3;color:#ffd700">★</span>
+        <span data-v="4" onclick="setRateStar(4)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.3;color:#ffd700">★</span>
+        <span data-v="5" onclick="setRateStar(5)" style="font-size:30px;cursor:pointer;transition:transform .15s,opacity .15s;opacity:.3;color:#ffd700">★</span>
+      </div>
+      <textarea id="rateTextInput" placeholder="Tell us about your experience (optional)" style="width:100%;min-height:80px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text1);font-family:'Inter',sans-serif;font-size:13px;padding:10px 14px;resize:none;outline:none;line-height:1.65;margin-bottom:14px;box-sizing:border-box"></textarea>
+      <div style="display:flex;gap:8px">
+        <button onclick="submitPublicReview()" id="rateSubmitBtn" style="flex:1;background:transparent;border:1px solid rgba(255,215,0,.5);color:#ffd700;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:11px;border-radius:8px;cursor:pointer;letter-spacing:.02em;transition:background .2s" onmouseover="this.style.background='rgba(255,215,0,.08)'" onmouseout="this.style.background='transparent'">⭐ Submit review</button>
+        <button onclick="closeRateModal()" style="background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--text3);font-family:'Inter',sans-serif;font-size:13px;padding:11px 16px;border-radius:8px;cursor:pointer">Cancel</button>
+      </div>
+      <div id="rateErr" style="display:none;margin-top:10px;font-size:11px;color:#ff4466;font-family:'Inter',sans-serif"></div>
+      <div id="rateThanks" style="display:none;margin-top:14px;font-size:13px;color:#00cc6a;font-family:'Inter',sans-serif">Thank you! Your review was sent ⭐</div>
     </div>
-    <div id="rateErr" style="display:none;margin-top:10px;font-size:11px;color:#ff4466;font-family:'Inter',sans-serif"></div>
-    <div id="rateThanks" style="display:none;margin-top:14px;font-size:13px;color:#00cc6a;font-family:'Inter',sans-serif">Thank you for your review! ⭐</div>
   </div>
 </div>
 
@@ -1010,43 +1025,94 @@ async function showPublicAllReviews(){
 }
 
 /* ─── RATE MODAL ─── */
-let _rateStar=0;
+let _rateStar=0, _rateUser=null;
+
+async function _hashPass(p){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
 function openRateModal(){
-  _rateStar=0;
-  document.getElementById('rateStars').querySelectorAll('span').forEach(s=>{s.style.opacity='.35';s.style.transform='';});
-  document.getElementById('rateNameInput').value='';
-  document.getElementById('rateTextInput').value='';
-  document.getElementById('rateErr').style.display='none';
-  document.getElementById('rateThanks').style.display='none';
-  document.getElementById('rateSubmitBtn').textContent='Submit →';
-  document.getElementById('rateSubmitBtn').disabled=false;
+  _rateStar=0; _rateUser=null;
+  document.getElementById('rateStep1').style.display='block';
+  document.getElementById('rateStep2').style.display='none';
+  document.getElementById('rateEmailInput').value='';
+  document.getElementById('ratePassInput').value='';
+  document.getElementById('rateLoginErr').style.display='none';
+  document.getElementById('rateLoginBtn').textContent='Continue →';
+  document.getElementById('rateLoginBtn').disabled=false;
   document.getElementById('rateModal').style.display='flex';
+  setTimeout(()=>document.getElementById('rateEmailInput').focus(),100);
 }
 function closeRateModal(){document.getElementById('rateModal').style.display='none';}
+
+async function rateLogin(){
+  const email=(document.getElementById('rateEmailInput').value||'').trim().toLowerCase();
+  const pass=(document.getElementById('ratePassInput').value||'').trim();
+  const errEl=document.getElementById('rateLoginErr');
+  const btn=document.getElementById('rateLoginBtn');
+  if(!email||!pass){errEl.textContent='Please fill in both fields.';errEl.style.display='block';return;}
+  btn.textContent='Checking...';btn.disabled=true;
+  errEl.style.display='none';
+  try{
+    const hash=await _hashPass(pass);
+    const snap=await _db.collection('users').where('email','==',email).get();
+    if(snap.empty){errEl.textContent='Account not found.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
+    const userData=snap.docs[0].data();
+    if(userData.hash!==hash){errEl.textContent='Incorrect password.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
+    _rateUser=userData;
+    // Move to step 2
+    const firstName=userData.name||userData.first||email.split('@')[0];
+    document.getElementById('rateGreeting').textContent='היי '+firstName+',';
+    document.getElementById('rateStep1').style.display='none';
+    document.getElementById('rateStep2').style.display='block';
+    document.getElementById('rateErr').style.display='none';
+    document.getElementById('rateThanks').style.display='none';
+    document.getElementById('rateSubmitBtn').textContent='⭐ Submit review';
+    document.getElementById('rateSubmitBtn').disabled=false;
+    document.getElementById('rateStars').querySelectorAll('span').forEach(s=>{s.style.opacity='.3';s.style.transform='';});
+    _rateStar=0;
+  }catch(e){
+    errEl.textContent='Connection error — please try again.';errEl.style.display='block';
+    btn.textContent='Continue →';btn.disabled=false;
+  }
+}
+
 function setRateStar(n){
   _rateStar=n;
   document.getElementById('rateStars').querySelectorAll('span').forEach(s=>{
     const v=parseInt(s.dataset.v);
-    s.style.opacity=v<=n?'1':'.35';
+    s.style.opacity=v<=n?'1':'.3';
     s.style.transform=v<=n?'scale(1.15)':'';
   });
 }
+
 async function submitPublicReview(){
   const err=document.getElementById('rateErr');
-  if(!_rateStar){err.textContent='Please select a star rating first.';err.style.display='block';return;}
+  if(!_rateStar){err.textContent='Please select a star rating.';err.style.display='block';return;}
   const btn=document.getElementById('rateSubmitBtn');
   btn.textContent='Sending...';btn.disabled=true;
   const text=(document.getElementById('rateTextInput').value||'').trim();
-  const name=(document.getElementById('rateNameInput').value||'').trim();
-  const review={name:name||'Anonymous',rating:_rateStar,text,daysActive:null,createdAt:firebase.firestore.FieldValue.serverTimestamp(),approved:false};
+  const joined=_rateUser?.joined;
+  const daysActive=joined?Math.floor((Date.now()-new Date(joined).getTime())/(1000*60*60*24)):null;
+  const name=_rateUser?.name||_rateUser?.first||'Anonymous';
+  const review={
+    name,
+    email:_rateUser?.email||'',
+    rating:_rateStar,
+    text,
+    daysActive,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+    approved:false
+  };
   try{
     await _db.collection('reviews').add(review);
     err.style.display='none';
     document.getElementById('rateThanks').style.display='block';
     setTimeout(closeRateModal,2200);
   }catch(e){
-    err.textContent='Error sending — please try again.';err.style.display='block';
-    btn.textContent='Submit →';btn.disabled=false;
+    err.textContent='Error: '+e.message;err.style.display='block';
+    btn.textContent='⭐ Submit review';btn.disabled=false;
   }
 }
 
