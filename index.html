@@ -1056,11 +1056,20 @@ async function rateLogin(){
   errEl.style.display='none';
   try{
     const hash=await _hashPass(pass);
-    const snap=await _db.collection('users').where('email','==',email).get();
-    if(snap.empty){errEl.textContent='Account not found.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
-    const userData=snap.docs[0].data();
-    if(userData.hash!==hash){errEl.textContent='Incorrect password.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
-    _rateUser=userData;
+    // Use same doc ID format as TRAINING.html: btoa(email)
+    const docRef=await _db.collection('users').doc(btoa(email)).get();
+    if(!docRef.exists){
+      // Fallback: try where query in case email was stored differently
+      const snap=await _db.collection('users').where('email','==',email).get();
+      if(snap.empty){errEl.textContent='Account not found. Please check your email.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
+      const ud=snap.docs[0].data();
+      if(ud.hash!==hash){errEl.textContent='Incorrect password.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
+      _rateUser=ud;
+    } else {
+      const userData=docRef.data();
+      if(userData.hash!==hash){errEl.textContent='Incorrect password.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
+      _rateUser=userData;
+    }
     // Move to step 2
     const firstName=userData.name||userData.first||email.split('@')[0];
     document.getElementById('rateGreeting').textContent='היי '+firstName+',';
