@@ -984,7 +984,7 @@ function loadReviews(){
     </div>`).join('');
     // Duplicate once for seamless infinite loop (-50% keyframe)
     track.innerHTML=html+html;
-    const dur=Math.max(30,pool.length*6);
+    const dur=Math.max(60,pool.length*12);
     track.style.animation='none';
     void track.offsetWidth; // force reflow
     track.style.animation=`marquee ${dur}s linear infinite`;
@@ -996,13 +996,20 @@ async function showPublicAllReviews(){
   const list=document.getElementById('allReviewsList');
   list.innerHTML='<div style="color:var(--text3);font-size:13px;padding:20px 0;text-align:center">Loading...</div>';
   try{
-    const snap=await _db.collection('reviews').where('approved','==',true).orderBy('createdAt','desc').get();
-    if(snap.empty){list.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center">No reviews yet.</div>';return;}
+    // No orderBy to avoid composite index requirement — sort client-side
+    const snap=await _db.collection('reviews').where('approved','==',true).get();
+    const docs=[];
+    snap.forEach(doc=>docs.push({id:doc.id,...doc.data()}));
+    // Sort newest first client-side
+    docs.sort((a,b)=>{
+      const ta=a.createdAt?.toDate?a.createdAt.toDate().getTime():(a.createdAt?new Date(a.createdAt).getTime():0);
+      const tb=b.createdAt?.toDate?b.createdAt.toDate().getTime():(b.createdAt?new Date(b.createdAt).getTime():0);
+      return tb-ta;
+    });
+    if(docs.length===0){list.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:30px 0">No reviews yet.</div>';return;}
     list.innerHTML='';
-    snap.forEach(doc=>{
-      const d=doc.data();
-      if((d.rating||0)<4)return;
-      const stars='★'.repeat(d.rating)+'☆'.repeat(5-d.rating);
+    docs.forEach(d=>{
+      const stars='★'.repeat(d.rating||0)+'☆'.repeat(5-(d.rating||0));
       const div=document.createElement('div');
       div.style.cssText='background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:16px;margin-bottom:10px';
       div.innerHTML=`
@@ -1014,7 +1021,7 @@ async function showPublicAllReviews(){
       `;
       list.appendChild(div);
     });
-  }catch(e){list.innerHTML='<div style="color:var(--text3);text-align:center">Error loading reviews.</div>';}
+  }catch(e){list.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px 0">Error: '+e.message+'</div>';}
 }
 
 /* ─── RATE MODAL ─── */
