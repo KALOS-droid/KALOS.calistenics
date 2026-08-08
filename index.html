@@ -599,24 +599,7 @@ footer{
   <div class="reviews-track-wrap reveal">
     <div class="reviews-fade-l"></div>
     <div class="reviews-fade-r"></div>
-    <div class="reviews-track" id="reviewsTrack">
-      <!-- injected by JS from Firestore (4+ stars, top 10) -->
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <div class="review-text">"The skill tree concept finally made calisthenics make sense to me. I went from zero pull-ups to 15 in two months."</div>
-        <div class="review-author">Member · Anonymous</div>
-      </div>
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <div class="review-text">"Having an AI coach that actually knows my progress is a game-changer. Way better than random YouTube advice."</div>
-        <div class="review-author">Member · Anonymous</div>
-      </div>
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <div class="review-text">"I've tried a dozen calisthenics apps. KALOS is the only one that builds the session for me instead of giving me a static plan."</div>
-        <div class="review-author">Member · Anonymous</div>
-      </div>
-    </div>
+    <div class="reviews-track" id="reviewsTrack"></div>
   </div>
 
   <div class="reveal" style="text-align:center;margin-top:32px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
@@ -972,30 +955,40 @@ async function saveVideoUrl(){
 }
 
 /* ─── REVIEWS ─── */
-async function loadReviews(){
+function loadReviews(){
   const track=document.getElementById('reviewsTrack');
-  try{
-    const snap=await _db.collection('reviews').where('approved','==',true).orderBy('createdAt','desc').get();
-    if(snap.empty){return;}
+  // Real-time listener — updates instantly when admin publishes/unpublishes from JARVIS
+  _db.collection('reviews').where('approved','==',true).onSnapshot(snap=>{
     const cards=[];
     snap.forEach(doc=>{
       const d=doc.data();
       if((d.rating||0)<5)return; // 5 stars only in marquee
-      if(cards.length>=10)return; // top 10
-      const stars='★★★★★';
-      cards.push(`<div class="review-card">
-        <div class="review-stars">${stars}</div>
-        <div class="review-text">"${d.text}"</div>
-        <div class="review-author">${d.name||'Anonymous member'}</div>
-        <div class="review-days">${d.daysActive?d.daysActive+' days active':''}</div>
-      </div>`);
+      if(!d.text||!d.text.trim())return; // skip empty text
+      cards.push({
+        stars:'★★★★★',
+        text:d.text.trim(),
+        author:d.name||'Anonymous member',
+        days:d.daysActive?d.daysActive+' days active':''
+      });
     });
-    if(cards.length===0)return;
-    const all=cards.join('')+cards.join('');
-    track.innerHTML=all;
-    const dur=Math.max(20,cards.length*6);
+    if(cards.length===0){track.innerHTML='';track.style.animation='none';return;}
+    // Cap at 10, duplicate for seamless loop
+    const capped=cards.slice(0,10);
+    const html=capped.map(c=>`<div class="review-card">
+      <div class="review-stars">${c.stars}</div>
+      <div class="review-text">"${c.text}"</div>
+      <div class="review-author">${c.author}</div>
+      <div class="review-days">${c.days}</div>
+    </div>`).join('');
+    // Duplicate for seamless infinite scroll
+    track.innerHTML=html+html;
+    const dur=Math.max(24,capped.length*7);
     track.style.animationDuration=dur+'s';
-  }catch(e){}
+    track.style.animation='none';
+    // Force reflow then restart animation
+    void track.offsetWidth;
+    track.style.animation=`marquee ${dur}s linear infinite`;
+  },()=>{track.innerHTML='';});
 }
 async function showPublicAllReviews(){
   const modal=document.getElementById('allReviewsModal');
