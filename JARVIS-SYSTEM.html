@@ -663,6 +663,13 @@ const _db=firebase.firestore();
       </div>
 
       <div class="chat-input-row">
+        <button id="brainBtn" onclick="startBrain()" title="Start JARVIS brain server" style="
+          font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;
+          padding:11px 13px;border:1px solid rgba(255,51,85,.5);background:rgba(255,51,85,.08);
+          color:#ff4466;cursor:pointer;transition:all .25s;white-space:nowrap;flex-shrink:0;
+          clip-path:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)">
+          🔴 START
+        </button>
         <button id="deepBtn" onclick="toggleDeep()" title="מצב עומק — Claude Opus" style="
           font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:.12em;
           padding:11px 13px;border:1px solid rgba(140,80,255,.5);background:transparent;
@@ -1034,6 +1041,75 @@ function stopListening(){if(recognition){try{recognition.stop();}catch(e){}}setO
 document.addEventListener('keydown',e=>{
   if(e.code==='Space'&&e.target===document.body){e.preventDefault();toggleVoice();}
 });
+
+/* ---------- BRAIN SERVER HEALTH CHECK ---------- */
+const BRAIN_HEALTH='http://127.0.0.1:8765/';
+let _brainOnline=false;
+
+function setBrainStatus(online){
+  _brainOnline=online;
+  const btn=document.getElementById('brainBtn');
+  if(!btn)return;
+  if(online){
+    btn.innerHTML='🟢 ONLINE';
+    btn.style.borderColor='rgba(0,255,130,.5)';
+    btn.style.background='rgba(0,255,130,.06)';
+    btn.style.color='#00cc6a';
+    btn.title='Brain server is running';
+  } else {
+    btn.innerHTML='🔴 START';
+    btn.style.borderColor='rgba(255,51,85,.5)';
+    btn.style.background='rgba(255,51,85,.08)';
+    btn.style.color='#ff4466';
+    btn.title='Brain server offline — click to start';
+  }
+}
+
+async function checkBrainHealth(){
+  try{
+    const res=await fetch(BRAIN_HEALTH,{signal:AbortSignal.timeout(2000)});
+    setBrainStatus(res.ok||res.status===404); // any response = server is up
+  }catch(e){
+    setBrainStatus(false);
+  }
+}
+
+function startBrain(){
+  if(_brainOnline){
+    addChatMsg('Brain server is already online 🟢','jarvis');
+    return;
+  }
+  // Launch via registered jarvis-brain:// protocol (set up by REGISTER-START-BUTTON.reg)
+  window.location.href='jarvis-brain://';
+  // Poll for server to come online
+  const btn=document.getElementById('brainBtn');
+  btn.innerHTML='⏳ STARTING...';
+  btn.style.borderColor='rgba(255,215,0,.5)';
+  btn.style.background='rgba(255,215,0,.06)';
+  btn.style.color='#ffd700';
+  let attempts=0;
+  const poll=setInterval(async()=>{
+    attempts++;
+    try{
+      const res=await fetch(BRAIN_HEALTH,{signal:AbortSignal.timeout(2000)});
+      if(res.ok||res.status===404){
+        clearInterval(poll);
+        setBrainStatus(true);
+        addChatMsg('Brain server started ✅ Ready.','jarvis');
+        return;
+      }
+    }catch(e){}
+    if(attempts>=20){
+      clearInterval(poll);
+      setBrainStatus(false);
+      addChatMsg('Could not detect server after 40s. Make sure Python is installed and try double-clicking START-JARVIS.bat manually.','jarvis');
+    }
+  },2000);
+}
+
+// Check health on load + every 15s
+checkBrainHealth();
+setInterval(checkBrainHealth,15000);
 
 /* ---------- COMMAND BRAIN (Phase 3.5 — local JARVIS server: Claude + REAL Gmail) ----------
    The brain now lives in JARVIS-Server\jarvis_server.py: it holds the API key,
