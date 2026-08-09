@@ -3965,17 +3965,66 @@ const REST_DAY_BALANCE_OPT=[
   ['עמידת ראש (Headstand)','4×20-30 שניות · גוף ישר'],
 ];
 
+/* Balance day exercises — for day 6 (שבת) when balance was trained */
+const BALANCE_SPLIT={
+  beginner:{name:'שיווי משקל 🤲',exs:[
+    ['Frogstand (Crow Pose)','4×20ש׳ · 90ש׳'],
+    ['קיר הנדסטנד — תמיכה','4×30ש׳ · 90ש׳'],
+    ['Headstand — תרגול על הראש','3×20ש׳ · 90ש׳'],
+    ['L-Sit בין כיסאות','3×מקס · 60ש׳'],
+  ]},
+  intermediate:{name:'שיווי משקל 🤲',exs:[
+    ['Kick-up לקיר + Hold','4×5 + 30ש׳ · 90ש׳'],
+    ['Wall Handstand — Shoulder Tap','4×6 לכל יד · 90ש׳'],
+    ['Headstand חופשי','4×20ש׳ · 60ש׳'],
+    ['L-Sit מלא','4×מקס · 90ש׳'],
+  ]},
+  advanced:{name:'שיווי משקל 🤲',exs:[
+    ['עמידת ידיים חופשית','5×10ש׳ · 120ש׳'],
+    ['Press Handstand','4×3-5 · 120ש׳'],
+    ['Handstand Pirouette','3×3 לכל כיוון · 90ש׳'],
+    ['HSPU חופשי','4×מקס · 120ש׳'],
+  ]},
+};
+
+function _applyVolumeReduction(exs){
+  return exs.map(([n,s])=>[n,s.replace(/^(\d+)×/,(_,c)=>`${Math.max(2,parseInt(c)-1)}×`)]);
+}
+
 function buildMuscleDay(dayIdx){
   const day=(dayIdx!=null)?dayIdx:new Date().getDay();
   if(MUSCLE_REST_DAYS.has(day))return null;
+
+  const tiers=state.profile.tiers||{};
+  const lastCI=state.profile.lastCheckin||{};
+  const isRecovery=!!state.profile.recoveryWeek;
+  const isLowEnergy=lastCI.energy==='low'||['5-','6'].includes(lastCI.sleep||'');
+  const reduceVolume=isRecovery||isLowEnergy;
+
+  // Balance day: when user trained balance this check-in cycle, show balance on day 6
+  if(day===6&&(lastCI.categories||[]).includes('balance')&&tiers.balance){
+    const bSplit=BALANCE_SPLIT[tiers.balance]||BALANCE_SPLIT.beginner;
+    const exs=reduceVolume?_applyVolumeReduction(bSplit.exs):bSplit.exs;
+    return{name:bSplit.name,emoji:'🤲',exs,tier:tiers.balance,reduceVolume};
+  }
+
   const split=MUSCLE_SPLIT[day];
   if(!split)return null;
-  const tiers=state.profile.tiers||{};
+
+  // Tier priority:
+  // 1. Check-in tier (explicitly set by user this cycle) — highest priority
+  // 2. Skill milestone tier (what user has proven in skill trees)
+  // 3. Level-based tier (fallback for new users before first check-in)
+  const checkInTier=tiers[split.tier_key];
   const skillTier=getTierFromDone(split.tier_key,state.done);
-  const profileTier=tiers[split.tier_key]||tierFromLevel(state.level);
-  const tier=skillTier||profileTier;
-  const exs=split[tier]||split.intermediate;
-  return{name:split.name,emoji:split.emoji,exs,tier};
+  const levelTier=tierFromLevel(state.level);
+
+  // Use check-in tier if it was explicitly set; otherwise use skill milestone; otherwise level
+  const tier=checkInTier||(skillTier||levelTier);
+  let exs=split[tier]||split.intermediate||split.beginner;
+  if(reduceVolume)exs=_applyVolumeReduction(exs);
+
+  return{name:split.name,emoji:split.emoji,exs,tier,reduceVolume};
 }
 
 // Full workout modal for a specific day from weekly schedule
@@ -4039,7 +4088,14 @@ function showDayWorkout(dayIdx){
       // Phase 1+2 — Smart skill session
       h+=buildSmartSkillPhase(sLen);
       const _md=buildMuscleDay(dayIdx);
-      if(_md){h+=`<div class="wk-block"><div class="wk-h">🏋️ שלב 3 · נפח שריר · ${_md.name} · ${muscleMin} דקות</div>`;_md.exs.forEach(([n,s])=>h+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);h+=`</div>`;}
+      if(_md){
+        const _tH={starter:'מתחיל+',beginner:'מתחיל',intermediate:'בינוני',advanced:'מתקדם',elite:'עילית'};
+        const _tC={starter:'var(--muted)',beginner:'var(--cyan)',intermediate:'var(--gold)',advanced:'var(--push)',elite:'#c8a4ff'};
+        h+=`<div class="wk-block"><div class="wk-h" style="display:flex;align-items:center;justify-content:space-between"><span>${_md.emoji||'🏋️'} שלב 3 · ${_md.name}</span><span style="font-size:9px;color:${_tC[_md.tier]||'var(--muted)'}">${_tH[_md.tier]||''}</span></div>`;
+        if(_md.reduceVolume)h+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#a78bfa;margin-bottom:6px">💜 נפח מותאם · ריקוברי</div>`;
+        _md.exs.forEach(([n,s])=>h+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
+        h+=`</div>`;
+      }
     }
     return h;
   }
@@ -4325,11 +4381,18 @@ function renderWorkout(){
     // Show priority modal on first visit
     if(needsPriorityRefresh()&&getSkillFrontierNodes().length>0)setTimeout(showPrioritySelectModal,300);
 
-    // Phase 3 — Fixed weekly muscle split
+    // Phase 3 — Fixed weekly muscle split (tier-aware + volume modifier)
     const _muscleDay=buildMuscleDay();
     if(_muscleDay){
-      html+=`<div class="wk-block"><div class="wk-h">🏋️ שלב 3 · נפח שריר · ${_muscleDay.name} · ${muscleMin} דקות</div>`;
-      html+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.05em">💡 אימון ממוקד לקבוצת השריר של היום — עוצמה מותאמת לרמה שלך</div>`;
+      const _tierHe={starter:'מתחיל+',beginner:'מתחיל',intermediate:'בינוני',advanced:'מתקדם',elite:'עילית'};
+      const _tierCol={starter:'var(--muted)',beginner:'var(--cyan)',intermediate:'var(--gold)',advanced:'var(--push)',elite:'#c8a4ff'};
+      html+=`<div class="wk-block">`;
+      html+=`<div class="wk-h" style="display:flex;align-items:center;justify-content:space-between">`;
+      html+=`<span>${_muscleDay.emoji||'🏋️'} שלב 3 · נפח שריר · ${_muscleDay.name}</span>`;
+      html+=`<span style="font-size:9px;letter-spacing:.08em;color:${_tierCol[_muscleDay.tier]||'var(--muted)'}">${_tierHe[_muscleDay.tier]||''}</span>`;
+      html+=`</div>`;
+      if(_muscleDay.reduceVolume)html+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#a78bfa;margin-bottom:6px">💜 נפח מותאם · ריקוברי / אנרגיה נמוכה</div>`;
+      html+=`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">💡 תרגילים מותאמים לרמה שלך — ${_tierHe[_muscleDay.tier]||''}</div>`;
       _muscleDay.exs.forEach(([n,s])=>html+=`<div class="wk-ex"><span>${n}</span><span class="wk-sets">${s}</span></div>`);
       html+=`</div>`;
     } else {
@@ -5043,6 +5106,14 @@ function submitCheckin(){
   }
 
   state.profile.tiers=tiers;
+  // Save check-in context so buildMuscleDay can use energy/sleep/categories
+  state.profile.lastCheckin={
+    date:todayStr(),
+    energy:checkinAnswers.energy,
+    sleep:checkinAnswers.sleep,
+    pain:checkinAnswers.pain,
+    categories:[...checkinAnswers.categories],
+  };
   state.weeklyCheckins=state.weeklyCheckins||[];
   state.weeklyCheckins.push(entry);
   generateWeeklyPlan();
