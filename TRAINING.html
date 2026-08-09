@@ -4909,7 +4909,7 @@ function openCheckin(){
     Array.from({length:planned+1},(_,i)=>`<div class="opt" onclick="setCI('sessions',${i},this)"><span class="dot"></span>${i}</div>`).join('');
   // Sleep
   document.getElementById('ci_sleep').innerHTML=
-    [['5-','פחות מ-5'],['6','6'],['7','7'],['8','8'],['8+','מעל 8']].map(([v,l])=>`<div class="opt" onclick="setCI('sleep','${v}',this)"><span class="dot"></span>${l} שע'</div>`).join('');
+    [['5-','פחות מ-5'],['6','6'],['7','7'],['8','8'],['9+','9+']].map(([v,l])=>`<div class="opt" onclick="setCI('sleep','${v}',this)"><span class="dot"></span>${l} שע'</div>`).join('');
   // Energy
   document.getElementById('ci_energy').innerHTML=
     [['low','😴 עייף'],['normal','😐 רגיל'],['high','⚡ אנרגטי'],['peak','🔥 פיצוץ']].map(([v,l])=>`<div class="opt" onclick="setCI('energy','${v}',this)"><span class="dot"></span>${l}</div>`).join('');
