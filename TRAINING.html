@@ -1166,27 +1166,55 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 </div>
 
 <!-- ============ WEEKLY CHECK-IN MODAL ============ -->
+<style>
+.ci-cat-chip{padding:8px 16px;border:1px solid rgba(255,255,255,.15);border-radius:20px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);cursor:pointer;transition:all .2s;user-select:none}
+.ci-cat-chip.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,168,255,.1)}
+.ci-rpe-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.ci-rpe-label{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);min-width:90px;flex-shrink:0}
+</style>
 <div class="backdrop" id="checkinBackdrop" style="z-index:150">
-  <div class="modal" style="width:min(500px,96vw);max-height:90vh;overflow-y:auto">
+  <div class="modal" style="width:min(520px,96vw);max-height:92vh;overflow-y:auto">
     <div class="m-icon">📊</div>
     <h2>דוח שבועי · WEEKLY REPORT</h2>
-    <div class="m-desc" style="color:var(--cyan)">ה-AI מחכה לנתונים כדי לבנות לך את האימון הבא. מלא את הדוח.</div>
+    <div class="m-desc" style="color:var(--cyan)">ה-AI מנתח את השבוע ומבנה לך תוכנית מדויקת.</div>
     <div class="sys-divider"></div>
-    <div class="qblock"><h3>כמה אימונים עשית בפועל השבוע?</h3>
+
+    <div class="qblock"><h3>1 · כמה אימונים עשית בפועל?</h3>
       <div class="row" id="ci_sessions"></div></div>
-    <div class="qblock"><h3>כמה קשה היו האימונים? (1=קל מדי, 10=קשה מדי)</h3>
-      <div class="row" id="ci_difficulty"></div></div>
-    <div class="qblock"><h3>כמה שעות ישנת בממוצע?</h3>
-      <div class="row" id="ci_sleep"></div></div>
-    <div class="qblock"><h3>כאבי שרירים? איפה?</h3>
-      <div class="opt" data-sore="none" onclick="setSore('none',this)"><span class="dot"></span>לא היו כאבים</div>
-      <div class="opt" data-sore="mild" onclick="setSore('mild',this)"><span class="dot"></span>כאבים קלים — נורמלי</div>
-      <div class="opt" data-sore="chest" onclick="setSore('chest',this)"><span class="dot"></span>כאב חזה/כתפיים</div>
-      <div class="opt" data-sore="back" onclick="setSore('back',this)"><span class="dot"></span>כאב גב/מתח</div>
-      <div class="opt" data-sore="injury" onclick="setSore('injury',this)"><span class="dot"></span>⚠️ כאב חד / פציעה</div>
+
+    <div class="qblock"><h3>2 · אילו קטגוריות אימנת? (בחר הכל שמתאים)</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px" id="ci_categories">
+        <div class="ci-cat-chip" data-cat="pull"    onclick="toggleCICat('pull',this)">💪 משיכה</div>
+        <div class="ci-cat-chip" data-cat="push"    onclick="toggleCICat('push',this)">🤸 דחיפה</div>
+        <div class="ci-cat-chip" data-cat="balance" onclick="toggleCICat('balance',this)">🤲 שיווי משקל</div>
+        <div class="ci-cat-chip" data-cat="core"    onclick="toggleCICat('core',this)">🔥 ליבה</div>
+        <div class="ci-cat-chip" data-cat="legs"    onclick="toggleCICat('legs',this)">🦵 רגליים</div>
+      </div>
     </div>
+
+    <div class="qblock" id="ci_rpe_block" style="display:none"><h3>3 · עוצמת אימון לכל קטגוריה (RPE)</h3>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:10px">קל = יכולת לעוד ■■■■□ | בינוני = אתגר נכון ■■■□□ | קשה = הגבלתי ■■□□□ | כבד מדי = קשה להתאושש ■□□□□</div>
+      <div id="ci_rpe_rows"></div></div>
+
+    <div class="qblock"><h3>4 · כמה שעות ישנת בממוצע?</h3>
+      <div class="row" id="ci_sleep"></div></div>
+
+    <div class="qblock"><h3>5 · רמת האנרגיה הכללית השבוע?</h3>
+      <div class="row" id="ci_energy"></div></div>
+
+    <div class="qblock"><h3>6 · כאב / אי נוחות פיזית?</h3>
+      <div class="row" id="ci_pain"></div></div>
+
+    <div class="qblock"><h3>7 · הישג / פריצת דרך השבוע?</h3>
+      <div style="display:flex;gap:8px;margin-bottom:10px" id="ci_breakthrough">
+        <div class="opt" onclick="setCI('breakthrough','yes',this)"><span class="dot"></span>🏆 כן, עשיתי פריצה!</div>
+        <div class="opt" onclick="setCI('breakthrough','no',this)"><span class="dot"></span>לא השבוע</div>
+      </div>
+      <input id="ci_note" type="text" style="width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(0,168,255,.2);border-radius:5px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:12px;color:#eaf6ff;outline:none;box-sizing:border-box" placeholder="תאר — תרגיל שהצלחת? חזרות שיא? פרונט לבר? (אופציונלי)">
+    </div>
+
     <div class="field"><label>משקל עדכני (ק"ג) — אופציונלי</label><input id="ci_weight" type="number" min="30" placeholder="70"></div>
-    <div class="field"><label>הערה חופשית — מה הרגשת השבוע?</label><input id="ci_note" type="text" placeholder="כתוב כאן..."></div>
+
     <div class="m-btns">
       <button class="mbtn mbtn-go" onclick="submitCheckin()">שלח דוח וקבל תוכנית חדשה ›</button>
       <button class="mbtn" onclick="document.getElementById('checkinBackdrop').style.display='none'" style="margin-top:8px;background:none;border:1px solid var(--border);color:var(--muted)">← סגור</button>
@@ -4830,7 +4858,9 @@ function dismissPunishment(){
 /* ============================================================
    WEEKLY CHECK-IN
    ============================================================ */
-const checkinAnswers={sessions:null,difficulty:null,sleep:null,soreness:null};
+const CI_CAT_NAMES={pull:'משיכה',push:'דחיפה',balance:'שיווי משקל',core:'ליבה',legs:'רגליים'};
+const CI_ALL_CATS=['pull','push','balance','core','legs'];
+const checkinAnswers={sessions:null,categories:new Set(),rpe:{},sleep:null,energy:null,pain:null,breakthrough:null};
 
 function shouldShowCheckin(){
   if(!state.onboarded||fromJarvis)return false;
@@ -4857,99 +4887,176 @@ function showCheckinBanner(){
 
 function openCheckin(){
   const bd=document.getElementById('checkinBackdrop');
+  // Reset answers
+  checkinAnswers.sessions=null;
+  checkinAnswers.categories=new Set();
+  checkinAnswers.rpe={};
+  checkinAnswers.sleep=null;
+  checkinAnswers.energy=null;
+  checkinAnswers.pain=null;
+  checkinAnswers.breakthrough=null;
+  // Reset category chips
+  document.querySelectorAll('#ci_categories .ci-cat-chip').forEach(c=>c.classList.remove('active'));
+  document.getElementById('ci_rpe_block').style.display='none';
+  document.getElementById('ci_rpe_rows').innerHTML='';
+  // Reset opt selections
+  document.querySelectorAll('#checkinBackdrop .opt').forEach(o=>o.classList.remove('sel'));
+  document.getElementById('ci_note').value='';
+  document.getElementById('ci_weight').value='';
+  // Build sessions chips (0 to daysPerWeek)
   const planned=state.profile.daysPerWeek||3;
   document.getElementById('ci_sessions').innerHTML=
     Array.from({length:planned+1},(_,i)=>`<div class="opt" onclick="setCI('sessions',${i},this)"><span class="dot"></span>${i}</div>`).join('');
-  document.getElementById('ci_difficulty').innerHTML=
-    [2,4,6,8,10].map(n=>`<div class="opt" onclick="setCI('difficulty',${n},this)"><span class="dot"></span>${n}</div>`).join('');
+  // Sleep
   document.getElementById('ci_sleep').innerHTML=
-    ['5-','6','7','8','8+'].map((v,i)=>`<div class="opt" onclick="setCI('sleep','${v}',this)"><span class="dot"></span>${v} שעות</div>`).join('');
-  bd.style.display='';  // clear any inline display:none set by close button
+    [['5-','פחות מ-5'],['6','6'],['7','7'],['8','8'],['8+','מעל 8']].map(([v,l])=>`<div class="opt" onclick="setCI('sleep','${v}',this)"><span class="dot"></span>${l} שע'</div>`).join('');
+  // Energy
+  document.getElementById('ci_energy').innerHTML=
+    [['low','😴 עייף'],['normal','😐 רגיל'],['high','⚡ אנרגטי'],['peak','🔥 פיצוץ']].map(([v,l])=>`<div class="opt" onclick="setCI('energy','${v}',this)"><span class="dot"></span>${l}</div>`).join('');
+  // Pain
+  document.getElementById('ci_pain').innerHTML=
+    [['none','✅ אין'],['mild','🔸 DOMS קל'],['shoulder','🤕 כתף/מרפק'],['back','😬 גב'],['sharp','🚨 כאב חד']].map(([v,l])=>`<div class="opt" onclick="setCI('pain','${v}',this)"><span class="dot"></span>${l}</div>`).join('');
+  bd.style.display='';
   bd.classList.add('show');
 }
 
-function setCI(k,v,el){checkinAnswers[k]=v;el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
-function setSore(v,el){checkinAnswers.soreness=v;document.querySelectorAll('[data-sore]').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function setCI(k,v,el){
+  checkinAnswers[k]=v;
+  el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function toggleCICat(cat,el){
+  if(checkinAnswers.categories.has(cat)){
+    checkinAnswers.categories.delete(cat);
+    el.classList.remove('active');
+    delete checkinAnswers.rpe[cat];
+  } else {
+    checkinAnswers.categories.add(cat);
+    el.classList.add('active');
+  }
+  _updateCIRpeBlock();
+}
+
+function _updateCIRpeBlock(){
+  const cats=[...checkinAnswers.categories];
+  const block=document.getElementById('ci_rpe_block');
+  const rows=document.getElementById('ci_rpe_rows');
+  if(cats.length===0){block.style.display='none';return;}
+  block.style.display='';
+  const rpeOpts=[['easy','🟢 קל'],['medium','🔵 בינוני'],['hard','🟠 קשה'],['heavy','🔴 כבד מדי']];
+  rows.innerHTML=cats.map(cat=>`
+    <div class="ci-rpe-row">
+      <span class="ci-rpe-label">${CI_CAT_NAMES[cat]}</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${rpeOpts.map(([v,l])=>`<div class="opt" style="padding:4px 10px;font-size:11px" onclick="_setRPE('${cat}','${v}',this)"><span class="dot"></span>${l}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function _setRPE(cat,val,el){
+  checkinAnswers.rpe[cat]=val;
+  el.closest('.ci-rpe-row').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+}
 
 function submitCheckin(){
-  if(!checkinAnswers.sessions&&checkinAnswers.sessions!==0){alert('כמה אימונים עשית השבוע?');return;}
-  if(!checkinAnswers.difficulty){alert('כמה קשה היו האימונים?');return;}
-  if(!checkinAnswers.sleep){alert('כמה שעות ישנת?');return;}
+  if(checkinAnswers.sessions===null){alert('שאלה 1: כמה אימונים עשית?');return;}
+  if(!checkinAnswers.sleep){alert('שאלה 4: כמה שעות ישנת?');return;}
+  if(!checkinAnswers.energy){alert('שאלה 5: מה רמת האנרגיה?');return;}
+  if(!checkinAnswers.pain){alert('שאלה 6: כאב / אי נוחות?');return;}
+  // Validate RPE for each selected category
+  for(const cat of checkinAnswers.categories){
+    if(!checkinAnswers.rpe[cat]){alert(`שאלה 3: בחר עוצמה עבור ${CI_CAT_NAMES[cat]}`);return;}
+  }
 
   const entry={
     date:todayStr(),
     sessions:checkinAnswers.sessions,
-    difficulty:checkinAnswers.difficulty,
+    categories:[...checkinAnswers.categories],
+    rpe:{...checkinAnswers.rpe},
     sleep:checkinAnswers.sleep,
-    soreness:checkinAnswers.soreness||'none',
+    energy:checkinAnswers.energy,
+    pain:checkinAnswers.pain,
+    breakthrough:checkinAnswers.breakthrough,
     weight:parseFloat(document.getElementById('ci_weight').value)||state.profile.weight,
     note:document.getElementById('ci_note').value||'',
   };
-
-  // Update weight if provided
   if(entry.weight)state.profile.weight=entry.weight;
 
-  // ── Smart tier adjustment based on check-in data ──
   const TIER_ORDER=['beginner','intermediate','advanced'];
   function bumpTier(t,delta){const i=TIER_ORDER.indexOf(t||'beginner');return TIER_ORDER[Math.max(0,Math.min(2,i+delta))];}
 
   const tiers=state.profile.tiers||{};
-  const diff=checkinAnswers.difficulty;          // 1-10
-  const sore=checkinAnswers.soreness||'none';
   const sessionsRatio=(checkinAnswers.sessions||0)/(state.profile.daysPerWeek||3);
   const changes=[];
 
-  // Recovery week: heavy soreness or injury → reduce next week's volume
-  if(sore==='heavy'||sore==='injury'){
+  // Recovery detection: sharp pain, or (low energy + poor sleep + shoulder/back pain)
+  const painLevel=checkinAnswers.pain;
+  const energyLow=checkinAnswers.energy==='low';
+  const sleepBad=['5-','6'].includes(checkinAnswers.sleep);
+
+  if(painLevel==='sharp'){
     state.profile.recoveryWeek=true;
-    changes.push('🧊 שבוע ריקוברי — נפח מופחת ');
-    if(sore==='injury'){
-      alert('⚠️ דיווחת על כאב חד / פציעה. הייעץ לרופא לפני שממשיכים. לא לאמן עם כאב חד.');
-    }
+    alert('⚠️ דיווחת על כאב חד / פציעה. הייעץ לרופא לפני שממשיכים. אין לאמן עם כאב חד.');
+    changes.push('🛑 עצור — כאב חד. פנה לרופא לפני האימון הבא.');
+  } else if(painLevel==='back'||painLevel==='shoulder'){
+    state.profile.recoveryWeek=true;
+    changes.push(`🧊 שבוע ריקוברי — כאב ${painLevel==='back'?'גב':'כתף/מרפק'}. נפח מופחת.`);
+  } else if(energyLow&&sleepBad){
+    state.profile.recoveryWeek=true;
+    changes.push('🧊 שבוע ריקוברי — עייפות + שינה ירודה. גוף זקוק למנוחה.');
   } else {
     state.profile.recoveryWeek=false;
   }
 
-  // Only adjust tiers if the user actually trained (at least 50% of sessions)
-  if(sessionsRatio>=0.5){
-    if(diff<=3){
-      // קל מדי — מעלה את כל ה-tiers
-      ['push','pull','core','legs'].forEach(cat=>{
-        const before=tiers[cat];
-        tiers[cat]=bumpTier(tiers[cat],1);
-        if(tiers[cat]!==before)changes.push(`⬆️ ${cat}: ${before}→${tiers[cat]}`);
+  // Per-category tier adjustments (only if ≥50% sessions done and no sharp pain)
+  if(sessionsRatio>=0.5&&painLevel!=='sharp'){
+    const trained=[...checkinAnswers.categories];
+    if(trained.length>0){
+      trained.forEach(cat=>{
+        const rpe=checkinAnswers.rpe[cat];
+        const before=tiers[cat]||'beginner';
+        if(rpe==='easy'){
+          tiers[cat]=bumpTier(before,1);
+          changes.push(tiers[cat]!==before?`⬆️ ${CI_CAT_NAMES[cat]}: ${before} → ${tiers[cat]}`:`✅ ${CI_CAT_NAMES[cat]}: כבר ב-advanced`);
+        } else if(rpe==='heavy'){
+          tiers[cat]=bumpTier(before,-1);
+          changes.push(tiers[cat]!==before?`⬇️ ${CI_CAT_NAMES[cat]}: ${before} → ${tiers[cat]}`:`✅ ${CI_CAT_NAMES[cat]}: כבר ב-beginner`);
+        } else {
+          changes.push(`✅ ${CI_CAT_NAMES[cat]}: רמה מתאימה — ממשיך`);
+        }
       });
-    } else if(diff>=8){
-      // קשה מדי — מוריד tier אחד
-      ['push','pull','core'].forEach(cat=>{
-        const before=tiers[cat];
-        tiers[cat]=bumpTier(tiers[cat],-1);
-        if(tiers[cat]!==before)changes.push(`⬇️ ${cat}: ${before}→${tiers[cat]}`);
-      });
+      const notTrained=CI_ALL_CATS.filter(c=>!trained.includes(c));
+      if(notTrained.length>0)changes.push(`⏸ לא אומן: ${notTrained.map(c=>CI_CAT_NAMES[c]).join(' / ')} — רמה לא שונתה`);
     } else {
-      changes.push('✅ הרמה מתאימה — התוכנית ממשיכה');
+      changes.push('ℹ️ לא נבחרו קטגוריות — רמות לא שונו');
     }
-  } else {
-    changes.push('⚠️ פחות מ-50% מהאימונים בוצעו — רמה לא שונתה');
+  } else if(sessionsRatio<0.5){
+    changes.push('⚠️ פחות מ-50% מהאימונים בוצעו — רמות לא שונו');
+  }
+
+  // Breakthrough bonus XP
+  if(checkinAnswers.breakthrough==='yes'){
+    gainXP(50);
+    changes.push('🏆 +50 XP — פריצת דרך! מצוין!');
   }
 
   state.profile.tiers=tiers;
   state.weeklyCheckins=state.weeklyCheckins||[];
   state.weeklyCheckins.push(entry);
-
-  // Regenerate with updated tiers
   generateWeeklyPlan();
   save();
 
   document.getElementById('checkinBackdrop').classList.remove('show');
+  document.getElementById('checkinBackdrop').style.display='none';
 
-  // Show smart summary popup
   const summaryLines=changes.map(c=>`<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px">${c}</div>`).join('');
   const summaryHtml=`<div style="position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7)" onclick="this.remove();renderWorkout()">
-    <div style="background:#080e22;border:1px solid rgba(139,61,255,.5);border-radius:10px;padding:24px;max-width:340px;width:90%;direction:rtl" onclick="event.stopPropagation()">
+    <div style="background:#080e22;border:1px solid rgba(139,61,255,.5);border-radius:10px;padding:24px;max-width:360px;width:90%;direction:rtl" onclick="event.stopPropagation()">
       <div style="font-family:'Cinzel',serif;font-size:14px;letter-spacing:.15em;color:#c8a4ff;margin-bottom:4px">AI PLAN UPDATE</div>
       <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:16px">תוכנית האימון עודכנה לפי הדוח</div>
-      <div style="font-family:'Share Tech Mono',monospace;color:#eaf6ff;margin-bottom:16px">${summaryLines}</div>
+      <div style="font-family:'Share Tech Mono',monospace;color:#eaf6ff;margin-bottom:16px">${summaryLines||'<div style="font-size:12px">✅ תוכנית עודכנה</div>'}</div>
       <button onclick="this.closest('[style*=fixed]').remove();renderWorkout()" style="width:100%;background:var(--violet2);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:13px;padding:11px;border-radius:5px;cursor:pointer;letter-spacing:.08em">אוקי, בואו נאמן ›</button>
     </div>
   </div>`;
