@@ -1056,22 +1056,20 @@ async function rateLogin(){
   errEl.style.display='none';
   try{
     const hash=await _hashPass(pass);
-    // Use same doc ID format as TRAINING.html: btoa(email)
+    let u=null;
     const docRef=await _db.collection('users').doc(btoa(email)).get();
-    if(!docRef.exists){
-      // Fallback: try where query in case email was stored differently
-      const snap=await _db.collection('users').where('email','==',email).get();
-      if(snap.empty){errEl.textContent='Account not found. Please check your email.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
-      const ud=snap.docs[0].data();
-      if(ud.hash!==hash){errEl.textContent='Incorrect password.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
-      _rateUser=ud;
+    if(docRef.exists){
+      u=docRef.data();
     } else {
-      const userData=docRef.data();
-      if(userData.hash!==hash){errEl.textContent='Incorrect password.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
-      _rateUser=userData;
+      // Fallback: search by email field
+      const snap=await _db.collection('users').where('email','==',email).get();
+      if(!snap.empty) u=snap.docs[0].data();
     }
+    if(!u){errEl.textContent='Account not found. Please check your email.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
+    if(u.hash!==hash){errEl.textContent='Incorrect password.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
+    _rateUser=u;
     // Move to step 2
-    const firstName=userData.name||userData.first||email.split('@')[0];
+    const firstName=u.name||u.first||email.split('@')[0];
     document.getElementById('rateGreeting').textContent='היי '+firstName+',';
     document.getElementById('rateStep1').style.display='none';
     document.getElementById('rateStep2').style.display='block';

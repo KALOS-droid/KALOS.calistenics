@@ -1501,17 +1501,27 @@ async function submitLogin(){
   if(!email||!email.includes('@')){err('אימייל לא תקין');return;}
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
   const rl=checkRateLimit(email);if(rl){err(rl);return;}
-  const users=await getUsers();
-  const hash=await hashPass(pass);
-  const u=users.find(u=>u.email===email);
-  if(!u){err('אימייל לא נמצא — הרשם קודם');return;}
-  if(u.hash!==hash){err('סיסמא שגויה');return;}
-  u.lastActive=new Date().toISOString();
-  await saveUser(u);
-  currentUser={email,name:u.name};
-  sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
-  document.getElementById('authScreen').style.display='none';
-  startApp(email);
+  try{
+    const hash=await hashPass(pass);
+    // Direct lookup by btoa(email) — more reliable than fetching all users
+    let u=null;
+    const docRef=await _db.collection('users').doc(btoa(email)).get();
+    if(docRef.exists){
+      u=docRef.data();
+    } else {
+      // Fallback: search by email field (handles users saved with different doc ID)
+      const snap=await _db.collection('users').where('email','==',email).get();
+      if(!snap.empty) u=snap.docs[0].data();
+    }
+    if(!u){err('אימייל לא נמצא — הרשם קודם');return;}
+    if(u.hash!==hash){err('סיסמא שגויה');return;}
+    u.lastActive=new Date().toISOString();
+    await saveUser(u);
+    currentUser={email,name:u.name};
+    sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
+    document.getElementById('authScreen').style.display='none';
+    startApp(email);
+  }catch(e){err('שגיאת חיבור — נסה שוב ('+e.message+')');console.error('Login error:',e);}
 }
 
 function startApp(email){
