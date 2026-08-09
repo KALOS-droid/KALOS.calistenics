@@ -4857,7 +4857,6 @@ function showCheckinBanner(){
 
 function openCheckin(){
   const bd=document.getElementById('checkinBackdrop');
-  // Build session options (0 to planned days)
   const planned=state.profile.daysPerWeek||3;
   document.getElementById('ci_sessions').innerHTML=
     Array.from({length:planned+1},(_,i)=>`<div class="opt" onclick="setCI('sessions',${i},this)"><span class="dot"></span>${i}</div>`).join('');
@@ -4865,6 +4864,7 @@ function openCheckin(){
     [2,4,6,8,10].map(n=>`<div class="opt" onclick="setCI('difficulty',${n},this)"><span class="dot"></span>${n}</div>`).join('');
   document.getElementById('ci_sleep').innerHTML=
     ['5-','6','7','8','8+'].map((v,i)=>`<div class="opt" onclick="setCI('sleep','${v}',this)"><span class="dot"></span>${v} שעות</div>`).join('');
+  bd.style.display='';  // clear any inline display:none set by close button
   bd.classList.add('show');
 }
 
