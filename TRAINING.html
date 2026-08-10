@@ -2522,10 +2522,17 @@ function activateProDemo(){
   window.open('AI-COACH.html','_blank');
 }
 function grantProAdmin(){
-  // Called when admin activates subscription for a user manually
   const ONE_MONTH=30*24*60*60*1000;
   state.subscription={expiresAt:Date.now()+ONE_MONTH,autoRenew:false,activatedAt:Date.now(),grantedByAdmin:true};
   save();updateProTag();
+  // Also write subscription directly to Firestore training doc so it persists cross-device
+  const _cu=currentUser||(()=>{try{return JSON.parse(sessionStorage.getItem('kalos_session'));}catch(e){return null;}})();
+  if(_cu?.email){
+    try{
+      const docId=btoa(_cu.email).replace(/=/g,'');
+      _db.collection('training').doc(docId).set({subscription:state.subscription},{merge:true});
+    }catch(e){}
+  }
 }
 function updateProTag(){
   const tag=document.getElementById('proTag');
@@ -2550,12 +2557,23 @@ const quiz={level:null,answers:{}};
 
 /* ── Firestore full-state sync (debounced 5s) ── */
 let _fsSyncTimer=null;
+const _FS_WORKOUT_LOG_MAX=120; // keep last 120 workouts (~4 months)
+
+function _stateForFS(data){
+  // Exclude weeklyPlan (auto-regenerated) and trim workoutLog to avoid 1MB Firestore limit
+  const {weeklyPlan,...rest}=data;
+  if(rest.workoutLog&&rest.workoutLog.length>_FS_WORKOUT_LOG_MAX){
+    rest.workoutLog=rest.workoutLog.slice(-_FS_WORKOUT_LOG_MAX);
+  }
+  return rest;
+}
+
 function _pushStateToFS(email,data){
   clearTimeout(_fsSyncTimer);
   _fsSyncTimer=setTimeout(async()=>{
     try{
       const docId=btoa(email).replace(/=/g,'');
-      await _db.collection('training').doc(docId).set(data);
+      await _db.collection('training').doc(docId).set(_stateForFS(data));
     }catch(e){}
   },5000);
 }
@@ -2569,17 +2587,26 @@ async function _pullStateFromFS(email){
     if(!fs||!fs.onboarded)return;
     const localLevel=state.level||1;
     const fsLevel=fs.level||1;
-    const localDone=(state.done||[]).length;
-    const fsDone=(fs.done||[]).length;
-    // Only upgrade — never overwrite with older/lesser data
-    if(fsLevel>localLevel||(fsLevel===localLevel&&fsDone>localDone)){
-      const prevAdmin=state.admin;
-      state={...fs,admin:prevAdmin};
-      localStorage.setItem(window._TK,JSON.stringify(fs));
-      try{renderXP();}catch(e){}
-      try{switchTree(currentTree||'workout');}catch(e){}
-      try{renderWorkout();}catch(e){}
-    }
+    const localDone=new Set(state.done||[]);
+    const fsDone=new Set(fs.done||[]);
+    // Merge done arrays — never lose a completed skill from either side
+    const mergedDone=[...new Set([...localDone,...fsDone])];
+    const needsMerge=mergedDone.length>localDone.size;
+    const needsUpgrade=fsLevel>localLevel;
+    if(!needsUpgrade&&!needsMerge&&!(fs.subscription&&!state.subscription))return;
+    const prevAdmin=state.admin;
+    // Take the more advanced base state, then merge skills and subscription
+    const base=fsLevel>localLevel?fs:state;
+    state={...base,done:mergedDone,admin:prevAdmin};
+    // Restore subscription from Firestore if local doesn't have it
+    if(fs.subscription&&!state.subscription)state.subscription=fs.subscription;
+    // Preserve local weeklyPlan (don't overwrite with possibly stale cloud plan)
+    if(state._localWeeklyPlan)state.weeklyPlan=state._localWeeklyPlan;
+    localStorage.setItem(window._TK,JSON.stringify({...state,admin:undefined}));
+    try{renderXP();}catch(e){}
+    try{switchTree(currentTree||'workout');}catch(e){}
+    try{renderWorkout();}catch(e){}
+    try{updateProTag();}catch(e){}
   }catch(e){}
 }
 
