@@ -1543,10 +1543,20 @@ async function submitLogin(){
     }
     if(!u){err('אימייל לא נמצא — הרשם קודם');return;}
     if(u.hash!==hash){err('סיסמא שגויה');return;}
+    const _prevLastActive=u.lastActive; // save before overwriting
     u.lastActive=new Date().toISOString();
     await saveUser(u);
     currentUser={email,name:u.name};
     sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
+    // Tutorial visibility: hide if visited within 7 days, show as reminder if away longer
+    if(_prevLastActive){
+      const _daysSince=(Date.now()-new Date(_prevLastActive).getTime())/(1000*60*60*24);
+      if(_daysSince<7){
+        localStorage.setItem('kalos_tutorial_hide','1');
+      } else {
+        localStorage.removeItem('kalos_tutorial_hide'); // show reminder after 1+ week away
+      }
+    }
     // Firestore login = identity verified. Force onboarded:true so returning users
     // are never sent to the quiz (covers: empty localStorage, or onboarded:false from
     // incomplete first-time quiz, or different device/browser).
