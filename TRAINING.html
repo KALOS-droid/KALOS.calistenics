@@ -1547,11 +1547,22 @@ async function submitLogin(){
     await saveUser(u);
     currentUser={email,name:u.name};
     sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
-    // If no local training data exists, bootstrap onboarded state so returning users
-    // don't get sent to the quiz on a new device / after clearing browser cache
+    // Firestore login = identity verified. Force onboarded:true so returning users
+    // are never sent to the quiz (covers: empty localStorage, or onboarded:false from
+    // incomplete first-time quiz, or different device/browser).
     const _tk=userKey(email);
-    if(!localStorage.getItem(_tk)){
-      const _boot={done:[],xp:0,level:1,admin:false,onboarded:true,profile:{name:u.name,email,daysPerWeek:3},goals:[],weeklyCheckins:[]};
+    const _existing=JSON.parse(localStorage.getItem(_tk)||'null');
+    if(!_existing||!_existing.onboarded){
+      const _boot={
+        done:_existing?.done||[],
+        xp:_existing?.xp||0,
+        level:_existing?.level||1,
+        admin:false,
+        onboarded:true,
+        profile:_existing?.profile||{name:u.name,email,daysPerWeek:3},
+        goals:_existing?.goals||[],
+        weeklyCheckins:_existing?.weeklyCheckins||[],
+      };
       localStorage.setItem(_tk,JSON.stringify(_boot));
     }
     document.getElementById('authScreen').style.display='none';
