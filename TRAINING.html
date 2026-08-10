@@ -1547,6 +1547,13 @@ async function submitLogin(){
     await saveUser(u);
     currentUser={email,name:u.name};
     sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
+    // If no local training data exists, bootstrap onboarded state so returning users
+    // don't get sent to the quiz on a new device / after clearing browser cache
+    const _tk=userKey(email);
+    if(!localStorage.getItem(_tk)){
+      const _boot={done:[],xp:0,level:1,admin:false,onboarded:true,profile:{name:u.name,email,daysPerWeek:3},goals:[],weeklyCheckins:[]};
+      localStorage.setItem(_tk,JSON.stringify(_boot));
+    }
     document.getElementById('authScreen').style.display='none';
     startApp(email);
   }catch(e){err('שגיאת חיבור — נסה שוב ('+e.message+')');console.error('Login error:',e);}
