@@ -1604,6 +1604,8 @@ function startApp(email){
     setTimeout(()=>{checkPunishment();if(shouldShowCheckin()){openCheckin();setTimeout(showCheckinBanner,400);}check200DayPhoto();},600);
     setTimeout(maybeShowTutorial, 1400);
     setTimeout(maybeAskReview, 3000);
+    // Pull full training state from Firestore — upgrades local data if cloud has more progress
+    if(email&&!fromJarvis){setTimeout(()=>_pullStateFromFS(email),800);}
   }else{loadGlobalContent();runBoot();}
 }
 
@@ -2546,15 +2548,51 @@ function updateProTag(){
 }
 const quiz={level:null,answers:{}};
 
+/* ── Firestore full-state sync (debounced 5s) ── */
+let _fsSyncTimer=null;
+function _pushStateToFS(email,data){
+  clearTimeout(_fsSyncTimer);
+  _fsSyncTimer=setTimeout(async()=>{
+    try{
+      const docId=btoa(email).replace(/=/g,'');
+      await _db.collection('training').doc(docId).set(data);
+    }catch(e){}
+  },5000);
+}
+
+async function _pullStateFromFS(email){
+  try{
+    const docId=btoa(email).replace(/=/g,'');
+    const doc=await _db.collection('training').doc(docId).get();
+    if(!doc.exists)return;
+    const fs=doc.data();
+    if(!fs||!fs.onboarded)return;
+    const localLevel=state.level||1;
+    const fsLevel=fs.level||1;
+    const localDone=(state.done||[]).length;
+    const fsDone=(fs.done||[]).length;
+    // Only upgrade — never overwrite with older/lesser data
+    if(fsLevel>localLevel||(fsLevel===localLevel&&fsDone>localDone)){
+      const prevAdmin=state.admin;
+      state={...fs,admin:prevAdmin};
+      localStorage.setItem(window._TK,JSON.stringify(fs));
+      try{renderXP();}catch(e){}
+      try{switchTree(currentTree||'workout');}catch(e){}
+      try{renderWorkout();}catch(e){}
+    }
+  }catch(e){}
+}
+
 function save(){
   const {admin,...toSave}=state;
   localStorage.setItem(window._TK||'jarvis_training',JSON.stringify(toSave));
-  // sync level to Firebase — restore currentUser from sessionStorage if null
+  // sync level + full state to Firestore for cross-device persistence
   const _cu=currentUser||(()=>{try{return JSON.parse(sessionStorage.getItem('kalos_session'));}catch(e){return null;}})();
   if(_cu?.email){
     try{
       _db.collection('users').doc(btoa(_cu.email)).update({level:state.level,lastActive:new Date().toISOString()});
     }catch(e){}
+    _pushStateToFS(_cu.email,toSave);
   }
 }
 function saveContent(){
