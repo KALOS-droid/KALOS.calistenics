@@ -10,7 +10,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="M4Zr71JiRVRyGGAmF3R_Yd3HWjFUD3bneAk0-Up6S_I" />
-<meta name="description" content="KALOS - אפליקציית אימוני קליסטניקס מותאמת אישית. עקוב אחר ההתקדמות שלך, בצע תוכניות אימון מקצועיות ועלה ברמות." /><title>KALOS · CALISTHENICS</title>
+<meta name="description" content="KALOS - אפליקציית אימוני קליסטניקס מותאמת אישית. עקוב אחר ההתקדמות שלך, בצע תוכניות אימון מקצועיות ועלה ברמות." />
+<title>KALOS · CALISTHENICS</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -735,7 +736,7 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 <div id="app">
   <header>
     <div style="display:flex;align-items:center;gap:10px">
-      <div class="title"><svg width="26" height="29" viewBox="0 0 64 72" style="vertical-align:-5px;margin-left:8px"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>KALOS</div>
+      <div class="title" id="kalosLogo" style="cursor:default;user-select:none"><svg width="26" height="29" viewBox="0 0 64 72" style="vertical-align:-5px;margin-left:8px"><polygon points="32,4 60,20 60,52 32,68 4,52 4,20" fill="none" stroke="var(--cyan)" stroke-width="3"/><g stroke="var(--cyan)" stroke-width="6" stroke-linecap="round" fill="none"><line x1="25" y1="22" x2="25" y2="50"/><line x1="25" y1="36" x2="43" y2="22"/><line x1="25" y1="36" x2="43" y2="50"/></g></svg>KALOS</div>
       <button onclick="openStore()" style="background:linear-gradient(135deg,rgba(139,61,255,.35),rgba(0,168,255,.2));border:1px solid rgba(139,61,255,.7);color:#ddbfff;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:7px 16px;border-radius:5px;cursor:pointer;letter-spacing:.1em;box-shadow:0 0 14px rgba(139,61,255,.35);transition:all .2s" onmouseover="this.style.boxShadow='0 0 24px rgba(139,61,255,.6)'" onmouseout="this.style.boxShadow='0 0 14px rgba(139,61,255,.35)'">🛒 חנות KALOS</button>
       <button onclick="openAICoach()" id="aiCoachBtn" style="background:linear-gradient(135deg,rgba(0,255,213,.25),rgba(0,168,255,.15));border:1px solid rgba(0,255,213,.6);color:#00ffd5;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:700;padding:7px 16px;border-radius:5px;cursor:pointer;letter-spacing:.1em;box-shadow:0 0 14px rgba(0,255,213,.2);transition:all .2s" onmouseover="this.style.boxShadow='0 0 24px rgba(0,255,213,.5)'" onmouseout="this.style.boxShadow='0 0 14px rgba(0,255,213,.2)'">🤖 AI COACH <span id="proTag" style="font-size:9px;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;padding:2px 5px;border-radius:3px;margin-right:4px;letter-spacing:.05em">PRO</span></button>
     </div>
@@ -750,7 +751,6 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
       <button onclick="openProfile()" style="background:rgba(0,255,213,.08);border:1px solid rgba(0,255,213,.35);color:#00ffd5;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">👤 פרופיל</button>
       <button onclick="openCheckin()" style="background:rgba(0,168,255,.12);border:1px solid rgba(0,168,255,.5);color:#7dd3fc;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">📊 דוח שבועי</button>
       <button onclick="openReviewFromBtn()" style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.35);color:#ffd700;font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;letter-spacing:.08em">⭐ דרג</button>
-      <button class="admin-btn" id="adminBtn" onclick="openAdmin()">🔒 קוד</button>
     </div>
   </header>
 
@@ -904,10 +904,14 @@ header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-
 </div>
 
 <div class="backdrop" id="adminBackdrop" onclick="if(event.target===this)closeAdmin()">
-  <div class="modal"><div class="m-icon">🗝️</div><h2>קוד גישה</h2>
-    <div class="m-desc">הזן קוד מנהל כדי לפתוח את כל התרגילים.</div>
-    <div class="field"><input id="adminCode" type="text" inputmode="numeric" placeholder="• • • • • • • • •" onkeydown="if(event.key==='Enter')submitAdmin()"></div>
-    <div class="m-btns"><button class="mbtn" onclick="closeAdmin()">ביטול</button><button class="mbtn mbtn-go" onclick="submitAdmin()">אישור ›</button></div>
+  <div class="modal"><div class="m-icon">🗝️</div><h2>גישת מנהל</h2>
+    <div id="adminStep1"><div class="m-desc" id="adminStep1Msg">שולח קוד לאימייל...</div></div>
+    <div id="adminStep2" style="display:none">
+      <div class="m-desc">הזן את הקוד שנשלח לאימייל שלך.</div>
+      <div class="field"><input id="adminCode" type="text" inputmode="numeric" maxlength="6" placeholder="• • • • • •" onkeydown="if(event.key==='Enter')submitAdmin()"></div>
+      <div id="adminErr" style="font-size:11px;color:var(--danger);min-height:16px;text-align:center;margin-bottom:8px"></div>
+    </div>
+    <div class="m-btns"><button class="mbtn" onclick="closeAdmin()">ביטול</button><button class="mbtn mbtn-go" id="adminSubmitBtn" style="display:none" onclick="submitAdmin()">אישור ›</button></div>
   </div>
 </div>
 <div id="flash"><div class="t" id="flashText">LEVEL UP</div></div>
@@ -5611,8 +5615,6 @@ function unlockTreesForUser(){
 function renderXP(){
   document.getElementById('lvl').textContent=state.level;
   document.getElementById('xpFill').style.width=(state.xp/XP_PER_LEVEL*100)+'%';
-  document.getElementById('adminBtn').classList.toggle('on',state.admin);
-  document.getElementById('adminBtn').textContent=state.admin?'🗝️ קוד':'🔒 קוד';
   document.getElementById('libraryTab').style.display=state.admin?'':'none';
   const bl=document.querySelector('.back-link');if(bl)bl.classList.toggle('visible',!!state.admin);
   // role badge
@@ -5934,25 +5936,38 @@ function logout(){
   document.getElementById('authErr').textContent='';
 }
 
-function openAdmin(){document.getElementById('adminBackdrop').classList.add('show');setTimeout(()=>document.getElementById('adminCode').focus(),100);}
-function closeAdmin(){document.getElementById('adminBackdrop').classList.remove('show');}
-function submitAdmin(){const v=document.getElementById('adminCode').value.trim();
-  if(v==='121212'){
-    if(confirm('לאפס את כל התרגילים שהושלמו? הפרופיל והיסטוריית האימונים יישמרו.')){
-      state.done=[];state.xp=0;state.level=1;save();closeAdmin();flash('התרגילים אופסו ✓');render();
-    }else{closeAdmin();}
-  }
-  else if(v==='AJ@Ffd&@34'){state.admin=true;save();closeAdmin();flash('ACCESS GRANTED');switchTree(activeTree);}
-  else if(v==='987654321'){
-    state.admin=false;save();closeAdmin();flash('USER MODE');switchTree(activeTree);
-  }
-  else if(v==='121212'){
-    if(confirm('לאפס את כל ההתקדמות, הרמה, המטרות והסרטונים — ולהתחיל מחדש כמתחיל מאפס?\n(הפעולה לא הפיכה)')){
-      localStorage.removeItem('jarvis_training');
-      location.reload();
-    }else{closeAdmin();}
-  }
-  else{document.getElementById('adminCode').value='';document.getElementById('adminCode').placeholder='קוד שגוי';}}
+let _adminOTP=null,_adminOTPExpiry=0;
+async function openAdmin(){
+  const bd=document.getElementById('adminBackdrop');
+  bd.classList.add('show');
+  document.getElementById('adminStep1').style.display='block';
+  document.getElementById('adminStep2').style.display='none';
+  document.getElementById('adminSubmitBtn').style.display='none';
+  const msg=document.getElementById('adminStep1Msg');
+  msg.textContent='שולח קוד לאימייל...';
+  const code=String(Math.floor(100000+Math.random()*900000));
+  _adminOTP=code;
+  _adminOTPExpiry=Date.now()+10*60*1000;
+  try{
+    await emailjs.send(EJS_SERVICE,EJS_TEMPLATE,{to_email:OWNER_EMAIL,to_name:'Admin',otp_code:code,app_name:'KALOS'},EJS_KEY);
+    msg.textContent='קוד נשלח ✓';
+    setTimeout(()=>{
+      document.getElementById('adminStep1').style.display='none';
+      document.getElementById('adminStep2').style.display='block';
+      document.getElementById('adminSubmitBtn').style.display='inline-block';
+      document.getElementById('adminCode').focus();
+    },900);
+  }catch(e){msg.textContent='שגיאה בשליחה — נסה שוב';}
+}
+function closeAdmin(){document.getElementById('adminBackdrop').classList.remove('show');_adminOTP=null;}
+function submitAdmin(){
+  const v=document.getElementById('adminCode').value.trim();
+  const errEl=document.getElementById('adminErr');
+  if(!_adminOTP){closeAdmin();return;}
+  if(Date.now()>_adminOTPExpiry){errEl.textContent='הקוד פג תוקף — נסה שוב';return;}
+  if(v!==_adminOTP){errEl.textContent='קוד שגוי — נסה שוב';document.getElementById('adminCode').value='';return;}
+  state.admin=true;save();closeAdmin();flash('ACCESS GRANTED');switchTree(activeTree);
+}
 
 
 
@@ -6307,6 +6322,20 @@ async function analyzeProofVideo(nodeId, file){
     }
   }
 }
+</script>
+<script>
+(function(){
+  const logo=document.getElementById('kalosLogo');
+  if(!logo)return;
+  let t;
+  const start=()=>{t=setTimeout(openAdmin,5000)};
+  const stop=()=>clearTimeout(t);
+  logo.addEventListener('mousedown',start);
+  logo.addEventListener('mouseup',stop);
+  logo.addEventListener('mouseleave',stop);
+  logo.addEventListener('touchstart',start,{passive:true});
+  logo.addEventListener('touchend',stop);
+})();
 </script>
 </body>
 </html>
