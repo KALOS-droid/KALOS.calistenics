@@ -25,11 +25,17 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Public reviews — anyone can submit (always starts unapproved),
+    // Public reviews — any signed-in user can submit (always starts unapproved,
+    // fields type/size-checked so a crafted request can't smuggle junk in);
     // only approved reviews (or admin) can read; only admin can moderate
     match /reviews/{doc} {
       allow read: if resource.data.approved == true || isAdmin();
-      allow create: if request.resource.data.approved == false;
+      allow create: if request.auth != null
+        && request.resource.data.approved == false
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.text is string && request.resource.data.text.size() < 2000
+        && request.resource.data.name is string && request.resource.data.name.size() < 200;
       allow update, delete: if isAdmin();
     }
 

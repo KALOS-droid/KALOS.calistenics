@@ -22,6 +22,7 @@ const _fbConfig={apiKey:"AIzaSyDVSuWYTq7ZREIA2ldlaXAsJqiByyKQE5w",authDomain:"ka
 firebase.initializeApp(_fbConfig);
 const _db=firebase.firestore();
 const _auth=firebase.auth();
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -985,9 +986,9 @@ function loadReviews(){
       if(!d.text||!d.text.trim())return; // skip empty text
       cards.push({
         stars:'★★★★★',
-        text:d.text.trim(),
-        author:d.name||'Anonymous member',
-        days:d.daysActive?d.daysActive+' days active':''
+        text:esc(d.text.trim()),
+        author:esc(d.name||'Anonymous member'),
+        days:d.daysActive?esc(d.daysActive)+' days active':''
       });
     });
     if(cards.length===0){track.innerHTML='';track.style.animation='none';return;}
@@ -1034,9 +1035,9 @@ async function showPublicAllReviews(){
       div.innerHTML=`
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <span style="color:var(--gold);font-size:14px">${stars}</span>
-          <span style="font-size:12px;color:var(--text3)">${d.name||'Anonymous'}${d.daysActive?' · '+d.daysActive+' days active':''}</span>
+          <span style="font-size:12px;color:var(--text3)">${esc(d.name||'Anonymous')}${d.daysActive?' · '+esc(d.daysActive)+' days active':''}</span>
         </div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.7">"${d.text||''}"</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">"${esc(d.text||'')}"</div>
       `;
       list.appendChild(div);
     });
@@ -1158,13 +1159,13 @@ async function showAllReviews(){
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div style="display:flex;align-items:center;gap:10px">
             <span style="color:var(--gold);font-size:13px">${stars}</span>
-            <span style="font-size:12px;color:var(--text3)">${d.name||'Anonymous'} · ${d.daysActive||'?'} days</span>
+            <span style="font-size:12px;color:var(--text3)">${esc(d.name||'Anonymous')} · ${esc(d.daysActive||'?')} days</span>
           </div>
           <button onclick="toggleReviewApproval('${doc.id}',${!approved},this)" style="font-size:11px;font-family:'Inter',sans-serif;font-weight:600;padding:5px 12px;border-radius:6px;cursor:pointer;${approved?'background:rgba(255,51,85,.1);border:1px solid rgba(255,51,85,.25);color:#ff8099':'background:rgba(0,255,130,.08);border:1px solid rgba(0,255,130,.25);color:#00cc6a'}">
             ${approved?'Remove':'Publish'}
           </button>
         </div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.7">"${d.text}"</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">"${esc(d.text)}"</div>
         <div style="font-size:10px;color:var(--text3);margin-top:8px">${new Date(d.createdAt?.toDate?.()??d.createdAt).toLocaleDateString('en-US')} · ${approved?'<span style="color:#00cc6a">Published</span>':'<span style="color:var(--text3)">Pending</span>'}</div>
       `;
       list.appendChild(div);
