@@ -1608,7 +1608,7 @@ function startApp(email){
     document.getElementById('pName').textContent='PLAYER · '+(currentUser?.name||state.profile.first||'שחקן');
     switchTree('workout');
     if(fromJarvis){setTimeout(()=>renderXP(),100);}
-    loadGlobalContent().then(()=>switchTree(currentTree||'workout'));
+    loadGlobalContent().then(()=>switchTree(activeTree||'workout'));
     setTimeout(()=>{checkPunishment();if(shouldShowCheckin()){openCheckin();setTimeout(showCheckinBanner,400);}check200DayPhoto();},600);
     setTimeout(maybeShowTutorial, 1400);
     setTimeout(maybeAskReview, 3000);
@@ -2609,7 +2609,7 @@ async function _pullStateFromFS(uid){
     if(state._localWeeklyPlan)state.weeklyPlan=state._localWeeklyPlan;
     localStorage.setItem(window._TK,JSON.stringify({...state,admin:undefined}));
     try{renderXP();}catch(e){}
-    try{switchTree(currentTree||'workout');}catch(e){}
+    try{switchTree(activeTree||'workout');}catch(e){}
     try{renderWorkout();}catch(e){}
     try{updateProTag();}catch(e){}
   }catch(e){}
