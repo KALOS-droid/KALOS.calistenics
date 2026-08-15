@@ -5,24 +5,41 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && request.auth.token.email == 'eladgo55@gmail.com';
     }
-
-    match /users/{userId} {
-      allow read, write: if true;
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
     }
 
-    // Anyone can submit a review (create only); only admin can update/delete
-    match /reviews/{doc} {
+    // Each user's profile — only that signed-in user can read/write it
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Each user's training progress — same, owner-only
+    match /training/{uid} {
+      allow read, write: if isOwner(uid);
+    }
+
+    // Shared exercise videos/notes — public read, admin-only write
+    match /content/{doc} {
       allow read: if true;
-      allow create: if true;
+      allow write: if isAdmin();
+    }
+
+    // Public reviews — anyone can submit (always starts unapproved),
+    // only approved reviews (or admin) can read; only admin can moderate
+    match /reviews/{doc} {
+      allow read: if resource.data.approved == true || isAdmin();
+      allow create: if request.resource.data.approved == false;
       allow update, delete: if isAdmin();
     }
 
-    // Anyone can submit low-star feedback (create only); only admin can read/manage
+    // Low-star private feedback — anyone can submit, only admin can read/manage
     match /feedback/{doc} {
       allow create: if true;
       allow read, update, delete: if isAdmin();
     }
 
+    // Landing page config (photo/video) — public read, admin-only write
     match /landing/{doc} {
       allow read: if true;
       allow write: if isAdmin();

@@ -1320,20 +1320,18 @@ async function forgotSendOTP(){
   const email=document.getElementById('forgotEmail').value.trim().toLowerCase();
   const errEl=document.getElementById('forgotS1Err');
   errEl.style.display='none';
+  errEl.style.color='';
   if(!email||!email.includes('@')){errEl.textContent='אימייל לא תקין';errEl.style.display='block';return;}
-  const users=await getUsers();
-  const u=users.find(x=>x.email===email);
-  if(!u){errEl.textContent='אימייל לא נמצא במערכת';errEl.style.display='block';return;}
-  _forgotUser=u;
-  _otpCode=genOTP();
-  _otpExpiry=Date.now()+10*60*1000;
-  const ok=await sendOTPEmail(email,u.name||'שחקן',_otpCode);
-  if(!ok){errEl.textContent='שגיאה בשליחת המייל — נסה שוב';errEl.style.display='block';return;}
-  document.getElementById('forgotEmailHint').textContent=email;
-  document.getElementById('forgotS1').style.display='none';
-  document.getElementById('forgotS2').style.display='block';
-  document.getElementById('forgotOTP').value='';
-  document.getElementById('forgotS2Err').style.display='none';
+  try{
+    await firebase.auth().sendPasswordResetEmail(email);
+  }catch(e){
+    errEl.textContent=e.code==='auth/user-not-found'?'אימייל לא נמצא במערכת':'שגיאה בשליחת המייל — נסה שוב';
+    errEl.style.display='block';
+    return;
+  }
+  errEl.style.color='var(--success)';
+  errEl.textContent='✅ נשלח קישור לאיפוס סיסמא ל-'+email+'. לחץ עליו, קבע סיסמא חדשה, ואז חזור לכאן והתחבר.';
+  errEl.style.display='block';
 }
 function forgotVerifyOTP(){
   const code=document.getElementById('forgotOTP').value.trim();
@@ -1429,9 +1427,10 @@ async function initiateRegistration(){
   if(!phoneRaw){err('הכנס מספר טלפון');return;}
   const phone=normalizePhone(phoneRaw);
   if(!/^\+\d{10,14}$/.test(phone)){err('מספר טלפון לא תקין (לדוגמה: 050-1234567)');return;}
-  const users=await getUsers();
-  if(users.find(u=>u.email===email)){err('אימייל כבר רשום — נסה להתחבר');return;}
-  if(users.find(u=>u.phone&&normalizePhone(u.phone)===phone)){err('מספר הטלפון כבר רשום במערכת');return;}
+  try{
+    const methods=await firebase.auth().fetchSignInMethodsForEmail(email);
+    if(methods.length>0){err('אימייל כבר רשום — נסה להתחבר');return;}
+  }catch(e){err('שגיאת חיבור — נסה שוב');return;}
   // Save pending + show choice modal
   _pendingReg={email,name,pass,phone};
   document.getElementById('verifyEmailHint').textContent=email;
@@ -1497,12 +1496,18 @@ async function verifyAndRegister(){
   clearInterval(_otpTimerInt);
   btn.textContent='נרשם...';
   const {email,name,pass,phone}=_pendingReg;
-  const hash=await hashPass(pass);
-  const newUser={email,name,hash,phone:phone||'',verified:true,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
-  await saveUser(newUser);
+  let cred;
+  try{
+    cred=await firebase.auth().createUserWithEmailAndPassword(email,pass);
+  }catch(e){
+    err(e.code==='auth/email-already-in-use'?'אימייל כבר רשום — נסה להתחבר':'שגיאה ביצירת חשבון — נסה שוב');
+    btn.textContent='✓ אמת וצור חשבון';btn.disabled=false;return;
+  }
+  const newUser={email,name,phone:phone||'',verified:true,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
+  await _db.collection('users').doc(cred.user.uid).set(newUser);
   localStorage.removeItem(userKey(email));
   localStorage.removeItem(contentKey(email));
-  currentUser={email,name};
+  currentUser={email,name,uid:cred.user.uid};
   sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
   document.getElementById('authScreen').style.display='none';
   startApp(email);
@@ -1535,23 +1540,21 @@ async function submitLogin(){
   if(pass.length<6){err('סיסמא חייבת להיות לפחות 6 תווים');return;}
   const rl=checkRateLimit(email);if(rl){err(rl);return;}
   try{
-    const hash=await hashPass(pass);
-    // Direct lookup by btoa(email) — more reliable than fetching all users
-    let u=null;
-    const docRef=await _db.collection('users').doc(btoa(email)).get();
-    if(docRef.exists){
-      u=docRef.data();
-    } else {
-      // Fallback: search by email field (handles users saved with different doc ID)
-      const snap=await _db.collection('users').where('email','==',email).get();
-      if(!snap.empty) u=snap.docs[0].data();
+    let cred;
+    try{
+      cred=await firebase.auth().signInWithEmailAndPassword(email,pass);
+    }catch(e){
+      const msgs={'auth/user-not-found':'אימייל לא נמצא — הרשם קודם','auth/wrong-password':'סיסמא שגויה','auth/invalid-credential':'אימייל או סיסמא שגויים','auth/too-many-requests':'יותר מדי ניסיונות — נסה שוב מאוחר יותר','auth/invalid-email':'אימייל לא תקין'};
+      err(msgs[e.code]||('שגיאת חיבור — נסה שוב ('+e.message+')'));
+      return;
     }
-    if(!u){err('אימייל לא נמצא — הרשם קודם');return;}
-    if(u.hash!==hash){err('סיסמא שגויה');return;}
+    const uid=cred.user.uid;
+    const docRef=await _db.collection('users').doc(uid).get();
+    const u=docRef.exists?docRef.data():{name:email.split('@')[0],email};
     const _prevLastActive=u.lastActive; // save before overwriting
     u.lastActive=new Date().toISOString();
-    await saveUser(u);
-    currentUser={email,name:u.name};
+    await _db.collection('users').doc(uid).set(u,{merge:true});
+    currentUser={email,name:u.name,uid};
     sessionStorage.setItem('kalos_session',JSON.stringify(currentUser));
     // Tutorial visibility: hide if visited within 7 days, show as reminder if away longer
     if(_prevLastActive){
@@ -1610,7 +1613,7 @@ function startApp(email){
     setTimeout(maybeShowTutorial, 1400);
     setTimeout(maybeAskReview, 3000);
     // Pull full training state from Firestore — upgrades local data if cloud has more progress
-    if(email&&!fromJarvis){setTimeout(()=>_pullStateFromFS(email),800);}
+    if(currentUser?.uid&&!fromJarvis){setTimeout(()=>_pullStateFromFS(currentUser.uid),800);}
   }else{loadGlobalContent();runBoot();}
 }
 
@@ -2532,10 +2535,9 @@ function grantProAdmin(){
   save();updateProTag();
   // Also write subscription directly to Firestore training doc so it persists cross-device
   const _cu=currentUser||(()=>{try{return JSON.parse(sessionStorage.getItem('kalos_session'));}catch(e){return null;}})();
-  if(_cu?.email){
+  if(_cu?.uid){
     try{
-      const docId=btoa(_cu.email).replace(/=/g,'');
-      _db.collection('training').doc(docId).set({subscription:state.subscription},{merge:true});
+      _db.collection('training').doc(_cu.uid).set({subscription:state.subscription},{merge:true});
     }catch(e){}
   }
 }
@@ -2573,20 +2575,18 @@ function _stateForFS(data){
   return rest;
 }
 
-function _pushStateToFS(email,data){
+function _pushStateToFS(uid,data){
   clearTimeout(_fsSyncTimer);
   _fsSyncTimer=setTimeout(async()=>{
     try{
-      const docId=btoa(email).replace(/=/g,'');
-      await _db.collection('training').doc(docId).set(_stateForFS(data));
+      await _db.collection('training').doc(uid).set(_stateForFS(data));
     }catch(e){}
   },5000);
 }
 
-async function _pullStateFromFS(email){
+async function _pullStateFromFS(uid){
   try{
-    const docId=btoa(email).replace(/=/g,'');
-    const doc=await _db.collection('training').doc(docId).get();
+    const doc=await _db.collection('training').doc(uid).get();
     if(!doc.exists)return;
     const fs=doc.data();
     if(!fs||!fs.onboarded)return;
@@ -2620,11 +2620,11 @@ function save(){
   localStorage.setItem(window._TK||'jarvis_training',JSON.stringify(toSave));
   // sync level + full state to Firestore for cross-device persistence
   const _cu=currentUser||(()=>{try{return JSON.parse(sessionStorage.getItem('kalos_session'));}catch(e){return null;}})();
-  if(_cu?.email){
+  if(_cu?.uid){
     try{
-      _db.collection('users').doc(btoa(_cu.email)).update({level:state.level,lastActive:new Date().toISOString()});
+      _db.collection('users').doc(_cu.uid).set({level:state.level,lastActive:new Date().toISOString()},{merge:true});
     }catch(e){}
-    _pushStateToFS(_cu.email,toSave);
+    _pushStateToFS(_cu.uid,toSave);
   }
 }
 function saveContent(){

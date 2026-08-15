@@ -21,6 +21,7 @@
 const _fbConfig={apiKey:"AIzaSyDVSuWYTq7ZREIA2ldlaXAsJqiByyKQE5w",authDomain:"kalos-db.firebaseapp.com",projectId:"kalos-db",storageBucket:"kalos-db.firebasestorage.app",messagingSenderId:"280774484505",appId:"1:280774484505:web:a693fb4466b6fc75e0c088"};
 firebase.initializeApp(_fbConfig);
 const _db=firebase.firestore();
+const _auth=firebase.auth();
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1073,18 +1074,16 @@ async function rateLogin(){
   btn.textContent='Checking...';btn.disabled=true;
   errEl.style.display='none';
   try{
-    const hash=await _hashPass(pass);
-    let u=null;
-    const docRef=await _db.collection('users').doc(btoa(email)).get();
-    if(docRef.exists){
-      u=docRef.data();
-    } else {
-      // Fallback: search by email field
-      const snap=await _db.collection('users').where('email','==',email).get();
-      if(!snap.empty) u=snap.docs[0].data();
+    let cred;
+    try{
+      cred=await _auth.signInWithEmailAndPassword(email,pass);
+    }catch(e){
+      const msgs={'auth/user-not-found':'Account not found. Please check your email.','auth/wrong-password':'Incorrect password.','auth/invalid-credential':'Incorrect email or password.','auth/too-many-requests':'Too many attempts — try again later.'};
+      errEl.textContent=msgs[e.code]||'Connection error — please try again.';
+      errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;
     }
-    if(!u){errEl.textContent='Account not found. Please check your email.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
-    if(u.hash!==hash){errEl.textContent='Incorrect password.';errEl.style.display='block';btn.textContent='Continue →';btn.disabled=false;return;}
+    const docRef=await _db.collection('users').doc(cred.user.uid).get();
+    const u=docRef.exists?docRef.data():{email,name:email.split('@')[0]};
     _rateUser=u;
     // Move to step 2
     const firstName=u.name||u.first||email.split('@')[0];
