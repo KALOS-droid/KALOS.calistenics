@@ -9,9 +9,21 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
-    // Each user's profile — only that signed-in user can read/write it
+    // Each user's profile — that user can read/write their own; admin can read
+    // all of them (needed for the JARVIS "KALOS Users" panel) but not write others'
     match /users/{uid} {
-      allow read, write: if isOwner(uid);
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
+    }
+
+    // Public registered-user counter for the landing page — nobody can read raw
+    // user data from it, just a number; write is restricted to +1 increments only
+    match /stats/{doc} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.users == 1;
+      allow update: if request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['users'])
+        && request.resource.data.users == resource.data.users + 1;
     }
 
     // Each user's training progress — same, owner-only

@@ -890,9 +890,10 @@ function animateCount(el, from, to){
 }
 function loadUserCount(){
   const el=document.getElementById('userCountHero');
-  // Real-time listener — updates instantly when new user registers
-  _db.collection('users').onSnapshot(snap=>{
-    const count=snap.size;
+  // Real-time listener on a public counter doc (not the users collection itself —
+  // that's owner/admin-only now) — updates instantly when new user registers
+  _db.collection('stats').doc('counters').onSnapshot(doc=>{
+    const count=doc.exists?(doc.data().users||0):0;
     const prev=parseInt(el.textContent)||0;
     animateCount(el,prev,count);
   },()=>{el.textContent='?';});
@@ -1046,11 +1047,6 @@ async function showPublicAllReviews(){
 
 /* ─── RATE MODAL ─── */
 let _rateStar=0, _rateUser=null;
-
-async function _hashPass(p){
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
 
 function openRateModal(){
   _rateStar=0; _rateUser=null;

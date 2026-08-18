@@ -1519,6 +1519,7 @@ async function verifyAndRegister(){
   }
   const newUser={email,name,phone:phone||'',verified:true,joined:new Date().toISOString(),level:1,lastActive:new Date().toISOString()};
   await _db.collection('users').doc(cred.user.uid).set(newUser);
+  _db.collection('stats').doc('counters').set({users:firebase.firestore.FieldValue.increment(1)},{merge:true}).catch(()=>{});
   localStorage.removeItem(userKey(email));
   localStorage.removeItem(contentKey(email));
   currentUser={email,name,uid:cred.user.uid};
